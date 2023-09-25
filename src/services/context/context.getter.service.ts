@@ -25,31 +25,4 @@ export class ContextGetterService extends GenericGetterService {
             Constants.oneMinute(),
         );
     }
-
-    async getBlocksCountInEpoch(
-        epoch: number,
-        shardId: number,
-    ): Promise<number> {
-        const cacheKey = this.getCacheKey('blocksCountInEpoch', shardId, epoch);
-        let ttl = Constants.oneMonth();
-        const currentEpoch = await this.getCurrentEpoch();
-        if (currentEpoch === epoch) {
-            ttl = Constants.oneMinute();
-        }
-        return await this.getData(
-            cacheKey,
-            async () =>
-                await this.apiService.getShardBlockCountInEpoch(epoch, shardId),
-            ttl,
-        );
-    }
-
-    async getShardCurrentBlockNonce(shardID: number): Promise<number> {
-        const cacheKey = this.getCacheKey('shardBlockNonce', shardID);
-        return await this.getData(
-            cacheKey,
-            () => this.apiService.getCurrentBlockNonce(shardID),
-            Constants.oneMinute(),
-        );
-    }
 }

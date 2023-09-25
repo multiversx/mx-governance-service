@@ -1,6 +1,5 @@
 import { EnergyType } from '@multiversx/sdk-exchange';
 import BigNumber from 'bignumber.js';
-import { LockOption } from '../models/simple.lock.energy.model';
 import { IEnergyAbiService } from '../services/interfaces';
 import { EnergyAbiService } from '../services/energy.abi.service';
 
@@ -12,9 +11,6 @@ export class EnergyAbiServiceMock implements IEnergyAbiService {
         return 'ELKMEX-123456';
     }
     async legacyLockedTokenID(): Promise<string> {
-        throw new Error('Method not implemented.');
-    }
-    async lockOptions(): Promise<LockOption[]> {
         throw new Error('Method not implemented.');
     }
     async tokenUnstakeScAddress(): Promise<string> {
