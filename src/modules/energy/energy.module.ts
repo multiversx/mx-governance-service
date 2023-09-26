@@ -3,12 +3,10 @@ import { CommonAppModule } from 'src/common.app.module';
 import { ContextModule } from 'src/services/context/context.module';
 import { MXCommunicationModule } from 'src/services/multiversx-communication/mx.communication.module';
 import { TokenModule } from '../tokens/token.module';
-import { EnergyResolver } from './energy.resolver';
 import { EnergyAbiService } from './services/energy.abi.service';
 import { EnergyComputeService } from './services/energy.compute.service';
 import { EnergyService } from './services/energy.service';
 import { EnergySetterService } from './services/energy.setter.service';
-import { EnergyTransactionService } from './services/energy.transaction.service';
 
 @Module({
     imports: [
@@ -22,8 +20,6 @@ import { EnergyTransactionService } from './services/energy.transaction.service'
         EnergyAbiService,
         EnergySetterService,
         EnergyComputeService,
-        EnergyTransactionService,
-        EnergyResolver,
     ],
     exports: [
         EnergyAbiService,

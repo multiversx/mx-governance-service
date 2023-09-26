@@ -1,11 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { EsdtToken } from '../models/esdtToken.model';
-import { TokensFiltersArgs } from '../models/tokens.filter.args';
-import { PairAbiService } from 'src/modules/pair/services/pair.abi.service';
-import { RouterAbiService } from 'src/modules/router/services/router.abi.service';
-import { TokenRepositoryService } from './token.repository.service';
-import { ErrorLoggerAsync } from '@multiversx/sdk-nestjs-common';
-import { GetOrSetCache } from 'src/helpers/decorators/caching.decorator';
 import { CacheTtlInfo } from 'src/services/caching/cache.ttl.info';
 import { NftCollection } from '../models/nftCollection.model';
 import { MXApiService } from 'src/services/multiversx-communication/mx.api.service';
@@ -14,47 +8,9 @@ import { CacheService } from '@multiversx/sdk-nestjs-cache';
 @Injectable()
 export class TokenService {
     constructor(
-        private readonly tokenRepository: TokenRepositoryService,
-        private readonly pairAbi: PairAbiService,
-        private readonly routerAbi: RouterAbiService,
         private readonly apiService: MXApiService,
         protected readonly cachingService: CacheService,
     ) {}
-
-    async getTokens(filters: TokensFiltersArgs): Promise<EsdtToken[]> {
-        let tokenIDs = await this.getUniqueTokenIDs(filters.enabledSwaps);
-        if (filters.identifiers && filters.identifiers.length > 0) {
-            tokenIDs = tokenIDs.filter((tokenID) =>
-                filters.identifiers.includes(tokenID),
-            );
-        }
-
-        const promises = tokenIDs.map((tokenID) =>
-            this.getTokenMetadata(tokenID),
-        );
-        let tokens = await Promise.all(promises);
-
-        if (filters.type) {
-            for (const token of tokens) {
-                token.type = await this.getEsdtTokenType(token.identifier);
-            }
-            tokens = tokens.filter((token) => token.type === filters.type);
-        }
-
-        return tokens;
-    }
-
-    @ErrorLoggerAsync({
-        logArgs: true,
-    })
-    @GetOrSetCache({
-        baseKey: 'token',
-        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl,
-    })
-    async getEsdtTokenType(tokenID: string): Promise<string> {
-        return await this.tokenRepository.getTokenType(tokenID);
-    }
 
     async getTokenMetadata(tokenID: string): Promise<EsdtToken> {
         if (tokenID === undefined) {
@@ -120,24 +76,5 @@ export class TokenService {
         }
 
         return undefined;
-    }
-
-    async getUniqueTokenIDs(activePool: boolean): Promise<string[]> {
-        const pairsMetadata = await this.routerAbi.pairsMetadata();
-        const tokenIDs: string[] = [];
-        await Promise.all(
-            pairsMetadata.map(async (iterator) => {
-                if (activePool) {
-                    const state = await this.pairAbi.state(iterator.address);
-                    if (state !== 'Active') {
-                        return;
-                    }
-                }
-                tokenIDs.push(
-                    ...[iterator.firstTokenID, iterator.secondTokenID],
-                );
-            }),
-        );
-        return [...new Set(tokenIDs)];
     }
 }
