@@ -13,6 +13,14 @@ export class ApiConfigService {
         return port;
     }
 
+    getPrefix(): string {
+        const port = this.configService.get<string>('PREFIX');
+        if (!port) {
+            throw new Error('No prefix present');
+        }
+        return port;
+    }
+
     getPublicAppListenAddress(): string {
         const listenAddress = this.configService.get<string>('LISTEN_ADDRESS');
         if (!listenAddress) {
