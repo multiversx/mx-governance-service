@@ -9,7 +9,7 @@ import { PUB_SUB } from 'src/services/redis.pubSub.module';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { CacheKeysArgs } from './args/cacheKeys.args';
 import { CacheService } from '@multiversx/sdk-nestjs-cache';
-import { JwtOrNativeAdminGuard } from '../auth/jwt.or.native.admin.guard';
+import { NativeAdminGuard } from '../auth/native.admin.guard';
 
 @Controller('remote-config')
 export class RemoteConfigController {
@@ -20,7 +20,7 @@ export class RemoteConfigController {
         @Inject(PUB_SUB) private pubSub: RedisPubSub,
     ) {}
 
-    @UseGuards(JwtOrNativeAdminGuard)
+    @UseGuards(NativeAdminGuard)
     @Post('/flags')
     async addRemoteConfigFlag(
         @Body() flag: FlagArgs,
@@ -46,7 +46,7 @@ export class RemoteConfigController {
         }
     }
 
-    @UseGuards(JwtOrNativeAdminGuard)
+    @UseGuards(NativeAdminGuard)
     @Put('/flags')
     async updateRemoteConfigFlag(
         @Body() flag: FlagArgs,
@@ -81,13 +81,13 @@ export class RemoteConfigController {
         }
     }
 
-    @UseGuards(JwtOrNativeAdminGuard)
+    @UseGuards(NativeAdminGuard)
     @Get('/flags')
     async getRemoteConfigFlags(): Promise<FlagModel[]> {
         return await this.flagRepositoryService.find({});
     }
 
-    @UseGuards(JwtOrNativeAdminGuard)
+    @UseGuards(NativeAdminGuard)
     @Get('/flags/:nameOrID')
     async getRemoteConfigFlag(
         @Param('nameOrID') nameOrID: string,
@@ -105,7 +105,7 @@ export class RemoteConfigController {
             });
     }
 
-    @UseGuards(JwtOrNativeAdminGuard)
+    @UseGuards(NativeAdminGuard)
     @Delete('/flags/:nameOrID')
     async deleteRemoteConfigFlag(
         @Param('nameOrID') nameOrID: string,
@@ -124,7 +124,7 @@ export class RemoteConfigController {
         return false;
     }
 
-    @UseGuards(JwtOrNativeAdminGuard)
+    @UseGuards(NativeAdminGuard)
     @Post('/cache/delete-keys')
     async deleteCacheKeys(
         @Body() cacheKeys: CacheKeysArgs,

@@ -1,11 +1,11 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
-import { JwtOrNativeAuthGuard } from '../../auth/jwt.or.native.auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { TransactionModel } from '../../../models/transaction.model';
 import { VoteArgs } from '../models/governance.proposal.model';
 import { UserAuthResult } from '../../auth/user.auth.result';
 import { AuthUser } from '../../auth/auth.user';
 import { GovernanceAbiFactory } from '../services/governance.abi.factory';
+import { NativeAuthGuard } from '../../auth/native.auth.guard';
 
 @Resolver()
 export class GovernanceTransactionService {
@@ -14,7 +14,7 @@ export class GovernanceTransactionService {
     ) {
     }
 
-    @UseGuards(JwtOrNativeAuthGuard)
+    @UseGuards(NativeAuthGuard)
     @Query(() => TransactionModel)
     async vote(
         @Args() args: VoteArgs,

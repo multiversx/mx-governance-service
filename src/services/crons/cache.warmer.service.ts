@@ -1,35 +1,25 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { CacheService } from '@multiversx/sdk-nestjs-cache';
 import { generateCacheKeyFromParams } from 'src/utils/generate-cache-key';
 import { MXApiService } from '../multiversx-communication/mx.api.service';
 import { PUB_SUB } from '../redis.pubSub.module';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
-import { Constants } from '@multiversx/sdk-nestjs-common';
+import { Constants, Locker } from '@multiversx/sdk-nestjs-common';
 import axios from 'axios';
 import moment from 'moment';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { MetricsCollector } from 'src/utils/metrics.collector';
 import { PerformanceProfiler } from 'src/utils/performance.profiler';
-import { MXDataApiService } from '../multiversx-communication/mx.data.api.service';
-import { Locker } from '@multiversx/sdk-nestjs-common';
 
 @Injectable()
 export class CacheWarmerService {
     constructor(
         private readonly apiService: MXApiService,
         private readonly cachingService: CacheService,
-        private readonly dataApi: MXDataApiService,
         @Inject(PUB_SUB) private pubSub: RedisPubSub,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     ) {}
-
-    @Cron(CronExpression.EVERY_5_MINUTES)
-    async cacheUSDCPrice(): Promise<void> {
-        const usdcPrice = await this.dataApi.getTokenPriceRaw('USDC');
-        const key = await this.dataApi.setTokenPrice('USDC', usdcPrice);
-        await this.deleteCacheKeys([key]);
-    }
 
     @Cron('*/6 * * * * *')
     async cacheCurrentEpoch(): Promise<void> {

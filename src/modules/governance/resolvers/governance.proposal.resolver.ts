@@ -2,12 +2,12 @@ import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { GovernanceProposalModel, GovernanceProposalStatus, VoteType } from '../models/governance.proposal.model';
 import { ProposalVotes } from '../models/governance.proposal.votes.model';
 import { UseGuards } from '@nestjs/common';
-import { JwtOrNativeAuthGuard } from '../../auth/jwt.or.native.auth.guard';
 import { UserAuthResult } from '../../auth/user.auth.result';
 import { AuthUser } from '../../auth/auth.user';
 import { GovernanceTokenSnapshotMerkleService } from '../services/governance.token.snapshot.merkle.service';
 import { GovernanceAbiFactory } from '../services/governance.abi.factory';
 import { GovernanceServiceFactory } from '../services/governance.factory';
+import { NativeAuthGuard } from '../../auth/native.auth.guard';
 
 @Resolver(() => GovernanceProposalModel)
 export class GovernanceProposalResolver {
@@ -39,7 +39,7 @@ export class GovernanceProposalResolver {
             .proposalVotes(governanceProposal.contractAddress, governanceProposal.proposalId);
     }
 
-    @UseGuards(JwtOrNativeAuthGuard)
+    @UseGuards(NativeAuthGuard)
     @ResolveField()
     async hasVoted(
         @AuthUser() user: UserAuthResult,
@@ -51,7 +51,7 @@ export class GovernanceProposalResolver {
         return userVoteType !== VoteType.NotVoted;
     }
 
-    @UseGuards(JwtOrNativeAuthGuard)
+    @UseGuards(NativeAuthGuard)
     @ResolveField()
     async userVoteType(
         @AuthUser() user: UserAuthResult,
@@ -62,7 +62,7 @@ export class GovernanceProposalResolver {
             .userVote(governanceProposal.contractAddress, governanceProposal.proposalId, user.address);
     }
 
-    @UseGuards(JwtOrNativeAuthGuard)
+    @UseGuards(NativeAuthGuard)
     @ResolveField()
     async userVotingPower(
         @AuthUser() user: UserAuthResult,
