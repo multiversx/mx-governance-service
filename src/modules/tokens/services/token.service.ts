@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EsdtToken } from '../models/esdtToken.model';
 import { CacheTtlInfo } from 'src/services/caching/cache.ttl.info';
-import { NftCollection } from '../models/nftCollection.model';
 import { MXApiService } from 'src/services/multiversx-communication/mx.api.service';
 import { CacheService } from '@multiversx/sdk-nestjs-cache';
 
@@ -32,40 +31,6 @@ export class TokenService {
 
         if (token !== undefined) {
             await this.cachingService.set<EsdtToken>(
-                cacheKey,
-                token,
-                CacheTtlInfo.Token.remoteTtl,
-                CacheTtlInfo.Token.localTtl,
-            );
-
-            return token;
-        }
-
-        return undefined;
-    }
-
-    async getNftCollectionMetadata(collection: string): Promise<NftCollection> {
-        if (collection === undefined) {
-            return undefined;
-        }
-        const cacheKey = `token.${collection}`;
-        const cachedToken = await this.cachingService.get<NftCollection>(
-            cacheKey,
-        );
-        if (cachedToken && cachedToken !== undefined) {
-            await this.cachingService.set<NftCollection>(
-                cacheKey,
-                cachedToken,
-                CacheTtlInfo.Token.remoteTtl,
-                CacheTtlInfo.Token.localTtl,
-            );
-            return cachedToken;
-        }
-
-        const token = await this.apiService.getNftCollection(collection);
-
-        if (token !== undefined) {
-            await this.cachingService.set<NftCollection>(
                 cacheKey,
                 token,
                 CacheTtlInfo.Token.remoteTtl,

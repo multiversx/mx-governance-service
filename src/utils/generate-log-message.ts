@@ -83,17 +83,3 @@ export const generateComputeLogMessage = (
         LogType.COMPUTE,
     );
 };
-
-export const generateRunQueryLogMessage = (
-    className: string,
-    methodName: string,
-    error: any,
-) => {
-    return generateLogMessage(
-        className,
-        methodName,
-        '',
-        error,
-        LogType.RUN_QUERY,
-    );
-};
