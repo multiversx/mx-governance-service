@@ -1,12 +1,6 @@
 import { ObjectType } from '@nestjs/graphql';
 import { AssetsModel } from './assets.model';
 import { IEsdtToken } from './esdtToken.interface';
-import { RolesModel } from './roles.model';
-
-export enum EsdtTokenType {
-    FungibleToken = 'FungibleESDT',
-    FungibleLpToken = 'FungibleESDT-LP',
-}
 
 @ObjectType({
     implements: () => [IEsdtToken],
@@ -20,7 +14,6 @@ export class EsdtToken implements IEsdtToken {
     burnt?: string;
     initialMinted?: string;
     decimals: number;
-    derivedEGLD: string;
     price?: string;
     supply?: string;
     circulatingSupply?: string;
@@ -35,13 +28,11 @@ export class EsdtToken implements IEsdtToken {
     canPause: boolean;
     canFreeze: boolean;
     canWipe: boolean;
-    roles?: RolesModel;
     type?: string;
     balance?: string;
 
     constructor(init?: Partial<EsdtToken>) {
         Object.assign(this, init);
         this.assets = new AssetsModel(init.assets);
-        this.roles = new RolesModel(init.roles);
     }
 }
