@@ -62,6 +62,7 @@ async function bootstrap() {
 
     if (apiConfigService.isPrivateAppActive()) {
         const privateApp = await NestFactory.create(PrivateAppModule);
+        privateApp.setGlobalPrefix(apiConfigService.getPrefix());
         await privateApp.listen(
             apiConfigService.getPrivateAppPort(),
             apiConfigService.getPrivateAppListenAddress(),

@@ -16,11 +16,3 @@ export const generateCacheKeyFromParams = (...args: any[]): string => {
     }
     return cacheKey.slice(0, -1);
 };
-
-export const generateCacheKey = (
-    key: string,
-    region: string = null,
-): string => {
-    const cacheRegion = region || DEFAULT_REGION;
-    return generateCacheKeyFromParams(cacheRegion, key);
-};

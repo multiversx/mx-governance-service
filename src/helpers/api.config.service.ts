@@ -13,6 +13,14 @@ export class ApiConfigService {
         return port;
     }
 
+    getPrefix(): string {
+        const port = this.configService.get<string>('PREFIX');
+        if (!port) {
+            throw new Error('No prefix present');
+        }
+        return port;
+    }
+
     getPublicAppListenAddress(): string {
         const listenAddress = this.configService.get<string>('LISTEN_ADDRESS');
         if (!listenAddress) {
@@ -178,33 +186,6 @@ export class ApiConfigService {
         return mongoDBPassword;
     }
 
-    getJwtSecret(): string {
-        const secret = this.configService.get<string>('JWT_SECRET');
-        if (!secret) {
-            throw new Error('No jwt secret present');
-        }
-
-        return secret;
-    }
-
-    isAWSTimestreamRead(): boolean {
-        const readFlag = this.configService.get<string>('AWS_TIMESTREAM_READ');
-        if (!readFlag) {
-            throw new Error('No AWS Timestream read flag present');
-        }
-        return readFlag === 'true';
-    }
-
-    isAWSTimestreamWrite(): boolean {
-        const writeFlag = this.configService.get<string>(
-            'AWS_TIMESTREAM_WRITE',
-        );
-        if (!writeFlag) {
-            throw new Error('No AWS Timestream write flag present');
-        }
-        return writeFlag === 'true';
-    }
-
     getNativeAuthMaxExpirySeconds(): number {
         const maxExpiry = this.configService.get<string>(
             'NATIVE_AUTH_MAX_EXPIRY_SECONDS',
@@ -226,14 +207,6 @@ export class ApiConfigService {
         return origins.split(',');
     }
 
-    getMXDataApiURL(): string {
-        const url = this.configService.get<string>('MX_DATA_API_URL');
-        if (!url) {
-            throw new Error('No MX Data API url present');
-        }
-        return url;
-    }
-
     getSecurityAdmins(): string[] {
         const admins = this.configService.get<string>('SECURITY_ADMINS');
         if (!admins) {
@@ -241,55 +214,5 @@ export class ApiConfigService {
         }
 
         return admins.split(',');
-    }
-
-    getNativeAuthKeyPath(): string {
-        const nativeAuthPemPath = this.configService.get<string>(
-            'NATIVE_AUTH_PEM_PATH',
-        );
-        if (!nativeAuthPemPath) {
-            throw new Error('No NATIVE_AUTH_PEM_PATH present');
-        }
-        return nativeAuthPemPath;
-    }
-
-    getTimescaleDbHost(): string {
-        const host = this.configService.get<string>('TIMESCALEDB_URL');
-        if (!host) {
-            throw new Error('No TIMESCALEDB_URL present');
-        }
-        return host;
-    }
-
-    getTimescaleDbPort(): number {
-        const port = this.configService.get<string>('TIMESCALEDB_PORT');
-        if (!port) {
-            throw new Error('No TIMESCALEDB_PORT present');
-        }
-        return parseInt(port);
-    }
-
-    getTimescaleDbDatabase(): string {
-        const database = this.configService.get<string>('TIMESCALEDB_DATABASE');
-        if (!database) {
-            throw new Error('No TIMESCALEDB_DATABASE present');
-        }
-        return database;
-    }
-
-    getTimescaleDbUsername(): string {
-        const username = this.configService.get<string>('TIMESCALEDB_USERNAME');
-        if (!username) {
-            throw new Error('No TIMESCALEDB_USERNAME present');
-        }
-        return username;
-    }
-
-    getTimescaleDbPassword(): string {
-        const password = this.configService.get<string>('TIMESCALEDB_PASSWORD');
-        if (!password) {
-            throw new Error('No TIMESCALEDB_PASSWORD present');
-        }
-        return password;
     }
 }

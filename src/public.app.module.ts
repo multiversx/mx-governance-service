@@ -12,6 +12,7 @@ import { GuestCachingMiddleware } from './utils/guestCaching.middleware';
 import { GovernanceModule } from './modules/governance/governance.module';
 import { DynamicModuleUtils } from './utils/dynamic.module.utils';
 import '@multiversx/sdk-nestjs-common/lib/utils/extensions/array.extensions';
+import { ApiConfigService } from './helpers/api.config.service';
 
 @Module({
     imports: [
@@ -19,7 +20,8 @@ import '@multiversx/sdk-nestjs-common/lib/utils/extensions/array.extensions';
         GraphQLModule.forRootAsync<ApolloDriverConfig>({
             driver: ApolloDriver,
             imports: [CommonAppModule],
-            useFactory: async (logger: LoggerService) => ({
+            useFactory: async (configService: ApiConfigService, logger: LoggerService) => ({
+                path: `${configService.getPrefix()}/graphql`,
                 autoSchemaFile: 'schema.gql',
                 installSubscriptionHandlers: true,
                 buildSchemaOptions: {
@@ -46,7 +48,7 @@ import '@multiversx/sdk-nestjs-common/lib/utils/extensions/array.extensions';
                 },
                 fieldResolverEnhancers: ['guards'],
             }),
-            inject: [WINSTON_MODULE_NEST_PROVIDER],
+            inject: [ApiConfigService, WINSTON_MODULE_NEST_PROVIDER],
         }),
         LockedAssetModule,
         TokenModule,
