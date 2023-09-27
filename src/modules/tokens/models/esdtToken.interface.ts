@@ -1,6 +1,5 @@
 import { Field, Int, InterfaceType } from '@nestjs/graphql';
 import { IAssets } from './assets.interface';
-import { IRoles } from './roles.interface';
 
 @InterfaceType()
 export abstract class IEsdtToken {
@@ -26,7 +25,6 @@ export abstract class IEsdtToken {
     @Field() canPause: boolean;
     @Field() canFreeze: boolean;
     @Field() canWipe: boolean;
-    @Field(() => IRoles, { nullable: true }) roles?: IRoles;
     @Field({ nullable: true }) type?: string;
     @Field({ nullable: true }) balance?: string;
 }
