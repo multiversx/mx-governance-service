@@ -3,33 +3,26 @@
         "chainID": "D"
     },
     "scAddress": {
-        "lockedAssetAddress": "erd1qqqqqqqqqqqqqpgqnqf6qpnd7y3m6wpkur9u8hg37rvhn5ae0n4se7lw39",
+        "lockedAssetAddress": "erd1qqqqqqqqqqqqqpgqxsy4k8fkqvllcvyrwhf80t97kyd32qfx0n4stue7cn",
         "simpleLockAddress": [
-            "erd1qqqqqqqqqqqqqpgqvcw9cxy5xlssc4em9l97pvhnvgtn5z6l0n4sc9glts",
-            "erd1qqqqqqqqqqqqqpgqxsyrdj38fclflak2mwtqdknqzqhuxy4s0n4sc3e0jy",
-            "erd1qqqqqqqqqqqqqpgqd7av8hy5ydnrlunr6pt40wc07pfj8qv90n4srdthut",
-            "erd1qqqqqqqqqqqqqpgqd92vaptf6kex2p74a8sgxpdtvnphdgkd0n4spt542g",
-            "erd1qqqqqqqqqqqqqpgqzpsgnl0pvgpths0vr926nql30maemcq00n4sqwpu74"
+            "erd1qqqqqqqqqqqqqpgq2l97gw2j4wnlem4y2rx7dudqlssjtwpu0n4sd0u3w2"
         ],
-        "simpleLockEnergy": "erd1qqqqqqqqqqqqqpgqp6qrf7yp4l25c08384vgdghz7wz0f60h0n4s0m88l4"
+        "simpleLockEnergy": "erd1qqqqqqqqqqqqqpgqs7qnuvj2t0m40xmgrrh88wc7qdx286c60n4spvrzzk"
     },
     "governance": {
         "oldEnergy": {
             "cvadratic": [
-                "erd1qqqqqqqqqqqqqpgqdt9aady5jp7av97m7rqxh6e5ywyqsplz2jps5mw02n"
             ]
         },
         "energy": {
             "cvadratic": [
-                "erd1qqqqqqqqqqqqqpgqzvcvh8ur47nlwxsa9wf7gvrlmf764aerczfsnsjudc"
+                "erd1qqqqqqqqqqqqqpgqzzcu2cgz48d4zh8czrrxzyc7c3x0ynx3czfs8n4ppn"
             ]
         },
         "tokenSnapshot": {
             "linear": [
-                "erd1qqqqqqqqqqqqqpgq2rkrhef99hhk3ynfcxevcj86axr3sgmcczfstkmdwr"
             ],
             "cvadratic": [
-                "erd1qqqqqqqqqqqqqpgq2rkrhef99hhk3ynfcxevcj86axr3sgmcczfstkmdwr"
             ]
         }
     }
