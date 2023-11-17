@@ -1,9 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import {
-    utilities as nestWinstonModuleUtilities,
-    WinstonModule,
-} from 'nest-winston';
+import { utilities as nestWinstonModuleUtilities, WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import * as Transport from 'winston-transport';
 import { ApiConfigService } from './helpers/api.config.service';
@@ -15,7 +12,7 @@ const logTransports: Transport[] = [
     new winston.transports.Console({
         format: winston.format.combine(
             winston.format.timestamp(),
-            nestWinstonModuleUtilities.format.nestLike('xExchangeService', {
+            nestWinstonModuleUtilities.format.nestLike('GovernanceService', {
                 colors: true,
                 prettyPrint: true,
             }),
