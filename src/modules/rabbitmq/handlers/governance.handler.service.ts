@@ -97,7 +97,7 @@ export class GovernanceHandlerService {
         proposalVotes.upPercentage = new BigNumber(proposalVotes.upVotes).dividedBy(proposalVotes.totalVotes).multipliedBy(100).toFixed(2);
         proposalVotes.downPercentage = new BigNumber(proposalVotes.downVotes).dividedBy(proposalVotes.totalVotes).multipliedBy(100).toFixed(2);
         proposalVotes.abstainPercentage = new BigNumber(proposalVotes.abstainVotes).dividedBy(proposalVotes.totalVotes).multipliedBy(100).toFixed(2);
-        proposalVotes.downPercentage = new BigNumber(proposalVotes.downVotes).dividedBy(proposalVotes.totalVotes).multipliedBy(100).toFixed(2);
+        proposalVotes.downVetoPercentage = new BigNumber(proposalVotes.downVetoPercentage).dividedBy(proposalVotes.totalVotes).multipliedBy(100).toFixed(2);
 
         return proposalVotes;
     }
