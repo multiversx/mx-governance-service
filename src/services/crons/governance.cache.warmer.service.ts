@@ -5,6 +5,7 @@ import { PUB_SUB } from '../redis.pubSub.module';
 import { governanceContractsAddresses, GovernanceType } from '../../utils/governance';
 import { GovernanceAbiFactory } from '../../modules/governance/services/governance.abi.factory';
 import { GovernanceSetterService } from '../../modules/governance/services/governance.setter.service';
+import { Locker } from '@multiversx/sdk-nestjs-common';
 
 @Injectable()
 export class GovernanceCacheWarmerService {
@@ -14,27 +15,29 @@ export class GovernanceCacheWarmerService {
         @Inject(PUB_SUB) private pubSub: RedisPubSub,
     ) {}
 
-    @Cron('*/12 * * * * *')
+    @Cron('*/6 * * * * *')
     async cacheGovernanceStatuses(): Promise<void> {
-        const addresses = governanceContractsAddresses([
-            GovernanceType.ENERGY,
-            GovernanceType.TOKEN_SNAPSHOT,
-        ]);
-        for (const address of addresses) {
-            const proposals = await this.governanceAbiFactory.useAbi(address).proposalsRaw(address);
-            const promises = [];
-            for (const proposal of proposals) {
-                const status = await this.governanceAbiFactory.useAbi(address).proposalStatusRaw(address, proposal.proposalId);
-                promises.push(this.governanceSetter.proposalStatus(address, proposal.proposalId, status));
-            }
-
-            const cachedKeys = await Promise.all([
-                ...promises,
-                this.governanceSetter.proposals(address, proposals),
+        await Locker.lock('update governance statuses', async () => {
+            const addresses = governanceContractsAddresses([
+                GovernanceType.ENERGY,
+                GovernanceType.TOKEN_SNAPSHOT,
             ]);
+            for (const address of addresses) {
+                const proposals = await this.governanceAbiFactory.useAbi(address).proposalsRaw(address);
+                const promises = [];
+                for (const proposal of proposals) {
+                    const status = await this.governanceAbiFactory.useAbi(address).proposalStatusRaw(address, proposal.proposalId);
+                    promises.push(this.governanceSetter.proposalStatus(address, proposal.proposalId, status));
+                }
 
-            await this.deleteCacheKeys(cachedKeys);
-        }
+                const cachedKeys = await Promise.all([
+                    ...promises,
+                    this.governanceSetter.proposals(address, proposals),
+                ]);
+
+                await this.deleteCacheKeys(cachedKeys);
+            }
+        });
     }
 
     private async deleteCacheKeys(invalidatedKeys: string[]) {
