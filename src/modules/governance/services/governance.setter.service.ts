@@ -44,20 +44,24 @@ export class GovernanceSetterService extends GenericSetterService {
     }
 
     async proposals(scAddress: string, value: GovernanceProposalModel[]): Promise<string> {
-        return await this.setData(
+        const key = await this.setData(
             this.getCacheKey('proposals', scAddress),
             value,
             CacheTtlInfo.ContractState.remoteTtl,
             CacheTtlInfo.ContractState.localTtl,
         );
+        console.log("set", key);
+        return key;
     }
 
     async proposalStatus(scAddress: string, proposalId: number, value: GovernanceProposalStatus): Promise<string> {
-        return await this.setData(
+        const key = await this.setData(
             this.getCacheKey('proposalStatus', scAddress, proposalId),
             value,
             CacheTtlInfo.ContractState.remoteTtl,
             CacheTtlInfo.ContractState.localTtl,
         );
+        console.log("set", key);
+        return key;
     }
 }

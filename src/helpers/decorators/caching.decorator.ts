@@ -28,6 +28,7 @@ export function GetOrSetCache(cachingOptions: ICachingOptions) {
 
             const cachingService: CacheService = this.cachingService;
 
+            console.log("getOrSet", cacheKey);
             return await cachingService.getOrSet(
                 cacheKey,
                 () => originalMethod.apply(this, args),
