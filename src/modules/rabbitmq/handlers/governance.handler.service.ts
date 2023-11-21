@@ -91,7 +91,7 @@ export class GovernanceHandlerService {
                 proposalVotes.abstainVotes = new BigNumber(proposalVotes.abstainVotes).plus(topics.nrVotes).toFixed();
                 break;
             case GOVERNANCE_EVENTS.DOWN_VETO:
-                proposalVotes.downVotes = new BigNumber(proposalVotes.downVotes).plus(topics.nrVotes).toFixed();
+                proposalVotes.downVetoVotes = new BigNumber(proposalVotes.downVetoVotes).plus(topics.nrVotes).toFixed();
                 break;
         }
         proposalVotes.upPercentage = new BigNumber(proposalVotes.upVotes).dividedBy(proposalVotes.totalVotes).multipliedBy(100).toFixed(2);
