@@ -11,12 +11,14 @@ import moment from 'moment';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { MetricsCollector } from 'src/utils/metrics.collector';
 import { PerformanceProfiler } from 'src/utils/performance.profiler';
+import { ApiConfigService } from '../../helpers/api.config.service';
 
 @Injectable()
 export class CacheWarmerService {
     constructor(
         private readonly apiService: MXApiService,
         private readonly cachingService: CacheService,
+        private readonly configService: ApiConfigService,
         @Inject(PUB_SUB) private pubSub: RedisPubSub,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     ) {}
@@ -86,7 +88,7 @@ export class CacheWarmerService {
                     try {
                         // Get new data without cache and update it
                         const response = await axios.post(
-                            `${process.env.MX_GOVERNANCE_URL}/graphql`,
+                            `${process.env.MX_GOVERNANCE_URL}/${this.configService.getPrefix()}/graphql`,
                             keyValue,
                             {
                                 headers: {
