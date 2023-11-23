@@ -61,6 +61,6 @@ export class PublicAppModule {
     configure(consumer: MiddlewareConsumer) {
         consumer
             .apply(GuestCachingMiddleware)
-            .forRoutes({ path: 'graphql', method: RequestMethod.POST });
+            .forRoutes({ path: 'governance/graphql', method: RequestMethod.POST });
     }
 }
