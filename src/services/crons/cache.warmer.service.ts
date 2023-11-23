@@ -78,7 +78,7 @@ export class CacheWarmerService {
                     console.log(
                         `Started warming up query '${JSON.stringify(
                             keyValue,
-                        )}' for url '${process.env.MX_DEX_URL}'`,
+                        )}' for url '${process.env.MX_GOVERNANCE_URL}'`,
                     );
                     const profiler = new PerformanceProfiler();
 
@@ -86,7 +86,7 @@ export class CacheWarmerService {
                     try {
                         // Get new data without cache and update it
                         const response = await axios.post(
-                            `${process.env.MX_DEX_URL}/graphql`,
+                            `${process.env.MX_GOVERNANCE_URL}/graphql`,
                             keyValue,
                             {
                                 headers: {
@@ -100,7 +100,7 @@ export class CacheWarmerService {
                         console.error(
                             `An error occurred while warming up query '${JSON.stringify(
                                 keyValue,
-                            )}' for url '${process.env.MX_DEX_URL}'`,
+                            )}' for url '${process.env.MX_GOVERNANCE_URL}'`,
                         );
                         console.error(error);
                     }
@@ -111,7 +111,7 @@ export class CacheWarmerService {
                         `Finished warming up query '${JSON.stringify(
                             keyValue,
                         )}' for url '${
-                            process.env.MX_DEX_URL
+                            process.env.MX_GOVERNANCE_URL
                         }'. Response size: ${
                             JSON.stringify(data).length
                         }. Duration: ${profiler.duration}`,
