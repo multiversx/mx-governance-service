@@ -27,9 +27,15 @@ export class GovernanceComputeService {
 
         const log = await this.getVoteLog('vote', scAddress, userAddress, proposalId);
         let voteType = VoteType.NotVoted;
-        if (log.length > 0) {
-            const voteEvent = log[0]._source.events.find((event) => event.identifier === 'vote');
-            voteType = toVoteType(atob(voteEvent.topics[0]));
+        for (let i = 0; i < log.length; i++) {
+            const logEntry = log[i]._source;
+            const voteEvent = logEntry.events.find((event) => event.identifier === 'vote');
+
+            // Check if the voteEvent exists and the address matches the desired address
+            if (voteEvent && logEntry.address === userAddress) {
+                voteType = toVoteType(atob(voteEvent.topics[0]));
+                break; // Optional: break the loop if you only need the first match
+            }
         }
         const proposalVoteType = {
             proposalId,
