@@ -114,7 +114,7 @@ export class ElasticService {
             });
 
             // Process and return the response
-            return response.body.hits.hits.map(hit => hit._source[key]);
+            return response.body.hits.hits;
         } catch (error) {
             const logMessage = generateComputeLogMessage(
                 ElasticService.name,

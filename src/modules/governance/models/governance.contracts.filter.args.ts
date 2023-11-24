@@ -1,5 +1,4 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { GovernanceType } from 'src/utils/governance';
 
 @ArgsType()
 export class GovernanceContractsFiltersArgs {
@@ -7,6 +6,6 @@ export class GovernanceContractsFiltersArgs {
     identifiers: string;
     @Field(() => [String], { nullable: true })
     contracts: string;
-    @Field({ nullable: true })
-    type: GovernanceType;
+    @Field(() => String, { nullable: true })
+    type: string;
 }
