@@ -9,6 +9,7 @@ import { decimalToHex } from '../../../utils/token.converters';
 import { ElasticQuery, ElasticSortOrder, QueryType } from '@multiversx/sdk-nestjs-elastic';
 import { ElasticService } from 'src/helpers/elastic.service';
 import { toVoteType } from '../../../utils/governance';
+import { VoteEvent } from '@multiversx/sdk-exchange';
 
 @Injectable()
 export class GovernanceComputeService {
@@ -32,7 +33,9 @@ export class GovernanceComputeService {
             const voteEvent = logEntry.events.find((event) => event.identifier === 'vote');
 
             // Check if the voteEvent exists and the address matches the desired address
-            if (voteEvent && logEntry.address === userAddress) {
+            const event = new VoteEvent(voteEvent);
+            const topics = event.getTopics();
+            if (voteEvent && topics.voter === userAddress) {
                 voteType = toVoteType(atob(voteEvent.topics[0]));
                 break; // Optional: break the loop if you only need the first match
             }
