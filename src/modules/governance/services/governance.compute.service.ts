@@ -35,8 +35,8 @@ export class GovernanceComputeService {
             // Check if the voteEvent exists and the address matches the desired address
             const event = new VoteEvent(voteEvent);
             const topics = event.getTopics();
-            if (voteEvent && topics.voter === userAddress) {
-                voteType = toVoteType(atob(voteEvent.topics[0]));
+            if (voteEvent && topics.voter === userAddress && topics.proposalId === proposalId) {
+                voteType = toVoteType(topics.eventName);
                 break; // Optional: break the loop if you only need the first match
             }
         }
