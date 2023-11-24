@@ -95,7 +95,7 @@ export class GovernanceComputeService {
         ];
 
 
-        const list = await this.elasticService.getList(
+        const list = await this.elasticService.get(
             'logs',
             '',
             elasticQueryAdapter,
