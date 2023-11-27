@@ -86,7 +86,10 @@ export class GovernanceComputeService {
                 QueryType.Match('events.topics', encodedProposalId),
             ]),
             QueryType.Nested('events', [
-                QueryType.Match('events.topics', encodedCallerAddress),
+                QueryType.Match('events.topics', {
+                    "query": encodedCallerAddress,
+                    "operator": "and"
+                }),
             ]),
         ];
 
