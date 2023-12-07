@@ -5,15 +5,15 @@ import { ProposalVotes } from './governance.proposal.votes.model';
 import { GovernanceDescriptionUnion } from './governance.union';
 
 export enum GovernanceProposalStatus {
-    None ='None',
-    Pending ='Pending',
-    Active ='Active',
-    Defeated ='Defeated',
-    DefeatedWithVeto ='DefeatedWithVeto',
-    Succeeded ='Succeeded',
+    None = 'None',
+    Pending = 'Pending',
+    Active = 'Active',
+    Defeated = 'Defeated',
+    DefeatedWithVeto = 'DefeatedWithVeto',
+    Succeeded = 'Succeeded',
 }
 
-registerEnumType(GovernanceProposalStatus, { name: 'GovernanceProposalStatus' });
+registerEnumType(GovernanceProposalStatus, {name: 'GovernanceProposalStatus'});
 
 export enum VoteType {
     UpVote,
@@ -23,7 +23,7 @@ export enum VoteType {
     NotVoted,
 }
 
-registerEnumType(GovernanceProposalStatus, { name: 'VoteType' });
+registerEnumType(GovernanceProposalStatus, {name: 'VoteType'});
 
 @ObjectType()
 export class DescriptionV0 {
@@ -50,6 +50,17 @@ export class DescriptionV1 extends DescriptionV0 {
     }
 }
 
+@ObjectType()
+export class DescriptionV2 extends DescriptionV1 {
+    @Field()
+    strapiHash: string;
+
+    constructor(init: Partial<DescriptionV2>) {
+        super(init);
+        Object.assign(this, init);
+    }
+}
+
 @ArgsType()
 export class VoteArgs {
     @Field()
@@ -70,7 +81,7 @@ export class GovernanceProposalModel {
     proposer: string;
     @Field(() => [GovernanceAction])
     actions: GovernanceAction[];
-    @Field( () => GovernanceDescriptionUnion)
+    @Field(() => GovernanceDescriptionUnion)
     description: typeof GovernanceDescriptionUnion;
     @Field(() => EsdtTokenPaymentModel)
     feePayment: EsdtTokenPaymentModel;
@@ -90,7 +101,7 @@ export class GovernanceProposalModel {
     status: GovernanceProposalStatus;
     @Field()
     rootHash: string;
-    @Field( () => ProposalVotes )
+    @Field(() => ProposalVotes)
     votes: ProposalVotes;
     @Field()
     hasVoted?: boolean;
