@@ -1,8 +1,8 @@
-import { ArgsType, Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { GovernanceAction } from './governance.action.model';
-import { EsdtTokenPaymentModel } from '../../tokens/models/esdt.token.payment.model';
-import { ProposalVotes } from './governance.proposal.votes.model';
-import { GovernanceDescriptionUnion } from './governance.union';
+import {ArgsType, Field, Int, ObjectType, registerEnumType} from '@nestjs/graphql';
+import {GovernanceAction} from './governance.action.model';
+import {EsdtTokenPaymentModel} from '../../tokens/models/esdt.token.payment.model';
+import {ProposalVotes} from './governance.proposal.votes.model';
+import {GovernanceDescriptionUnion} from './governance.union';
 
 export enum GovernanceProposalStatus {
     None ='None',
@@ -45,6 +45,17 @@ export class DescriptionV1 extends DescriptionV0 {
     shortDescription: string;
 
     constructor(init: Partial<DescriptionV1>) {
+        super(init);
+        Object.assign(this, init);
+    }
+}
+
+@ObjectType()
+export class DescriptionV2 extends DescriptionV1 {
+    @Field()
+    strapiHash: string;
+
+    constructor(init: Partial<DescriptionV2>) {
         super(init);
         Object.assign(this, init);
     }
