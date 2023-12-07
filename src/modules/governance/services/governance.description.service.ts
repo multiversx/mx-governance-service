@@ -1,6 +1,6 @@
-import {Injectable} from '@nestjs/common';
-import {GovernanceDescriptionUnion} from '../models/governance.union';
-import {DescriptionV0, DescriptionV1, DescriptionV2} from '../models/governance.proposal.model';
+import { Injectable } from '@nestjs/common';
+import { GovernanceDescriptionUnion } from '../models/governance.union';
+import { DescriptionV0, DescriptionV1, DescriptionV2 } from '../models/governance.proposal.model';
 
 
 @Injectable()

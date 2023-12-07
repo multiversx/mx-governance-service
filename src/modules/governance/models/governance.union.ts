@@ -1,6 +1,6 @@
-import {createUnionType} from '@nestjs/graphql';
-import {GovernanceEnergyContract, GovernanceTokenSnapshotContract} from './governance.contract.model';
-import {DescriptionV0, DescriptionV1, DescriptionV2} from './governance.proposal.model';
+import { createUnionType } from '@nestjs/graphql';
+import { GovernanceEnergyContract, GovernanceTokenSnapshotContract } from './governance.contract.model';
+import { DescriptionV0, DescriptionV1, DescriptionV2 } from './governance.proposal.model';
 
 export const GovernanceUnion = createUnionType({
     name: 'GovernanceTypes',
