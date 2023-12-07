@@ -24,7 +24,7 @@ export class TokenService {
                 CacheTtlInfo.Token.remoteTtl,
                 CacheTtlInfo.Token.localTtl,
             );
-            return cachedToken;
+            return new EsdtToken(cachedToken);
         }
 
         const token = await this.apiService.getToken(tokenID);

@@ -46,7 +46,7 @@ export class MXApiService {
                 httpAgent: mxConfig.keepAlive ? httpAgent : null,
                 httpsAgent: mxConfig.keepAlive ? httpsAgent : null,
                 headers: {
-                    origin: 'xExchangeService',
+                    origin: 'GovernanceService',
                 },
             },
         );

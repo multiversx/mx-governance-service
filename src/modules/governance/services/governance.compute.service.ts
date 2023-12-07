@@ -8,7 +8,8 @@ import { Address } from '@multiversx/sdk-core/out';
 import { decimalToHex } from '../../../utils/token.converters';
 import { ElasticQuery, ElasticSortOrder, QueryType } from '@multiversx/sdk-nestjs-elastic';
 import { ElasticService } from 'src/helpers/elastic.service';
-import { toVoteType } from '../../../utils/governance';
+import { GovernanceType, governanceType, toVoteType } from '../../../utils/governance';
+import { VoteEvent } from '@multiversx/sdk-exchange';
 
 @Injectable()
 export class GovernanceComputeService {
@@ -27,9 +28,25 @@ export class GovernanceComputeService {
 
         const log = await this.getVoteLog('vote', scAddress, userAddress, proposalId);
         let voteType = VoteType.NotVoted;
-        if (log.length > 0) {
-            const voteEvent = log[0]._source.events.find((event) => event.identifier === 'vote');
-            voteType = toVoteType(atob(voteEvent.topics[0]));
+        if (governanceType(scAddress) === GovernanceType.OLD_ENERGY) {
+            if (log.length > 0) {
+                const voteEvent = log[0]._source.events.find((event) => event.identifier === 'vote');
+                voteType = toVoteType(atob(voteEvent.topics[0]));
+            }
+        }
+        else {
+            for (let i = 0; i < log.length; i++) {
+                const logEntry = log[i]._source;
+                const voteEvent = logEntry.events.find((event) => event.identifier === 'vote');
+
+                // Check if the voteEvent exists and the address matches the desired address
+                const event = new VoteEvent(voteEvent);
+                const topics = event.getTopics();
+                if (voteEvent && topics.voter === userAddress && topics.proposalId === proposalId) {
+                    voteType = toVoteType(topics.eventName);
+                    break; // Optional: break the loop if you only need the first match
+                }
+            }
         }
         const proposalVoteType = {
             proposalId,
@@ -69,7 +86,10 @@ export class GovernanceComputeService {
                 QueryType.Match('events.topics', encodedProposalId),
             ]),
             QueryType.Nested('events', [
-                QueryType.Match('events.topics', encodedCallerAddress),
+                QueryType.Match('events.topics', {
+                    "query": encodedCallerAddress,
+                    "operator": "and"
+                }),
             ]),
         ];
 
@@ -78,7 +98,7 @@ export class GovernanceComputeService {
         ];
 
 
-        const list = await this.elasticService.getList(
+        const list = await this.elasticService.get(
             'logs',
             '',
             elasticQueryAdapter,

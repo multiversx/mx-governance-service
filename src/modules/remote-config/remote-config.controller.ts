@@ -136,4 +136,17 @@ export class RemoteConfigController {
         await this.pubSub.publish('deleteCacheKeys', cacheKeys.keys);
         return res.status(200).send();
     }
+
+    @UseGuards(NativeAdminGuard)
+    @Post('/cache/get-keys')
+    async getCacheKeys(
+        @Body() cacheKeys: CacheKeysArgs,
+        @Res() res: Response,
+    ): Promise<Response> {
+        const keys = [];
+        for (const key of cacheKeys.keys) {
+            keys.push(await this.cacheService.get(key));
+        }
+        return res.status(200).send(keys);
+    }
 }

@@ -95,4 +95,35 @@ export class ElasticService {
             throw error;
         }
     }
+
+    async get(
+        collection: string,
+        key: string,
+        elasticQueryAdapter: ElasticQuery,
+    ): Promise<any[]> {
+        const query = elasticQueryAdapter.toJson().query;
+        try {
+            // Use the search method instead of get
+            const response = await this.elasticClient.search({
+                index: collection,
+                size: 10000,
+                _source: [key],
+                body: {
+                    query,
+                },
+            });
+
+            // Process and return the response
+            return response.body.hits.hits;
+        } catch (error) {
+            const logMessage = generateComputeLogMessage(
+                ElasticService.name,
+                this.get.name,
+                'TX list',
+                error,
+            );
+            this.logger.error(logMessage);
+            throw error;
+        }
+    }
 }

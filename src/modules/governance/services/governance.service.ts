@@ -40,31 +40,26 @@ export class GovernanceTokenSnapshotService {
         const governance: Array<typeof GovernanceUnion> = [];
         for (const address of governanceAddresses) {
             const type = governanceType(address);
-            if (filters.type && filters.type !== type) {
-                continue;
-            }
+            let contractInstance;
             switch (type) {
                 case GovernanceType.ENERGY:
-                    governance.push(
-                        new GovernanceEnergyContract({
+                case GovernanceType.OLD_ENERGY:
+                    contractInstance = new GovernanceEnergyContract({
                             address,
-                        }),
-                    );
+                        });
                     break;
                 case GovernanceType.TOKEN_SNAPSHOT:
-                    governance.push(
-                        new GovernanceTokenSnapshotContract({
-                            address,
-                        }),
-                    );
-                   break;
-                case GovernanceType.OLD_ENERGY:
-                    governance.push(new GovernanceEnergyContract({
+                    contractInstance = new GovernanceTokenSnapshotContract({
                         address,
-                    }));
-                    break;
+                    });
+                   break;
+            }
+            if (filters.type && contractInstance.constructor.name !== filters.type) {
+                continue;
             }
 
+            // Add the contract to the list
+            governance.push(contractInstance);
         }
 
         return governance;

@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import { GovernanceProposalModel } from './governance.proposal.model';
 import { EsdtToken } from '../../tokens/models/esdtToken.model';
 
@@ -22,8 +22,8 @@ export class GovernanceTokenSnapshotContract {
     withdrawPercentageDefeated: number;
     @Field(() => [GovernanceProposalModel])
     proposals: GovernanceProposalModel[];
-    @Field(() => Int)
-    vetoPercentageLimit: number = 30;
+    @Field(() => Float)
+    vetoPercentageLimit: number = 33.33;
     @Field(() => Int)
     votingPowerDecimals: number;
 

@@ -58,9 +58,10 @@ import { ApiConfigService } from './helpers/api.config.service';
     ],
 })
 export class PublicAppModule {
+    constructor(private readonly configService: ApiConfigService) {}
     configure(consumer: MiddlewareConsumer) {
         consumer
             .apply(GuestCachingMiddleware)
-            .forRoutes({ path: 'graphql', method: RequestMethod.POST });
+            .forRoutes({ path: `${this.configService.getPrefix()}/graphql`, method: RequestMethod.POST });
     }
 }
