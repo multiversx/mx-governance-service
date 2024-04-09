@@ -3,25 +3,15 @@ import { MXProxyService } from 'src/services/multiversx-communication/mx.proxy.s
 import { GenericAbiService } from 'src/services/generics/generic.abi.service';
 import { ErrorLoggerAsync } from '@multiversx/sdk-nestjs-common';
 import { ProposalVotes } from '../models/governance.proposal.votes.model';
-import {
-    GovernanceProposalModel,
-    GovernanceProposalStatus,
-    VoteArgs,
-} from '../models/governance.proposal.model';
+import { GovernanceProposalModel, GovernanceProposalStatus, VoteArgs, } from '../models/governance.proposal.model';
 import { GovernanceAction } from '../models/governance.action.model';
 import { EsdtTokenPaymentModel } from '../../tokens/models/esdt.token.payment.model';
 import { EsdtTokenPayment } from '@multiversx/sdk-exchange';
-import {
-    GovernanceType,
-    toGovernanceProposalStatus,
-} from '../../../utils/governance';
+import { GovernanceType, toGovernanceProposalStatus, } from '../../../utils/governance';
 import { TransactionModel } from '../../../models/transaction.model';
 import { gasConfig, mxConfig } from '../../../config';
 import BigNumber from 'bignumber.js';
-import {
-    BytesValue,
-    U64Value,
-} from '@multiversx/sdk-core/out/smartcontracts/typesystem';
+import { BytesValue, U64Value, } from '@multiversx/sdk-core/out/smartcontracts/typesystem';
 import { GovernanceTokenSnapshotMerkleService } from './governance.token.snapshot.merkle.service';
 import { GovernanceDescriptionService } from './governance.description.service';
 import { GetOrSetCache } from '../../../helpers/decorators/caching.decorator';
@@ -202,6 +192,10 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
                     gasLimit: action.gas_limit.toNumber(),
                 });
             });
+            let totalQuorum = proposal.total_quorum.toFixed();
+            if (scAddress === 'erd1qqqqqqqqqqqqqpgq8xqp6c0kzwn3f2c5zsxfex6h69s2x9rwhg4smw0gfc') {
+                totalQuorum = '14864643496672232664684799';
+            }
             return new GovernanceProposalModel({
                 contractAddress: scAddress,
                 proposalId: proposal.proposal_id.toNumber(),
@@ -220,7 +214,7 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
                 minimumQuorumPercentage: proposal.minimum_quorum
                     .div(100)
                     .toFixed(2),
-                totalQuorum: proposal.total_quorum.toFixed(),
+                totalQuorum: totalQuorum,
                 votingDelayInBlocks: proposal.voting_delay_in_blocks.toNumber(),
                 votingPeriodInBlocks:
                     proposal.voting_period_in_blocks.toNumber(),
