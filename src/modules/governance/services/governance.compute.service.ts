@@ -28,16 +28,9 @@ export class GovernanceComputeService {
         const event = await this.getVoteEvent('vote', scAddress, userAddress, proposalId);
         let voteType = VoteType.NotVoted;
         if(event) {
-            if (governanceType(scAddress) === GovernanceType.OLD_ENERGY) {
                 const voteEvent = event._source;
                 const decodedVoteType = Buffer.from(voteEvent.topics[0], 'hex').toString();
                 voteType = toVoteType(decodedVoteType);
-            }
-            else {
-                const voteEvent = event._source;
-                const decodedVoteType = Buffer.from(voteEvent.topics[0], 'hex').toString();
-                voteType = toVoteType(decodedVoteType);
-            }
         }
         
         const proposalVoteType = {
