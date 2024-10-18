@@ -27,19 +27,19 @@ export class GovernanceComputeService {
 
         const event = await this.getVoteEvent('vote', scAddress, userAddress, proposalId);
         let voteType = VoteType.NotVoted;
-        if(event.length > 0) {
+        if(event) {
             if (governanceType(scAddress) === GovernanceType.OLD_ENERGY) {
-                const voteEvent = event[0]._source;
+                const voteEvent = event._source;
                 const decodedVoteType = Buffer.from(voteEvent.topics[0], 'hex').toString();
                 voteType = toVoteType(decodedVoteType);
             }
             else {
-                const voteEvent = event[0]._source;
+                const voteEvent = event._source;
                 const decodedVoteType = Buffer.from(voteEvent.topics[0], 'hex').toString();
                 voteType = toVoteType(decodedVoteType);
             }
         }
-
+        
         const proposalVoteType = {
             proposalId,
             vote: voteType,
@@ -64,7 +64,7 @@ export class GovernanceComputeService {
         scAddress: string,
         callerAddress: string,
         proposalId: number,
-    ): Promise<any[]> {
+    ): Promise<any> {
         const elasticQueryAdapter: ElasticQuery = new ElasticQuery();
         const proposalIdHex = decimalToHex(proposalId);
         const callerAddressHex = Address.fromString(callerAddress).hex();
@@ -76,17 +76,12 @@ export class GovernanceComputeService {
             QueryType.Match('topics', callerAddressHex),
         ];
 
-        elasticQueryAdapter.sort = [
-            { name: 'timestamp', order: ElasticSortOrder.ascending },
-        ];
-
-
         const list = await this.elasticService.get(
             'events',
             '',
             elasticQueryAdapter,
         );
-       
-        return list;
+
+        return list[0];
     }
 }
