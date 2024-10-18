@@ -82,6 +82,6 @@ export class GovernanceComputeService {
             elasticQueryAdapter,
         );
 
-        return list[0];
+        return list.filter((event) => event._source.topics[2] === proposalIdHex)[0];
     }
 }
