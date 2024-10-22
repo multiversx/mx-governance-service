@@ -9,7 +9,6 @@ import { decimalToHex } from '../../../utils/token.converters';
 import { ElasticQuery, ElasticSortOrder, QueryType } from '@multiversx/sdk-nestjs-elastic';
 import { ElasticService } from 'src/helpers/elastic.service';
 import { GovernanceType, governanceType, toVoteType } from '../../../utils/governance';
-import { VoteEvent } from '@multiversx/sdk-exchange';
 
 @Injectable()
 export class GovernanceComputeService {
@@ -26,28 +25,14 @@ export class GovernanceComputeService {
             return cachedVoteType.vote;
         }
 
-        const log = await this.getVoteLog('vote', scAddress, userAddress, proposalId);
+        const event = await this.getVoteEvent('vote', scAddress, userAddress, proposalId);
         let voteType = VoteType.NotVoted;
-        if (governanceType(scAddress) === GovernanceType.OLD_ENERGY) {
-            if (log.length > 0) {
-                const voteEvent = log[0]._source.events.find((event) => event.identifier === 'vote');
-                voteType = toVoteType(atob(voteEvent.topics[0]));
-            }
+        if(event) {
+                const voteEvent = event._source;
+                const decodedVoteType = Buffer.from(voteEvent.topics[0], 'hex').toString();
+                voteType = toVoteType(decodedVoteType);
         }
-        else {
-            for (let i = 0; i < log.length; i++) {
-                const logEntry = log[i]._source;
-                const voteEvent = logEntry.events.find((event) => event.identifier === 'vote');
-
-                // Check if the voteEvent exists and the address matches the desired address
-                const event = new VoteEvent(voteEvent);
-                const topics = event.getTopics();
-                if (voteEvent && topics.voter === userAddress && topics.proposalId === proposalId) {
-                    voteType = toVoteType(topics.eventName);
-                    break; // Optional: break the loop if you only need the first match
-                }
-            }
-        }
+        
         const proposalVoteType = {
             proposalId,
             vote: voteType,
@@ -67,42 +52,29 @@ export class GovernanceComputeService {
         return [];
     }
 
-    private async getVoteLog(
+    private async getVoteEvent (
         eventName: string,
         scAddress: string,
         callerAddress: string,
         proposalId: number,
-    ): Promise<any[]> {
+    ): Promise<any> {
         const elasticQueryAdapter: ElasticQuery = new ElasticQuery();
-        const encodedProposalId = Buffer.from(decimalToHex(proposalId), 'hex').toString('base64');
-        const encodedCallerAddress = Buffer.from(Address.fromString(callerAddress).hex(), 'hex').toString('base64');
+        const proposalIdHex = decimalToHex(proposalId);
+        const callerAddressHex = Address.fromString(callerAddress).hex();
+
         elasticQueryAdapter.condition.must = [
             QueryType.Match('address', scAddress),
-            QueryType.Nested('events', [
-                QueryType.Match('events.address', scAddress),
-                QueryType.Match('events.identifier', eventName),
-            ]),
-            QueryType.Nested('events', [
-                QueryType.Match('events.topics', encodedProposalId),
-            ]),
-            QueryType.Nested('events', [
-                QueryType.Match('events.topics', {
-                    "query": encodedCallerAddress,
-                    "operator": "and"
-                }),
-            ]),
+            QueryType.Match('identifier', eventName),
+            QueryType.Match('topics', proposalIdHex),
+            QueryType.Match('topics', callerAddressHex),
         ];
-
-        elasticQueryAdapter.sort = [
-            { name: 'timestamp', order: ElasticSortOrder.ascending },
-        ];
-
 
         const list = await this.elasticService.get(
-            'logs',
+            'events',
             '',
             elasticQueryAdapter,
         );
-        return list;
+
+        return list.filter((event) => event._source.topics[2] === proposalIdHex)[0];
     }
 }
