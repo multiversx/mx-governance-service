@@ -60,4 +60,10 @@ export class GovernanceSetterService extends GenericSetterService {
             CacheTtlInfo.ContractState.localTtl,
         );
     }
+
+    async deleteUserVotingPower(scAddress: string, proposalId: number, userAddress: string): Promise<string> {
+        return await this.delData(
+            this.getCacheKey('userVotingPower', scAddress, proposalId, userAddress),
+        );
+    }
 }
