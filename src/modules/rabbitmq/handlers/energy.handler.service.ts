@@ -40,6 +40,7 @@ export class EnergyHandler {
             GovernanceType.ENERGY,
         ]);
 
+        const deletePromises = [];
         for (const address of governanceAddresses) {
             const proposals = await this.governanceAbiFactory
                 .useAbi(address)
@@ -54,8 +55,8 @@ export class EnergyHandler {
 
             for (const [index, status] of statuses.entries()) {
                 if (status === GovernanceProposalStatus.Active) {
-                    cachedKeys.push(
-                        await this.governanceSetter.deleteUserVotingPower(
+                    deletePromises.push(
+                        this.governanceSetter.deleteUserVotingPower(
                             address,
                             proposals[index].proposalId,
                             caller.bech32(),
@@ -64,7 +65,11 @@ export class EnergyHandler {
                 }
             }
         }
+        const deletedKeys = await Promise.all(deletePromises)
 
+        cachedKeys.push(
+          ...deletedKeys
+        )
         await this.deleteCacheKeys(cachedKeys);
         await this.pubSub.publish(SIMPLE_LOCK_ENERGY_EVENTS.ENERGY_UPDATED, {
             updatedEnergy: event,
