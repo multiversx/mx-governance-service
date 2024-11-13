@@ -12,6 +12,7 @@ import {
 import { EnergyHandler } from './handlers/energy.handler.service';
 import { governanceContractsAddresses } from '../../utils/governance';
 import { GovernanceHandlerService } from './handlers/governance.handler.service';
+import { scAddress } from 'src/config';
 
 @Injectable()
 export class RabbitMqConsumer {
@@ -74,6 +75,7 @@ export class RabbitMqConsumer {
 
     async getFilterAddresses(): Promise<void> {
         this.filterAddresses = governanceContractsAddresses();
+        this.filterAddresses.push(scAddress.simpleLockEnergy)
     }
 
     private isFilteredAddress(address: string): boolean {
