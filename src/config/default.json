@@ -18,7 +18,10 @@
     },
     "gasLimits": {
         "governance": {
-            "vote": 50000000
+            "vote":  {
+                "energy": 7000000,
+                "tokenSnapshot": 50000000
+            }
         }
     },
     "abi": {
