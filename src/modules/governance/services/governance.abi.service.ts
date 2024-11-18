@@ -408,7 +408,7 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
                 new U64Value(new BigNumber(addressLeaf.balance)),
                 new BytesValue(governanceMerkle.getProofBuffer(addressLeaf)),
             ])
-            .withGasLimit(gasConfig.governance.vote)
+            .withGasLimit(gasConfig.governance.vote.tokenSnapshot)
             .withChainID(mxConfig.chainID)
             .buildTransaction()
             .toPlainObject();
@@ -503,7 +503,7 @@ export class GovernanceEnergyAbiService extends GovernanceTokenSnapshotAbiServic
                 new U64Value(new BigNumber(args.proposalId)),
                 new U64Value(new BigNumber(args.vote)),
             ])
-            .withGasLimit(gasConfig.governance.vote)
+            .withGasLimit(gasConfig.governance.vote.energy)
             .withChainID(mxConfig.chainID)
             .buildTransaction()
             .toPlainObject();
