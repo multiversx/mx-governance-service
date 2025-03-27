@@ -214,7 +214,9 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
                 actions,
                 description:
                     this.governanceDescription.getGovernanceDescription(
-                        proposal.description.toString(),
+                        scAddress === 'erd1qqqqqqqqqqqqqpgqahutnw3r4s95gxz4keecvlyyl3wlsu2mdthq06swcp' ?
+                        JSON.stringify({"title":"Andromeda 1.9.0 Protocol Upgrade","shortDescription":"Andromeda is the first major upgrade in a two-step roadmap to drastically reduce transaction time to finality on MultiversX. This release redesigns consensus mechanisms, finalization rules, and cross-shard execution, significantly improving the efficiency, security, and scalability of the network.","strapiId":8, "version":1})
+                             : proposal.description.toString()
                     ),
                 feePayment: new EsdtTokenPaymentModel(
                     EsdtTokenPayment.fromDecodedAttributes(
