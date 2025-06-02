@@ -221,7 +221,7 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
                 proposalId: proposal.proposal_id.toNumber(),
                 proposer: proposal.proposer.bech32(),
                 actions,
-                description,
+                description: this.governanceDescription.getGovernanceDescription(description),
                 feePayment: new EsdtTokenPaymentModel(
                     EsdtTokenPayment.fromDecodedAttributes(
                         proposal.fee_payment,
