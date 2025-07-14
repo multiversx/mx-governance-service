@@ -12,18 +12,20 @@ import { GovernanceTransactionService } from './resolvers/governance.transaction
 import { GovernanceDescriptionService } from './services/governance.description.service';
 import {
     GovernanceEnergyContractResolver,
+    GovernanceOnChainContractResolver,
     GovernanceTokenSnapshotContractResolver,
 } from './resolvers/governance.contract.resolver';
 import { GovernanceSetterService } from './services/governance.setter.service';
 import { GovernanceQueryResolver } from './resolvers/governance.query.resolver';
 import { GovernanceProposalResolver } from './resolvers/governance.proposal.resolver';
-import { GovernanceEnergyService, GovernanceTokenSnapshotService } from './services/governance.service';
+import { GovernanceEnergyService, GovernanceOnChainService, GovernanceTokenSnapshotService } from './services/governance.service';
 import { GovernanceAbiFactory } from './services/governance.abi.factory';
 import { GovernanceServiceFactory } from './services/governance.factory';
 import { GovernanceOldEnergyAbiService } from './services/governance.old.energy.abi.service';
 import { LockedAssetModule } from '../locked-asset-factory/locked-asset.module';
 import { ElasticService } from 'src/helpers/elastic.service';
 import { RemoteConfigModule } from '../remote-config/remote-config.module';
+import { GovernanceOnChainAbiService } from './services/governance.onchain.abi.service';
 
 @Module({
     imports: [
@@ -52,8 +54,11 @@ import { RemoteConfigModule } from '../remote-config/remote-config.module';
         GovernanceQueryResolver,
         GovernanceEnergyContractResolver,
         GovernanceTokenSnapshotContractResolver,
+        GovernanceOnChainContractResolver,
         GovernanceProposalResolver,
         ElasticService,
+        GovernanceOnChainAbiService,
+        GovernanceOnChainService,
     ],
     exports: [
         GovernanceTokenSnapshotAbiService,
@@ -63,6 +68,8 @@ import { RemoteConfigModule } from '../remote-config/remote-config.module';
         GovernanceTokenSnapshotService,
         GovernanceEnergyService,
         GovernanceAbiFactory,
+        GovernanceOnChainAbiService,
+        GovernanceOnChainService,
     ],
 })
 export class GovernanceModule {}

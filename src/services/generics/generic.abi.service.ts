@@ -2,11 +2,11 @@ import { ContractQueryResponse } from '@multiversx/sdk-network-providers/out';
 import {
     Interaction,
     Query,
-    ResultsParser,
     TypedOutcomeBundle,
 } from '@multiversx/sdk-core';
 import { PendingExecutor } from 'src/utils/pending.executor';
 import { MXProxyService } from '../multiversx-communication/mx.proxy.service';
+import { ResultsParser } from 'src/utils/results.parser';
 
 export class GenericAbiService {
     private queryExecutor: PendingExecutor<Query, ContractQueryResponse>;
@@ -21,7 +21,7 @@ export class GenericAbiService {
     async getGenericData(
         interaction: Interaction,
     ): Promise<TypedOutcomeBundle> {
-        const query = interaction.check().buildQuery();
+        const query = interaction.buildQuery();
         const queryResponse = await this.queryExecutor.execute(query);
         const endpointDefinition = interaction.getEndpoint();
         return new ResultsParser().parseQueryResponse(
@@ -30,3 +30,5 @@ export class GenericAbiService {
         );
     }
 }
+
+

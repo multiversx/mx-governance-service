@@ -1,7 +1,7 @@
 import { Args, Int, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { GovernanceProposalModel } from '../models/governance.proposal.model';
 import { EsdtToken } from '../../tokens/models/esdtToken.model';
-import { GovernanceEnergyContract, GovernanceTokenSnapshotContract } from '../models/governance.contract.model';
+import { GovernanceEnergyContract, GovernanceOnChainContract, GovernanceTokenSnapshotContract } from '../models/governance.contract.model';
 import { GovernanceAbiFactory } from '../services/governance.abi.factory';
 import { GovernanceServiceFactory } from '../services/governance.factory';
 import { GovernanceEnergyAbiService } from '../services/governance.abi.service';
@@ -95,4 +95,32 @@ export class GovernanceEnergyContractResolver extends GovernanceTokenSnapshotCon
         const abi = this.governanceAbiFactory.useAbi(contract.address) as GovernanceEnergyAbiService;
         return abi.energyFactoryAddress(contract.address);
     }
+}
+
+@Resolver(() => GovernanceOnChainContract)
+export class GovernanceOnChainContractResolver extends GovernanceTokenSnapshotContractResolver {
+    constructor(
+        protected readonly governanceAbiFactory: GovernanceAbiFactory,
+        protected readonly governanceServiceFactory: GovernanceServiceFactory,
+    ) {
+        super(governanceAbiFactory, governanceServiceFactory);
+    }
+
+    // @ResolveField()
+    // async minEnergyForPropose(@Parent() contract: GovernanceEnergyContract): Promise<string> {
+    //     const abi = this.governanceAbiFactory.useAbi(contract.address) as GovernanceEnergyAbiService;
+    //     return abi.minEnergyForPropose(contract.address);
+    // }
+
+    // @ResolveField()
+    // async feesCollectorAddress(@Parent() contract: GovernanceEnergyContract): Promise<string> {
+    //     const abi = this.governanceAbiFactory.useAbi(contract.address) as GovernanceEnergyAbiService;
+    //     return abi.feesCollectorAddress(contract.address);
+    // }
+
+    // @ResolveField()
+    // async energyFactoryAddress(@Parent() contract: GovernanceEnergyContract): Promise<string> {
+    //     const abi = this.governanceAbiFactory.useAbi(contract.address) as GovernanceEnergyAbiService;
+    //     return abi.energyFactoryAddress(contract.address);
+    // }
 }

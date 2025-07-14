@@ -12,13 +12,6 @@ interface IAssets {
   extraTokens: [String]
 }
 
-interface IRoles {
-  address: String
-  canMint: Boolean
-  canBurn: Boolean
-  roles: [String]
-}
-
 type AssetsModel implements IAssets {
   website: String
   description: String
@@ -27,13 +20,6 @@ type AssetsModel implements IAssets {
   svgUrl: String
   lockedAccounts: [String]
   extraTokens: [String]
-}
-
-type RolesModel implements IRoles {
-  address: String
-  canMint: Boolean
-  canBurn: Boolean
-  roles: [String]
 }
 
 type EsdtToken implements IEsdtToken {
@@ -59,7 +45,6 @@ type EsdtToken implements IEsdtToken {
   canPause: Boolean!
   canFreeze: Boolean!
   canWipe: Boolean!
-  roles: IRoles
   type: String
   balance: String
 }
@@ -87,7 +72,6 @@ interface IEsdtToken {
   canPause: Boolean!
   canFreeze: Boolean!
   canWipe: Boolean!
-  roles: IRoles
   type: String
   balance: String
 }
@@ -139,7 +123,7 @@ type GovernanceProposalModel {
   userVotingPower: String!
 }
 
-union GovernanceDescriptionVersions = DescriptionV0 | DescriptionV1
+union GovernanceDescriptionVersions = DescriptionV0 | DescriptionV1 | DescriptionV2
 
 type DescriptionV0 {
   title: String!
@@ -152,6 +136,14 @@ type DescriptionV1 {
   strapiId: Int!
   version: Float!
   shortDescription: String!
+}
+
+type DescriptionV2 {
+  title: String!
+  strapiId: Int!
+  version: Float!
+  shortDescription: String!
+  strapiHash: String!
 }
 
 type TransactionModel {
@@ -178,7 +170,7 @@ type Query {
   maintenance: Boolean!
 }
 
-union GovernanceTypes = GovernanceTokenSnapshotContract | GovernanceEnergyContract
+union GovernanceTypes = GovernanceTokenSnapshotContract | GovernanceEnergyContract | GovernanceOnChainContract
 
 type GovernanceTokenSnapshotContract {
   address: String!
@@ -190,7 +182,7 @@ type GovernanceTokenSnapshotContract {
   feeToken: EsdtToken!
   withdrawPercentageDefeated: Int!
   proposals(proposalId: Int): [GovernanceProposalModel!]!
-  vetoPercentageLimit: Int!
+  vetoPercentageLimit: Float!
   votingPowerDecimals: Int!
 }
 
@@ -204,9 +196,23 @@ type GovernanceEnergyContract {
   feeToken: EsdtToken!
   withdrawPercentageDefeated: Int!
   proposals(proposalId: Int): [GovernanceProposalModel!]!
-  vetoPercentageLimit: Int!
+  vetoPercentageLimit: Float!
   votingPowerDecimals: Int!
   minEnergyForPropose: String!
   feesCollectorAddress: String!
   energyFactoryAddress: String!
+}
+
+type GovernanceOnChainContract {
+  address: String!
+  shard: Int!
+  minFeeForPropose: String!
+  quorum: String!
+  votingDelayInBlocks: Int!
+  votingPeriodInBlocks: Int!
+  feeToken: EsdtToken!
+  withdrawPercentageDefeated: Int!
+  proposals(proposalId: Int): [GovernanceProposalModel!]!
+  vetoPercentageLimit: Float!
+  votingPowerDecimals: Int!
 }

@@ -106,7 +106,7 @@ export class MXProxyService {
         });
         const json = JSON.parse(jsonContent);
         const newSC = new SmartContract({
-            address: Address.fromString(contractAddress),
+            address: Address.newFromBech32(contractAddress),
             abi: AbiRegistry.create(json),
         });
         const key = `${contractInterface}.${contractAddress}`;

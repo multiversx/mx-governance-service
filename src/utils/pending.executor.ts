@@ -6,7 +6,10 @@ export class PendingExecutor<TIN, TOUT> {
     constructor(private readonly executor: (value: any) => Promise<TOUT>) { }
 
     async execute(value: TIN): Promise<TOUT> {
-        const key = crypto.createHash('md5').update(JSON.stringify(value)).digest('hex');
+        // can not stringify bigint
+        const key = crypto.createHash('md5').update(JSON.stringify(value, (_key, val) =>
+                        typeof val === 'bigint' ? val.toString() : val
+                        )).digest('hex');
 
         let pendingRequest = this.dictionary[key];
         if (pendingRequest) {

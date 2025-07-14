@@ -60,7 +60,7 @@ export class GovernanceComputeService {
     ): Promise<any> {
         const elasticQueryAdapter: ElasticQuery = new ElasticQuery();
         const proposalIdHex = decimalToHex(proposalId);
-        const callerAddressHex = Address.fromString(callerAddress).hex();
+        const callerAddressHex = Address.newFromBech32(callerAddress).hex();
 
         elasticQueryAdapter.condition.must = [
             QueryType.Match('address', scAddress),
