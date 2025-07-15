@@ -201,22 +201,20 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
             const proposal = await this.governanceController.getProposal(proposalNonce);
             proposalsRaw.push(proposal);
         }
-
-        const feeTokenId = await this.feeTokenId(scAddress);
      
-        const proposals: GovernanceProposalModel[] =  proposalsRaw.map((proposal: ProposalInfo) => {
-            return this.convertProposalInfoToGovernanceModel(proposal, scAddress, config, feeTokenId)
+        const proposalsPromises: Promise<GovernanceProposalModel>[] =  proposalsRaw.map((proposal: ProposalInfo) => {
+            return this.convertProposalInfoToGovernanceModel(proposal, scAddress, config)
         })
 
-        return proposals;
+        return await Promise.all(proposalsPromises);
     }
 
-    @ErrorLoggerAsync()
-    @GetOrSetCache({
-        baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl,
-    })
+    // @ErrorLoggerAsync()
+    // @GetOrSetCache({
+    //     baseKey: 'governance',
+    //     remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
+    //     localTtl: CacheTtlInfo.ContractState.localTtl,
+    // })
     async proposalVotes(
         scAddress: string,
         proposalId: number,
@@ -234,6 +232,8 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         const downVotes = new BigNumber(proposalInfo.numNoVotes.toString());
         const downVetoVotes = new BigNumber(proposalInfo.numVetoVotes.toString());
         const abstainVotes = new BigNumber(proposalInfo.numAbstainVotes.toString());
+
+        // TODO: count delegate votes
 
         const totalVotes = new BigNumber(0).plus(upVotes).plus(downVotes).plus(downVetoVotes).plus(abstainVotes);
 
@@ -393,12 +393,20 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
     }
 
 
-    private convertProposalInfoToGovernanceModel(
+    private async convertProposalInfoToGovernanceModel(
     proposalInfo: ProposalInfo,
     scAddress: string,
     config: GovernanceConfig,
-    feeTokenId: string,
-        ): GovernanceProposalModel {
+        ): Promise<GovernanceProposalModel> {
+        const feeTokenId = await this.feeTokenId(scAddress);
+        const [startEpochRound, roundsLeftUntilEpoch] = await Promise.all([ 
+            this.contextGetter.getStartEpochRound(proposalInfo.startVoteEpoch),
+            this.contextGetter.getRoundsLeftUntilEpoch(proposalInfo.startVoteEpoch)
+            ]);
+        const {roundsPerEpoch} = await this.contextGetter.getStats();
+        const voteTimeInEpochs = (proposalInfo.endVoteEpoch + 1) - proposalInfo.startVoteEpoch;
+        const votingPeriodInRounds = voteTimeInEpochs * roundsPerEpoch;
+            console.log(proposalInfo)
         return new GovernanceProposalModel({
             contractAddress: scAddress,
             proposalId: proposalInfo.nonce,
@@ -410,9 +418,9 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
                         tokenNonce: 0,
                         amount: proposalInfo.cost.toString(), // TODO: check
                     }),
-            proposalStartBlock: proposalInfo.startVoteEpoch, // TODO
-            votingPeriodInBlocks: proposalInfo.endVoteEpoch - proposalInfo.startVoteEpoch, // TODO
-            votingDelayInBlocks: undefined, // TODO
+            proposalStartBlock: startEpochRound + 10, // TODO
+            votingPeriodInBlocks: votingPeriodInRounds,
+            votingDelayInBlocks: roundsLeftUntilEpoch > 0 ? roundsLeftUntilEpoch + 10 : 0, // TODO
             minimumQuorumPercentage: new BigNumber(config.minQuorum).div(100).toFixed(2),
             totalQuorum: proposalInfo.quorumStake.toString(),
             withdrawPercentageDefeated: undefined, // TODO
@@ -436,5 +444,4 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         // TODO: add defeatead with veto
         return GovernanceProposalStatus.None;
     }
-
 }
