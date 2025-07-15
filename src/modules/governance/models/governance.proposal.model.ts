@@ -11,6 +11,7 @@ export enum GovernanceProposalStatus {
     Defeated = 'Defeated',
     DefeatedWithVeto = 'DefeatedWithVeto',
     Succeeded = 'Succeeded',
+    PendingClose = 'PendingClose',
 }
 
 registerEnumType(GovernanceProposalStatus, {name: 'GovernanceProposalStatus'});

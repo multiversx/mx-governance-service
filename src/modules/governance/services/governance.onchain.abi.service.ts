@@ -406,7 +406,6 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         const {roundsPerEpoch} = await this.contextGetter.getStats();
         const voteTimeInEpochs = (proposalInfo.endVoteEpoch + 1) - proposalInfo.startVoteEpoch;
         const votingPeriodInRounds = voteTimeInEpochs * roundsPerEpoch;
-            console.log(proposalInfo)
         return new GovernanceProposalModel({
             contractAddress: scAddress,
             proposalId: proposalInfo.nonce,
@@ -435,10 +434,13 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
             return GovernanceProposalStatus.Defeated;
         }
         const currentEpoch = await this.contextGetter.getCurrentEpoch()
-        if(currentEpoch >= proposal.startVoteEpoch && !proposal.isClosed) {
+        if(currentEpoch >= proposal.startVoteEpoch && currentEpoch <= proposal.endVoteEpoch && !proposal.isClosed ) {
             return GovernanceProposalStatus.Active;
         }
-         if(currentEpoch < proposal.startVoteEpoch) {
+        if(currentEpoch > proposal.endVoteEpoch && !proposal.isClosed) {
+            return GovernanceProposalStatus.PendingClose;
+        }
+        if(currentEpoch < proposal.startVoteEpoch) {
             return GovernanceProposalStatus.Pending;
         }
         // TODO: add defeatead with veto
