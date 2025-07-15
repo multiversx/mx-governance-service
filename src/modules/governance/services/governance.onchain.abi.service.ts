@@ -164,14 +164,8 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
     }
 
     async withdrawPercentageDefeatedRaw(scAddress: string): Promise<number> {
-        const contract = await this.mxProxy.getGovernanceSmartContract(
-            scAddress,
-            this.type,
-        );
-        const interaction = contract.methods.getWithdrawPercentageDefeated();
-        const response = await this.getGenericData(interaction);
-
-        return response.firstValue.valueOf().toNumber();
+        const {lostProposalFee, proposalFee} = await this.governanceController.getConfig()
+        return Number(new BigNumber(lostProposalFee.toString()).multipliedBy(new BigNumber(100)).dividedBy(new BigNumber(proposalFee.toString())).toFixed());
     }
 
 
@@ -406,6 +400,7 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         const {roundsPerEpoch} = await this.contextGetter.getStats();
         const voteTimeInEpochs = (proposalInfo.endVoteEpoch + 1) - proposalInfo.startVoteEpoch;
         const votingPeriodInRounds = voteTimeInEpochs * roundsPerEpoch;
+        const withdrawPercentageDefeated = await this.withdrawPercentageDefeated(scAddress);
         return new GovernanceProposalModel({
             contractAddress: scAddress,
             proposalId: proposalInfo.nonce,
@@ -417,12 +412,12 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
                         tokenNonce: 0,
                         amount: proposalInfo.cost.toString(), // TODO: check
                     }),
-            proposalStartBlock: startEpochRound + 10, // TODO
+            proposalStartBlock: startEpochRound + 10, // TODO: check
             votingPeriodInBlocks: votingPeriodInRounds,
-            votingDelayInBlocks: roundsLeftUntilEpoch > 0 ? roundsLeftUntilEpoch + 10 : 0, // TODO
+            votingDelayInBlocks: roundsLeftUntilEpoch > 0 ? roundsLeftUntilEpoch + 10 : 0, // TODO: check
             minimumQuorumPercentage: new BigNumber(config.minQuorum).div(100).toFixed(2),
             totalQuorum: proposalInfo.quorumStake.toString(),
-            withdrawPercentageDefeated: undefined, // TODO
+            withdrawPercentageDefeated,
         });
     }
 
