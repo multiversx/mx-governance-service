@@ -54,9 +54,9 @@ export class ResultsParser {
     }
 
     parseQueryResponse(queryResponse: any, endpoint: { output: IParameterDefinition[] }): TypedOutcomeBundle {
-        let parts = queryResponse.getReturnDataParts();
-        let values = this.argsSerializer.buffersToValues(parts, endpoint.output);
-        let returnCode = new ReturnCode(queryResponse.returnCode.toString());
+        const parts = queryResponse.getReturnDataParts();
+        const values = this.argsSerializer.buffersToValues(parts, endpoint.output);
+        const returnCode = new ReturnCode(queryResponse.returnCode.toString());
 
         return {
             returnCode: returnCode,

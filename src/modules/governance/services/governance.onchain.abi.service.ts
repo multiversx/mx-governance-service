@@ -110,14 +110,6 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
     async votingDelayInBlocksRaw(scAddress: string): Promise<number> {
         // TODO: check
         return 2;
-        // const contract = await this.mxProxy.getGovernanceSmartContract(
-        //     scAddress,
-        //     this.type,
-        // );
-        // const interaction = contract.methods.getVotingDelayInBlocks();
-        // const response = await this.getGenericData(interaction);
-
-        // return response.firstValue.valueOf().toNumber();
     }
 
     @ErrorLoggerAsync()
@@ -135,14 +127,6 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
     async votingPeriodInBlocksRaw(scAddress: string): Promise<number> {
         // TODO: check
         return 1;
-        // const contract = await this.mxProxy.getGovernanceSmartContract(
-        //     scAddress,
-        //     this.type,
-        // );
-        // const interaction = contract.methods.getVotingPeriodInBlocks();
-        // const response = await this.getGenericData(interaction);
-
-        // return response.firstValue.valueOf().toNumber();
     }
 
     @ErrorLoggerAsync()
@@ -205,12 +189,12 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         return await Promise.all(proposalsPromises);
     }
 
-    // @ErrorLoggerAsync()
-    // @GetOrSetCache({
-    //     baseKey: 'governance',
-    //     remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-    //     localTtl: CacheTtlInfo.ContractState.localTtl,
-    // })
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'governance',
+        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
+        localTtl: CacheTtlInfo.ContractState.localTtl,
+    })
     async proposalVotes(
         scAddress: string,
         proposalId: number,
@@ -311,19 +295,7 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         proposalId: number,
     ): Promise<string> {
         //TODO: check
-        return 'TBD'
-
-        // const contract = await this.mxProxy.getGovernanceSmartContract(
-        //     scAddress,
-        //     this.type,
-        // );
-        // const interaction = contract.methods.getProposalRootHash([proposalId]);
-        // const response = await this.getGenericData(interaction);
-
-        // const stringsArray = response.firstValue.valueOf().map((bn) => {
-        //     return decimalToHex(bn);
-        // });
-        // return stringsArray.join('');
+        return ''
     }
 
     @ErrorLoggerAsync({

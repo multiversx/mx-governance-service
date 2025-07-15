@@ -23,7 +23,7 @@ export class GovernanceTokenSnapshotContract {
     @Field(() => [GovernanceProposalModel])
     proposals: GovernanceProposalModel[];
     @Field(() => Float)
-    vetoPercentageLimit: number = 33.33;
+    vetoPercentageLimit = 33.33;
     @Field(() => Int)
     votingPowerDecimals: number;
 
