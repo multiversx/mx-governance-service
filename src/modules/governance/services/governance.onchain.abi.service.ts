@@ -11,7 +11,7 @@ import { GovernanceType, toGovernanceProposalStatus, } from '../../../utils/gove
 import { TransactionModel } from '../../../models/transaction.model';
 import { gasConfig, mxConfig } from '../../../config';
 import BigNumber from 'bignumber.js';
-import { Address, ApiNetworkProvider, DevnetEntrypoint, GovernanceConfig, GovernanceController, GovernanceTransactionsFactory, NetworkEntrypoint, ProposalInfo, Transaction, TransactionsFactoryConfig, U64Value, Vote } from '@multiversx/sdk-core/out';
+import { Address, ApiNetworkProvider, DevnetEntrypoint, GovernanceConfig, GovernanceController, GovernanceTransactionsFactory, NetworkEntrypoint, Transaction, TransactionsFactoryConfig, U64Value, Vote } from '@multiversx/sdk-core/out';
 import { GovernanceDescriptionService } from './governance.description.service';
 import { GetOrSetCache } from '../../../helpers/decorators/caching.decorator';
 import { CacheTtlInfo } from '../../../services/caching/cache.ttl.info';
@@ -22,6 +22,8 @@ import { ApiService } from '@multiversx/sdk-nestjs-http';
 import { ContextGetterService } from 'src/services/context/context.getter.service';
 import { AxiosError } from 'axios';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { ProposalInfoModel } from '../models/proposal.info.model';
+import { GovernanceConfigModel } from '../models/governance.config.model';
 
 
 @Injectable()
@@ -74,7 +76,7 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
     }
 
     async minFeeForProposeRaw(scAddress: string): Promise<string> {
-        const { proposalFee } =  await this.governanceController.getConfig();
+        const { proposalFee } = await this.getConfig();
         return proposalFee.toString();
     }
 
@@ -89,7 +91,7 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
     }
 
     async quorumRaw(scAddress: string): Promise<string> {
-        const { minQuorum } =  await this.governanceController.getConfig();
+        const { minQuorum } =  await this.getConfig();
         return minQuorum.toFixed()
     }
 
@@ -164,7 +166,7 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
     }
 
     async withdrawPercentageDefeatedRaw(scAddress: string): Promise<number> {
-        const {lostProposalFee, proposalFee} = await this.governanceController.getConfig()
+        const {lostProposalFee, proposalFee} = await this.getConfig()
         return Number(new BigNumber(lostProposalFee.toString()).multipliedBy(new BigNumber(100)).dividedBy(new BigNumber(proposalFee.toString())).toFixed());
     }
 
@@ -180,7 +182,7 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
     }
 
     async proposalsRaw(scAddress: string): Promise<GovernanceProposalModel[]> {
-        const config = await this.governanceController.getConfig()
+        const config = await this.getConfig()
         let lastProposalNonce = config.lastProposalNonce;
         if(!(Number.isInteger(lastProposalNonce) && lastProposalNonce > 0)) {
             lastProposalNonce = 0;
@@ -190,13 +192,13 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
             // early exit in case of a bug in vm query to not go into infinite loop
             lastProposalNonce = 10;
         }
-        const proposalsRaw: ProposalInfo[] = [];
+        const proposalsRaw: ProposalInfoModel[] = [];
         for(let proposalNonce = 1; proposalNonce <= lastProposalNonce; proposalNonce++) {
-            const proposal = await this.governanceController.getProposal(proposalNonce);
+            const proposal = await this.getProposal(proposalNonce);
             proposalsRaw.push(proposal);
         }
      
-        const proposalsPromises: Promise<GovernanceProposalModel>[] =  proposalsRaw.map((proposal: ProposalInfo) => {
+        const proposalsPromises: Promise<GovernanceProposalModel>[] =  proposalsRaw.map((proposal: ProposalInfoModel) => {
             return this.convertProposalInfoToGovernanceModel(proposal, scAddress, config)
         })
 
@@ -220,12 +222,12 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         scAddress: string,
         proposalId: number,
     ): Promise<ProposalVotes> {
-        const proposalInfo = await this.governanceController.getProposal(proposalId);
+        const proposalInfo = await this.getProposal(proposalId);
 
-        const upVotes = new BigNumber(proposalInfo.numYesVotes.toString());
-        const downVotes = new BigNumber(proposalInfo.numNoVotes.toString());
-        const downVetoVotes = new BigNumber(proposalInfo.numVetoVotes.toString());
-        const abstainVotes = new BigNumber(proposalInfo.numAbstainVotes.toString());
+        const upVotes = new BigNumber(proposalInfo.numYesVotes);
+        const downVotes = new BigNumber(proposalInfo.numNoVotes);
+        const downVetoVotes = new BigNumber(proposalInfo.numVetoVotes);
+        const abstainVotes = new BigNumber(proposalInfo.numAbstainVotes);
 
         // TODO: count delegate votes
 
@@ -287,7 +289,7 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         scAddress: string,
         proposalId: number,
     ): Promise<GovernanceProposalStatus> {
-       const proposalInfo: ProposalInfo = await this.governanceController.getProposal(proposalId);
+       const proposalInfo: ProposalInfoModel = await this.getProposal(proposalId);
         return await this.getStatusForProposal(proposalInfo);
     }
 
@@ -388,9 +390,9 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
 
 
     private async convertProposalInfoToGovernanceModel(
-    proposalInfo: ProposalInfo,
+    proposalInfo: ProposalInfoModel,
     scAddress: string,
-    config: GovernanceConfig,
+    config: GovernanceConfigModel,
         ): Promise<GovernanceProposalModel> {
         const feeTokenId = await this.feeTokenId(scAddress);
         const [startEpochRound, roundsLeftUntilEpoch] = await Promise.all([ 
@@ -404,24 +406,24 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         return new GovernanceProposalModel({
             contractAddress: scAddress,
             proposalId: proposalInfo.nonce,
-            proposer: proposalInfo.issuer.toBech32(),
+            proposer: proposalInfo.issuer,
             actions: undefined, // TODO
             description: undefined, // TODO
             feePayment:  new EsdtTokenPayment({
                         tokenIdentifier: feeTokenId,
                         tokenNonce: 0,
-                        amount: proposalInfo.cost.toString(), // TODO: check
+                        amount: proposalInfo.cost // TODO: check
                     }),
             proposalStartBlock: startEpochRound + 10, // TODO: check
             votingPeriodInBlocks: votingPeriodInRounds,
             votingDelayInBlocks: roundsLeftUntilEpoch > 0 ? roundsLeftUntilEpoch + 10 : 0, // TODO: check
             minimumQuorumPercentage: new BigNumber(config.minQuorum).div(100).toFixed(2),
-            totalQuorum: proposalInfo.quorumStake.toString(),
+            totalQuorum: proposalInfo.quorumStake,
             withdrawPercentageDefeated,
         });
     }
 
-    private async getStatusForProposal(proposal: ProposalInfo): Promise<GovernanceProposalStatus> {
+    private async getStatusForProposal(proposal: ProposalInfoModel): Promise<GovernanceProposalStatus> {
         if(proposal.isPassed){
             return GovernanceProposalStatus.Succeeded;
         }
@@ -440,5 +442,59 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         }
         // TODO: add defeatead with veto
         return GovernanceProposalStatus.None;
+    }
+
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'governance',
+        remoteTtl: CacheTtlInfo.BlockTime.remoteTtl,
+        localTtl: CacheTtlInfo.BlockTime.localTtl,
+    })
+    private async getConfig(): Promise<GovernanceConfigModel> {
+        const config = await this.governanceController.getConfig();
+        const stringifiedConfig = this.convertToRedisTypes(config);
+        // we can't serialize bigint in order to store obj in redis
+        return stringifiedConfig;
+    }
+
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'governance',
+        remoteTtl: CacheTtlInfo.BlockTime.remoteTtl,
+        localTtl: CacheTtlInfo.BlockTime.localTtl,
+    })
+    private async getProposal(proposalId: number): Promise<ProposalInfoModel> {
+        try{
+            const proposal = await this.governanceController.getProposal(proposalId);
+            const stringifiedProposal = this.convertToRedisTypes(proposal);
+            // we can't serialize bigint in order to store obj in redis
+            return stringifiedProposal;
+        } catch(error) {
+            this.logger.error(error);
+            throw new InternalServerErrorException()
+        }
+       
+    }
+
+    private convertToRedisTypes(obj: any): any {
+        if (typeof obj === 'bigint') {
+            return obj.toString();
+        }
+        if(typeof obj === 'object' && obj instanceof Address) {
+            return obj.toBech32();
+        }
+        if (Array.isArray(obj)) {
+            return obj.map(item => this.convertToRedisTypes(item));
+        }
+
+        if (obj !== null && typeof obj === 'object') {
+            const result: any = {};
+            for (const [key, value] of Object.entries(obj)) {
+                result[key] = this.convertToRedisTypes(value);
+            }
+            return result;
+        }
+
+        return obj;
     }
 }

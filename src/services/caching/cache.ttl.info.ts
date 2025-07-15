@@ -43,4 +43,9 @@ export class CacheTtlInfo {
         Constants.oneHour(),
         Constants.oneMinute() * 45,
     );
+
+    static BlockTime: CacheTtlInfo = new CacheTtlInfo(
+        Constants.oneSecond() * 6,
+        Constants.oneSecond() * 6, 
+    );
 }
