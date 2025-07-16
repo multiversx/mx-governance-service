@@ -72,6 +72,20 @@ export class VoteArgs {
     vote: VoteType;
 }
 
+@ArgsType()
+export class CreateProposalArgs {
+    @Field()
+    contractAddress: string;
+    @Field()
+    commitHash: string;
+    @Field(() => Int)
+    startVoteEpoch: number;
+    @Field(() => Int)
+    endVoteEpoch: number;
+    @Field()
+    nativeTokenAmount: string;
+}
+
 @ObjectType()
 export class GovernanceProposalModel {
     @Field()

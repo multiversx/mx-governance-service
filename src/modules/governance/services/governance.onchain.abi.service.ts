@@ -3,7 +3,7 @@ import { MXProxyService } from 'src/services/multiversx-communication/mx.proxy.s
 import { GenericAbiService } from 'src/services/generics/generic.abi.service';
 import { ErrorLoggerAsync } from '@multiversx/sdk-nestjs-common';
 import { ProposalVotes } from '../models/governance.proposal.votes.model';
-import { GovernanceProposalModel, GovernanceProposalStatus, VoteArgs, VoteType, } from '../models/governance.proposal.model';
+import { CreateProposalArgs, GovernanceProposalModel, GovernanceProposalStatus, VoteArgs, VoteType, } from '../models/governance.proposal.model';
 import { GovernanceAction } from '../models/governance.action.model';
 import { EsdtTokenPaymentModel } from '../../tokens/models/esdt.token.payment.model';
 import { EsdtTokenPayment } from '@multiversx/sdk-exchange';
@@ -71,7 +71,6 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         localTtl: CacheTtlInfo.ContractState.localTtl,
     })
     async minFeeForPropose(scAddress: string): Promise<string> {
-        //TODO: check
         return await this.minFeeForProposeRaw(scAddress);
     }
 
@@ -102,14 +101,13 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         localTtl: CacheTtlInfo.ContractState.localTtl,
     })
     async votingDelayInBlocks(scAddress: string): Promise<number> {
-        //TODO: check
+        //TODO: should not be called
         // nr blocks before voting starts
         return await this.votingDelayInBlocksRaw(scAddress);
     }
 
     async votingDelayInBlocksRaw(scAddress: string): Promise<number> {
-        // TODO: check
-        return 2;
+        return 0;
     }
 
     @ErrorLoggerAsync()
@@ -119,14 +117,14 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         localTtl: CacheTtlInfo.ContractState.localTtl,
     })
     async votingPeriodInBlocks(scAddress: string): Promise<number> {
-        //TODO: check
+        //TODO: should not be called
         // endblock - startblock
         return await this.votingPeriodInBlocksRaw(scAddress);
     }
 
     async votingPeriodInBlocksRaw(scAddress: string): Promise<number> {
         // TODO: check
-        return 1;
+        return 0;
     }
 
     @ErrorLoggerAsync()
@@ -213,8 +211,6 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         const downVetoVotes = new BigNumber(proposalInfo.numVetoVotes);
         const abstainVotes = new BigNumber(proposalInfo.numAbstainVotes);
 
-        // TODO: count delegate votes
-
         const totalVotes = new BigNumber(0).plus(upVotes).plus(downVotes).plus(downVetoVotes).plus(abstainVotes);
 
 
@@ -294,8 +290,21 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         scAddress: string,
         proposalId: number,
     ): Promise<string> {
-        //TODO: check
         return ''
+    }
+
+    @ErrorLoggerAsync({
+        logArgs: true,
+    })
+    async createProposal(sender: string, args: CreateProposalArgs): Promise<TransactionModel> {
+        const createProposalTx = this.governanceTransactionsFactory.createTransactionForNewProposal(new Address(sender), {
+            commitHash: args.commitHash,
+            startVoteEpoch: args.startVoteEpoch,
+            endVoteEpoch: args.endVoteEpoch,
+            nativeTokenAmount: BigInt(args.nativeTokenAmount),
+        })
+       
+        return this.convertTransactionToModel(createProposalTx);
     }
 
     @ErrorLoggerAsync({
@@ -303,6 +312,7 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
     })
     async vote(sender: string, args: VoteArgs): Promise<TransactionModel> {
         const vote = this.voteToSdkVoteType(args.vote);
+        // tx to sc with staking for delegated
         const voteTx = this.governanceTransactionsFactory.createTransactionForVoting(new Address(sender), {
             proposalNonce: args.proposalId,
             vote,
@@ -311,12 +321,14 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         return this.convertTransactionToModel(voteTx);
     }
 
+    //TODO: !!! create propose
+    //TODO: add info about voting power provenience
     async userVotingPower(address: string) {
         try{
             const userVotingPower = await this.governanceController.getVotingPower(new Address(address))
+                    // TODO: count voting power with delegate vote for each contract with vm query and do sum
             return userVotingPower.toString();
-        }
-        catch(error){
+        } catch(error){
             if(error.message.includes(`not enough stake/delegate to vote`)) {
                 return '0';
             }
@@ -379,12 +391,11 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
             contractAddress: scAddress,
             proposalId: proposalInfo.nonce,
             proposer: proposalInfo.issuer,
-            actions: undefined, // TODO
-            description: undefined, // TODO
+            description: undefined, // TODO: fetch from git commit hash proposed
             feePayment:  new EsdtTokenPayment({
                         tokenIdentifier: feeTokenId,
                         tokenNonce: 0,
-                        amount: proposalInfo.cost // TODO: check
+                        amount: proposalInfo.cost,
                     }),
             proposalStartBlock: startEpochRound + 10, // TODO: check
             votingPeriodInBlocks: votingPeriodInRounds,
@@ -412,7 +423,7 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         if(currentEpoch < proposal.startVoteEpoch) {
             return GovernanceProposalStatus.Pending;
         }
-        // TODO: add defeatead with veto
+ 
         return GovernanceProposalStatus.None;
     }
 
