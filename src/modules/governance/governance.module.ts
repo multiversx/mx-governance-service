@@ -26,6 +26,7 @@ import { LockedAssetModule } from '../locked-asset-factory/locked-asset.module';
 import { ElasticService } from 'src/helpers/elastic.service';
 import { RemoteConfigModule } from '../remote-config/remote-config.module';
 import { GovernanceOnChainAbiService } from './services/governance.onchain.abi.service';
+import { DelegateGovernanceService } from './services/delegate-governance.service';
 
 @Module({
     imports: [
@@ -59,6 +60,7 @@ import { GovernanceOnChainAbiService } from './services/governance.onchain.abi.s
         ElasticService,
         GovernanceOnChainAbiService,
         GovernanceOnChainService,
+        DelegateGovernanceService,
     ],
     exports: [
         GovernanceTokenSnapshotAbiService,
@@ -70,6 +72,7 @@ import { GovernanceOnChainAbiService } from './services/governance.onchain.abi.s
         GovernanceAbiFactory,
         GovernanceOnChainAbiService,
         GovernanceOnChainService,
+        DelegateGovernanceService,
     ],
 })
 export class GovernanceModule {}

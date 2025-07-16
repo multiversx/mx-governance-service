@@ -34,5 +34,14 @@
                 "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqrlllsrujgla"
             ]
         }
-    }
+    },
+    "delegateStakingProviders": [
+        {
+            "providerName": "xexchange",
+            "scAddress": "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqrlllsrujgla",
+            "lsTokenId": "test2",
+            "voteFunctionName": "test3",
+            "viewUserVotingPowerName": "test4"
+        }
+    ]
 }

@@ -14,7 +14,7 @@
     "governance": {
         "oldEnergy": {
             "cvadratic": [
-                "erd1qqqqqqqqqqqqqpgqdt9aady5jp7av97m7rqxh6e5ywyqsplz2jps5mw02n"
+            "erd1qqqqqqqqqqqqqpgqdt9aady5jp7av97m7rqxh6e5ywyqsplz2jps5mw02n"
             ]
         },
         "energy": {
@@ -31,6 +31,11 @@
             ],
             "cvadratic": [
                 "erd1qqqqqqqqqqqqqpgqrgnkavjf5nl943crczz5wjxzs5garatj47dsnupxm6"
+            ]
+        },
+        "onChain": {
+            "linear": [
+                "erd1..."
             ]
         }
     }

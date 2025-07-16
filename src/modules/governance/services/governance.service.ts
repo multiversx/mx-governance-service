@@ -192,7 +192,6 @@ export class GovernanceOnChainService extends GovernanceTokenSnapshotService {
         return 18;
     }
 
-
     // @ErrorLoggerAsync()
     // @GetOrSetCache({
     //     baseKey: 'governance',
@@ -200,10 +199,15 @@ export class GovernanceOnChainService extends GovernanceTokenSnapshotService {
     //     localTtl: CacheTtlInfo.ContractState.localTtl,
     // })
     async userVotingPower(contractAddress: string, proposalId: number, userAddress: string): Promise<string> {
-        const interactorInstance = this.governanceAbiFactory.useAbi(contractAddress) as GovernanceOnChainAbiService;
-        const userVotingPower = await interactorInstance.userVotingPower(userAddress);
+        const onChainAbiService = this.governanceAbiFactory.useAbi(contractAddress) as GovernanceOnChainAbiService;
+        const userVotingPower = await onChainAbiService.userVotingPower(userAddress);
         
         return userVotingPower;
+    }
+
+    async delegateUserVotingPowers(scAddress: string, userAddress: string) {
+        const onChainAbiService = this.governanceAbiFactory.useAbi(scAddress) as GovernanceOnChainAbiService;
+        return await onChainAbiService.delegateUserVotingPowers(userAddress);
     }
 
     smoothingFunction(scAddress: string, quorum: string): string {

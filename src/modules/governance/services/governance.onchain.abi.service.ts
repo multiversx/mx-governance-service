@@ -3,13 +3,13 @@ import { MXProxyService } from 'src/services/multiversx-communication/mx.proxy.s
 import { GenericAbiService } from 'src/services/generics/generic.abi.service';
 import { ErrorLoggerAsync } from '@multiversx/sdk-nestjs-common';
 import { ProposalVotes } from '../models/governance.proposal.votes.model';
-import { CreateProposalArgs, GovernanceProposalModel, GovernanceProposalStatus, VoteArgs, VoteType, } from '../models/governance.proposal.model';
+import { CreateDelegateVoteArgs, CreateProposalArgs, GovernanceProposalModel, GovernanceProposalStatus, VoteArgs, VoteType, } from '../models/governance.proposal.model';
 import { GovernanceAction } from '../models/governance.action.model';
 import { EsdtTokenPaymentModel } from '../../tokens/models/esdt.token.payment.model';
 import { EsdtTokenPayment } from '@multiversx/sdk-exchange';
 import { GovernanceType, toGovernanceProposalStatus, } from '../../../utils/governance';
 import { TransactionModel } from '../../../models/transaction.model';
-import { gasConfig, mxConfig } from '../../../config';
+import { gasConfig, mxConfig, scAddress } from '../../../config';
 import BigNumber from 'bignumber.js';
 import { Address, ApiNetworkProvider, DevnetEntrypoint, GovernanceConfig, GovernanceController, GovernanceTransactionsFactory, NetworkEntrypoint, Transaction, TransactionsFactoryConfig, U64Value, Vote } from '@multiversx/sdk-core/out';
 import { GovernanceDescriptionService } from './governance.description.service';
@@ -24,6 +24,8 @@ import { AxiosError } from 'axios';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { ProposalInfoModel } from '../models/proposal.info.model';
 import { GovernanceConfigModel } from '../models/governance.config.model';
+import { DelegateGovernanceService } from './delegate-governance.service';
+import { DelegateUserVotingPower } from '../models/delegate-provider.model';
 
 
 @Injectable()
@@ -36,6 +38,7 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         private readonly apiConfigService: ApiConfigService,
         protected readonly governanceDescription: GovernanceDescriptionService,
         private readonly contextGetter: ContextGetterService,
+        private readonly delegateGovernanceService: DelegateGovernanceService,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     ) {
         super(mxProxy);
@@ -296,6 +299,21 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
     @ErrorLoggerAsync({
         logArgs: true,
     })
+    async createDelegateVoteTransaction(sender: string, args: CreateDelegateVoteArgs): Promise<TransactionModel> {
+        const vote = this.voteToSdkVoteType(args.vote);
+        const createDelegateVoteTx = await this.delegateGovernanceService.createDelegateVoteTransaction(
+            sender,
+            args.delegateContractAddress,
+            args.proposalId,
+            vote,
+        )
+       
+        return this.convertTransactionToModel(createDelegateVoteTx);
+    }
+
+    @ErrorLoggerAsync({
+        logArgs: true,
+    })
     async createProposal(sender: string, args: CreateProposalArgs): Promise<TransactionModel> {
         const createProposalTx = this.governanceTransactionsFactory.createTransactionForNewProposal(new Address(sender), {
             commitHash: args.commitHash,
@@ -321,17 +339,54 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         return this.convertTransactionToModel(voteTx);
     }
 
-    //TODO: !!! create propose
-    //TODO: add info about voting power provenience
     async userVotingPower(address: string) {
         try{
-            const userVotingPower = await this.governanceController.getVotingPower(new Address(address))
-                    // TODO: count voting power with delegate vote for each contract with vm query and do sum
-            return userVotingPower.toString();
+            const userVotingPowerNormalRaw = await this.governanceController.getVotingPower(new Address(address))
+            const userVotingPowerNormal = new BigNumber(userVotingPowerNormalRaw.toString());
+
+            
+            const delegateUserVotingPowers = await this.delegateUserVotingPowers(address);
+
+            const userVotingPowerDelegate = delegateUserVotingPowers.reduce(
+                (acc, curr) => acc.plus(new BigNumber(curr.userVotingPower)),
+                new BigNumber(0)
+            );
+            const userVotingPowerTotal = userVotingPowerNormal.plus(userVotingPowerDelegate);
+           
+            return userVotingPowerTotal.toString();
         } catch(error){
             if(error.message.includes(`not enough stake/delegate to vote`)) {
                 return '0';
             }
+            this.logger.error(error);
+            throw new InternalServerErrorException();
+        }
+    }
+
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'governance',
+        remoteTtl: CacheTtlInfo.BlockTime.remoteTtl,
+        localTtl: CacheTtlInfo.BlockTime.localTtl,
+    })
+    async delegateUserVotingPowers(address: string) {
+        try{
+            const providers = DelegateGovernanceService.getDelegateStakingProviders();
+
+            const promises = providers.map(provider => this.delegateGovernanceService.getUserVotingPowerFromDelegate(address, provider.scAddress))
+            const resolvedPromises = await Promise.all(promises);
+            
+            const allDelegateVotingPowers = providers.map(
+                (provider, idx) =>(
+                    new DelegateUserVotingPower({
+                        providerName: provider.providerName,
+                        scAddress: provider.scAddress,
+                        lsTokenId: provider.lsTokenId,
+                        userVotingPower: resolvedPromises[idx].toString()})
+                    ));
+
+            return allDelegateVotingPowers;
+        } catch(error) {
             this.logger.error(error);
             throw new InternalServerErrorException();
         }

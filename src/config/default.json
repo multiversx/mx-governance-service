@@ -20,7 +20,8 @@
         "governance": {
             "vote":  {
                 "energy": 7000000,
-                "tokenSnapshot": 50000000
+                "tokenSnapshot": 50000000,
+                "onChainDelegate": 7000000
             }
         }
     },

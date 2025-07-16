@@ -73,6 +73,18 @@ export class VoteArgs {
 }
 
 @ArgsType()
+export class CreateDelegateVoteArgs {
+    @Field()
+    contractAddress: string;
+    @Field()
+    delegateContractAddress: string;
+    @Field(() => Int)
+    proposalId: number;
+    @Field(() => Int)
+    vote: VoteType;
+}
+
+@ArgsType()
 export class CreateProposalArgs {
     @Field()
     contractAddress: string;
@@ -124,6 +136,8 @@ export class GovernanceProposalModel {
     userVoteType?: VoteType;
     @Field()
     userVotingPower?: string;
+    @Field()
+    delegateUserVotingPowers?: string;
 
     constructor(init: Partial<GovernanceProposalModel>) {
         Object.assign(this, init);

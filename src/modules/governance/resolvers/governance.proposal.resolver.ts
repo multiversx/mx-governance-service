@@ -1,13 +1,16 @@
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { GovernanceProposalModel, GovernanceProposalStatus, VoteType } from '../models/governance.proposal.model';
 import { ProposalVotes } from '../models/governance.proposal.votes.model';
-import { UseGuards } from '@nestjs/common';
+import { BadRequestException, UseGuards } from '@nestjs/common';
 import { UserAuthResult } from '../../auth/user.auth.result';
 import { AuthUser } from '../../auth/auth.user';
 import { GovernanceTokenSnapshotMerkleService } from '../services/governance.token.snapshot.merkle.service';
 import { GovernanceAbiFactory } from '../services/governance.abi.factory';
 import { GovernanceServiceFactory } from '../services/governance.factory';
 import { NativeAuthGuard } from '../../auth/native.auth.guard';
+import { DelegateUserVotingPower } from '../models/delegate-provider.model';
+import { governanceConfig } from 'src/config';
+import { GovernanceOnChainService } from '../services/governance.service';
 
 @Resolver(() => GovernanceProposalModel)
 export class GovernanceProposalResolver {
@@ -71,5 +74,20 @@ export class GovernanceProposalResolver {
         return this.governanceServiceFactory
             .userService(governanceProposal.contractAddress)
             .userVotingPower(governanceProposal.contractAddress, governanceProposal.proposalId, user.address);
+    }
+
+
+    @UseGuards(NativeAuthGuard)
+    @ResolveField()
+    async delegateUserVotingPowers(
+        @AuthUser() user: UserAuthResult,
+        @Parent() governanceProposal: GovernanceProposalModel
+    ): Promise<DelegateUserVotingPower[]> {
+        if(!governanceConfig.onChain.linear.includes(governanceProposal.contractAddress)) {
+            throw new BadRequestException("Delegate user voting powers is supported only by on-chain governance contract !")
+        }
+        
+        const governanceOnChainService = this.governanceServiceFactory.userService(governanceProposal.contractAddress) as GovernanceOnChainService;
+        return governanceOnChainService.delegateUserVotingPowers(governanceProposal.contractAddress,user.address);
     }
 }
