@@ -37,11 +37,11 @@
     },
     "delegateStakingProviders": [
         {
-            "providerName": "xexchange",
-            "scAddress": "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqrlllsrujgla",
-            "lsTokenId": "test2",
-            "voteFunctionName": "test3",
-            "viewUserVotingPowerName": "test4"
+            "providerName": "legacy-delegation",
+            "scAddress": "erd1qqqqqqqqqqqqqpgq97wezxw6l7lgg7k9rxvycrz66vn92ksh2tssxwf7ep",
+            "lsTokenId": "",
+            "voteFunctionName": "delegateVote",
+            "viewUserVotingPowerName": "getVotingPower"
         }
     ]
 }
