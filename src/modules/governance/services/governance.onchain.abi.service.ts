@@ -55,12 +55,6 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         })
     }
 
-    @ErrorLoggerAsync()
-    @GetOrSetCache({
-        baseKey: 'governance1',
-        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl,
-    })
     async getAddressShardID(scAddress: string): Promise<number> {
         // metachain
         return -1;
@@ -129,13 +123,7 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         // TODO: check
         return 0;
     }
-
-    @ErrorLoggerAsync()
-    @GetOrSetCache({
-        baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl,
-    })
+W
     async feeTokenId(scAddress: string): Promise<string> {
         return 'EGLD-000000'
     }
@@ -277,25 +265,13 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         return await this.getStatusForProposal(proposalInfo);
     }
 
-    @ErrorLoggerAsync()
-    @GetOrSetCache({
-        baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl,
-    })
     async proposalRootHash(
         scAddress: string,
         proposalId: number,
     ): Promise<string> {
-        return await this.proposalRootHashRaw(scAddress, proposalId);
+        return '';
     }
 
-    async proposalRootHashRaw(
-        scAddress: string,
-        proposalId: number,
-    ): Promise<string> {
-        return ''
-    }
 
     @ErrorLoggerAsync({
         logArgs: true,
@@ -404,23 +380,23 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
     }
 
     private convertTransactionToModel(tx: Transaction): TransactionModel {
-    return new TransactionModel({
-        nonce: Number(tx.nonce),
-        value: tx.value.toString(),
-        sender: tx.sender.toString(),    
-        receiver: tx.receiver.toString(),
-        senderUsername: tx.senderUsername,
-        receiverUsername: tx.receiverUsername,
-        gasPrice: Number(tx.gasPrice),
-        gasLimit: Number(tx.gasLimit),
-        data: tx.data ? Buffer.from(tx.data).toString('base64') : undefined,
-        chainID: tx.chainID,
-        version: tx.version,
-        options: tx.options,
-        guardian: tx.guardian?.toString(),
-        signature: tx.signature ? Buffer.from(tx.signature).toString('hex') : undefined,
-        guardianSignature: tx.guardianSignature ? Buffer.from(tx.guardianSignature).toString('hex') : undefined,
-    });
+        return new TransactionModel({
+            nonce: Number(tx.nonce),
+            value: tx.value.toString(),
+            sender: tx.sender.toString(),    
+            receiver: tx.receiver.toString(),
+            senderUsername: tx.senderUsername,
+            receiverUsername: tx.receiverUsername,
+            gasPrice: Number(tx.gasPrice),
+            gasLimit: Number(tx.gasLimit),
+            data: tx.data ? Buffer.from(tx.data).toString('base64') : undefined,
+            chainID: tx.chainID,
+            version: tx.version,
+            options: tx.options,
+            guardian: tx.guardian?.toString(),
+            signature: tx.signature ? Buffer.from(tx.signature).toString('hex') : undefined,
+            guardianSignature: tx.guardianSignature ? Buffer.from(tx.guardianSignature).toString('hex') : undefined,
+        });
     }
 
 
