@@ -3,7 +3,7 @@ import { MXProxyService } from 'src/services/multiversx-communication/mx.proxy.s
 import { GenericAbiService } from 'src/services/generics/generic.abi.service';
 import { ErrorLoggerAsync } from '@multiversx/sdk-nestjs-common';
 import { ProposalVotes } from '../models/governance.proposal.votes.model';
-import { CreateDelegateVoteArgs, CreateProposalArgs, GovernanceProposalModel, GovernanceProposalStatus, VoteArgs, VoteType, } from '../models/governance.proposal.model';
+import { CloseProposalArgs, CreateDelegateVoteArgs, CreateProposalArgs, GovernanceProposalModel, GovernanceProposalStatus, VoteArgs, VoteType, } from '../models/governance.proposal.model';
 import { GovernanceAction } from '../models/governance.action.model';
 import { EsdtTokenPaymentModel } from '../../tokens/models/esdt.token.payment.model';
 import { EsdtTokenPayment } from '@multiversx/sdk-exchange';
@@ -301,6 +301,18 @@ W
        
         return this.convertTransactionToModel(createProposalTx);
     }
+
+    @ErrorLoggerAsync({
+        logArgs: true,
+    })
+    async closeProposal(sender: string, args: CloseProposalArgs): Promise<TransactionModel> {
+        const closeProposalTx = this.governanceTransactionsFactory.createTransactionForClosingProposal(new Address(sender), {
+            proposalNonce: args.proposalId,
+        })
+       
+        return this.convertTransactionToModel(closeProposalTx);
+    }
+
 
     @ErrorLoggerAsync({
         logArgs: true,

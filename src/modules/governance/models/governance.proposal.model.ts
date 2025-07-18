@@ -86,6 +86,14 @@ export class CreateDelegateVoteArgs {
 }
 
 @ArgsType()
+export class CloseProposalArgs {
+    @Field()
+    contractAddress: string;
+    @Field(() => Int)
+    proposalId: number;
+}
+
+@ArgsType()
 export class CreateProposalArgs {
     @Field()
     contractAddress: string;

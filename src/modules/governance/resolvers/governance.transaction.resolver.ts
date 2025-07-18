@@ -1,7 +1,7 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { BadRequestException, UseGuards } from '@nestjs/common';
 import { TransactionModel } from '../../../models/transaction.model';
-import { CreateDelegateVoteArgs, CreateProposalArgs, VoteArgs } from '../models/governance.proposal.model';
+import { CloseProposalArgs, CreateDelegateVoteArgs, CreateProposalArgs, VoteArgs } from '../models/governance.proposal.model';
 import { UserAuthResult } from '../../auth/user.auth.result';
 import { AuthUser } from '../../auth/auth.user';
 import { GovernanceAbiFactory } from '../services/governance.abi.factory';
@@ -46,6 +46,19 @@ export class GovernanceTransactionService {
         }
         const onChainAbiService = this.governanceAbiFactory.useAbi(args.contractAddress) as GovernanceOnChainAbiService;
         return onChainAbiService.createProposal(user.address, args)
+    }
+
+    @UseGuards(NativeAuthGuard)
+    @Query(() => TransactionModel)
+    async closeProposal(
+        @Args() args: CloseProposalArgs,
+        @AuthUser() user: UserAuthResult,
+    ): Promise<TransactionModel> {
+        if(!governanceConfig.onChain.linear.includes(args.contractAddress)) {
+            throw new BadRequestException("Close proposal is supported only by on-chain governance contract !")
+        }
+        const onChainAbiService = this.governanceAbiFactory.useAbi(args.contractAddress) as GovernanceOnChainAbiService;
+        return onChainAbiService.closeProposal(user.address, args)
     }
 
     @UseGuards(NativeAuthGuard)
