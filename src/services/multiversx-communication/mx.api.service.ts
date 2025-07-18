@@ -134,6 +134,22 @@ export class MXApiService {
         }
     }
 
+    async getTokenBalanceForAddress(userAddress: string, tokenID: string): Promise<string> {
+        try {
+            const { balance } = await this.doGetGeneric<EsdtToken>(
+                this.getTokenBalanceForAddress.name,
+                `accounts/${userAddress}/tokens/${tokenID}`
+            );
+            return balance;
+        } catch (error) {
+            if(error.statusCode === 404) {
+                return '0';
+            }
+            this.logger.error(error);
+            throw error;
+        }
+    }
+
     async getTokenForUser(
         address: string,
         tokenID: string,

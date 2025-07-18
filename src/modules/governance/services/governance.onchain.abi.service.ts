@@ -172,22 +172,23 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         if(!(Number.isInteger(lastProposalNonce) && lastProposalNonce > 0)) {
             lastProposalNonce = 0;
         }
-
-        if(lastProposalNonce > 10) {
-            // early exit in case of a bug in vm query to not go into infinite loop
-            lastProposalNonce = 10;
+        const proposalNonceThreshold = 50; // early exit in case of a bug in vm query to not go into infinite loop
+        if(lastProposalNonce > proposalNonceThreshold) {
+            lastProposalNonce = proposalNonceThreshold;
         }
+
         const proposalsRaw: ProposalInfoModel[] = [];
+        
         for(let proposalNonce = 1; proposalNonce <= lastProposalNonce; proposalNonce++) {
             const proposal = await this.getProposal(proposalNonce);
             proposalsRaw.push(proposal);
         }
      
-        const proposalsPromises: Promise<GovernanceProposalModel>[] =  proposalsRaw.map((proposal: ProposalInfoModel) => {
+        const proposalsConversionPromises: Promise<GovernanceProposalModel>[] =  proposalsRaw.map((proposal: ProposalInfoModel) => {
             return this.convertProposalInfoToGovernanceModel(proposal, scAddress, config)
         })
 
-        return await Promise.all(proposalsPromises);
+        return await Promise.all(proposalsConversionPromises);
     }
 
     @ErrorLoggerAsync()
@@ -370,7 +371,6 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         localTtl: CacheTtlInfo.BlockTime.localTtl,
     })
     async delegateUserVotingPowers(address: string) {
-        try{
             const providers = DelegateGovernanceService.getDelegateStakingProviders();
 
             const promises = providers.map(provider => this.delegateGovernanceService.getUserVotingPowerFromDelegate(address, provider.scAddress))
@@ -386,10 +386,6 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
                     ));
 
             return allDelegateVotingPowers;
-        } catch(error) {
-            this.logger.error(error);
-            throw new InternalServerErrorException();
-        }
     }
 
     private voteToSdkVoteType(voteType: VoteType) {
@@ -502,16 +498,10 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         localTtl: CacheTtlInfo.BlockTime.localTtl,
     })
     private async getProposal(proposalId: number): Promise<ProposalInfoModel> {
-        try{
-            const proposal = await this.governanceController.getProposal(proposalId);
-            const stringifiedProposal = this.convertToRedisTypes(proposal);
-            // we can't serialize bigint in order to store obj in redis
-            return stringifiedProposal;
-        } catch(error) {
-            this.logger.error(error);
-            throw new InternalServerErrorException()
-        }
-       
+        const proposal = await this.governanceController.getProposal(proposalId);
+        const stringifiedProposal = this.convertToRedisTypes(proposal);
+        // we can't serialize bigint in order to store obj in redis
+        return stringifiedProposal;
     }
 
     private convertToRedisTypes(obj: any): any {

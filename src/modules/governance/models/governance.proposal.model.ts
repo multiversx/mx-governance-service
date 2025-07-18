@@ -3,6 +3,7 @@ import { GovernanceAction } from './governance.action.model';
 import { EsdtTokenPaymentModel } from '../../tokens/models/esdt.token.payment.model';
 import { ProposalVotes } from './governance.proposal.votes.model';
 import { GovernanceDescriptionUnion } from './governance.union';
+import { DelegateUserVotingPower } from './delegate-provider.model';
 
 export enum GovernanceProposalStatus {
     None = 'None',
@@ -136,8 +137,8 @@ export class GovernanceProposalModel {
     userVoteType?: VoteType;
     @Field()
     userVotingPower?: string;
-    @Field()
-    delegateUserVotingPowers?: string;
+    @Field(() => [DelegateUserVotingPower])
+    delegateUserVotingPowers?: [DelegateUserVotingPower];
 
     constructor(init: Partial<GovernanceProposalModel>) {
         Object.assign(this, init);
