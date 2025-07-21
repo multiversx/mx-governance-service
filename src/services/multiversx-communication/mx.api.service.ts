@@ -138,7 +138,7 @@ export class MXApiService {
         try {
             const { balance } = await this.doGetGeneric<EsdtToken>(
                 this.getTokenBalanceForAddress.name,
-                `accounts/${userAddress}/tokens/${tokenID}`
+                `accounts/${userAddress}/tokens/${tokenID}?fields=balance`
             );
             return balance;
         } catch (error) {
