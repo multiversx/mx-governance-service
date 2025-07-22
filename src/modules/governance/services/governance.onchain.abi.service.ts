@@ -320,12 +320,9 @@ W
     })
     async vote(sender: string, args: VoteArgs): Promise<TransactionModel[]> {
         const vote = this.voteToSdkVoteType(args.vote);
-        const providers = DelegateGovernanceService.getDelegateStakingProviders();
+        const providers = DelegateGovernanceService.getEnabledDelegateStakingProviders();
         const voteTxs: TransactionModel[] = [];
         for(const provider of providers) {
-            if(!provider.isEnabled) {
-                continue;
-            }
             const voteType = await this.governanceComputeService.getUserVoteOnChain(provider.scAddress, sender, args.proposalId);
             if(voteType === VoteType.NotVoted) {
                 const voteTx = await this.createDelegateVoteTransaction(sender, {
@@ -350,16 +347,36 @@ W
         return voteTxs;
     }
 
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'governance',
+        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
+        localTtl: CacheTtlInfo.ContractState.localTtl,
+    })
+    async userVotingPowerDirect(address: string) {
+        try{
+            const userVotingPowerDirectRaw = await this.governanceController.getVotingPower(new Address(address))
+
+            return userVotingPowerDirectRaw.toString();
+        } catch(error) {
+            if(error.message.includes(`not enough stake/delegate to vote`)) {
+                return '0';
+            }
+            this.logger.error(error);
+            throw new InternalServerErrorException();
+        }
+    }
+
     async userVotingPower(address: string) {
         try{
-            const userVotingPowerNormalRaw = await this.governanceController.getVotingPower(new Address(address))
-            const userVotingPowerNormal = new BigNumber(userVotingPowerNormalRaw.toString());
+            const userVotingPowerNormalRaw = await this.userVotingPowerDirect(address);
+            const userVotingPowerNormal = new BigNumber(userVotingPowerNormalRaw);
 
             
             const delegateUserVotingPowers = await this.delegateUserVotingPowers(address);
 
             const userVotingPowerDelegate = delegateUserVotingPowers.reduce(
-                (acc, curr) => acc.plus(new BigNumber(curr.userVotingPower)),
+                (acc, curr) => acc.plus(curr.userVotingPower !== DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL ? new BigNumber(curr.userVotingPower) : new BigNumber(0)),
                 new BigNumber(0)
             );
             const userVotingPowerTotal = userVotingPowerNormal.plus(userVotingPowerDelegate);

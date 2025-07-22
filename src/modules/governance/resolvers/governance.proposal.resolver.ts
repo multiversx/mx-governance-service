@@ -88,6 +88,20 @@ export class GovernanceProposalResolver {
         }
         
         const governanceOnChainService = this.governanceServiceFactory.userService(governanceProposal.contractAddress) as GovernanceOnChainService;
-        return governanceOnChainService.delegateUserVotingPowers(governanceProposal.contractAddress,user.address);
+        return await governanceOnChainService.delegateUserVotingPowers(governanceProposal.contractAddress,user.address);
+    }
+
+    @UseGuards(NativeAuthGuard)
+    @ResolveField()
+    async userVotingPowerDirect(
+        @AuthUser() user: UserAuthResult,
+        @Parent() governanceProposal: GovernanceProposalModel
+    ): Promise<string> {
+         if(!governanceConfig.onChain.linear.includes(governanceProposal.contractAddress)) {
+            throw new BadRequestException("User voting power direct is supported only by on-chain governance contract !")
+        }
+        
+        const governanceOnChainService = this.governanceServiceFactory.userService(governanceProposal.contractAddress) as GovernanceOnChainService;
+        return await governanceOnChainService.userVotingPowerDirect(governanceProposal.contractAddress, governanceProposal.proposalId, user.address);
     }
 }

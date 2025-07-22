@@ -192,17 +192,24 @@ export class GovernanceOnChainService extends GovernanceTokenSnapshotService {
         return 18;
     }
 
-    // @ErrorLoggerAsync()
-    // @GetOrSetCache({
-    //     baseKey: 'governance',
-    //     remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-    //     localTtl: CacheTtlInfo.ContractState.localTtl,
-    // })
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'governance',
+        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
+        localTtl: CacheTtlInfo.ContractState.localTtl,
+    })
     async userVotingPower(contractAddress: string, proposalId: number, userAddress: string): Promise<string> {
         const onChainAbiService = this.governanceAbiFactory.useAbi(contractAddress) as GovernanceOnChainAbiService;
         const userVotingPower = await onChainAbiService.userVotingPower(userAddress);
         
         return userVotingPower;
+    }
+
+    async userVotingPowerDirect(contractAddress: string, proposalId: number, userAddress: string): Promise<string> {
+        const onChainAbiService = this.governanceAbiFactory.useAbi(contractAddress) as GovernanceOnChainAbiService;
+        const userVotingPowerDirect = await onChainAbiService.userVotingPowerDirect(userAddress);
+        
+        return userVotingPowerDirect;
     }
 
     async delegateUserVotingPowers(scAddress: string, userAddress: string) {

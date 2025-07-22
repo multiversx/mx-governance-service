@@ -129,6 +129,7 @@ type GovernanceProposalModel {
   userVoteType: Float!
   userVotingPower: String!
   delegateUserVotingPowers: [DelegateUserVotingPower!]!
+  userVotingPowerDirect: String!
 }
 
 union GovernanceDescriptionVersions = DescriptionV0 | DescriptionV1 | DescriptionV2

@@ -28,9 +28,16 @@ export class DelegateGovernanceService {
         })
     }
 
+    static VOTE_POWER_FOR_NOT_IMPL = '-1';
+
     static getDelegateStakingProviders(): DelegateStakingProvider[] {
         const providers: DelegateStakingProvider[] = delegateStakingProviders.map((provider: DelegateStakingProvider) => new DelegateStakingProvider(provider));
         return providers;
+    }
+
+     static getEnabledDelegateStakingProviders(): DelegateStakingProvider[] {
+        const providers: DelegateStakingProvider[] = delegateStakingProviders.map((provider: DelegateStakingProvider) => new DelegateStakingProvider(provider));
+        return providers.filter(provider => provider.isEnabled);
     }
 
     static getDelegateStakingProvider(scAddress: string): DelegateStakingProvider {
@@ -67,7 +74,7 @@ export class DelegateGovernanceService {
     async getUserVotingPowerFromDelegate(userAddress: string, scAddress: string) {
         const provider = DelegateGovernanceService.getDelegateStakingProvider(scAddress);
         if(!provider.isEnabled) {
-            return "-1";
+            return DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL;
         }
         const isLiquidStaking = provider.lsTokenId !== '' && provider.lsTokenId;
 

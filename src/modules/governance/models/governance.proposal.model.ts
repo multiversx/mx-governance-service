@@ -147,6 +147,8 @@ export class GovernanceProposalModel {
     userVotingPower?: string;
     @Field(() => [DelegateUserVotingPower])
     delegateUserVotingPowers?: [DelegateUserVotingPower];
+    @Field()
+    userVotingPowerDirect?: string;
 
     constructor(init: Partial<GovernanceProposalModel>) {
         Object.assign(this, init);
