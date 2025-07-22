@@ -22,6 +22,7 @@ export class DelegateStakingProvider {
     lsTokenId: string;
     voteFunctionName: string;
     viewUserVotingPowerName: string;
+    isEnabled: boolean;
 
     constructor(init?: Partial<DelegateStakingProvider>) {
         Object.assign(this, init);

@@ -323,7 +323,10 @@ W
         const providers = DelegateGovernanceService.getDelegateStakingProviders();
         const voteTxs: TransactionModel[] = [];
         for(const provider of providers) {
-            const voteType = await this.governanceComputeService.userVotedProposalsWithVoteType(provider.scAddress, sender, args.proposalId);
+            if(!provider.isEnabled) {
+                continue;
+            }
+            const voteType = await this.governanceComputeService.getUserVoteOnChain(provider.scAddress, sender, args.proposalId);
             if(voteType === VoteType.NotVoted) {
                 const voteTx = await this.createDelegateVoteTransaction(sender, {
                         contractAddress: args.contractAddress,
@@ -334,7 +337,7 @@ W
                 voteTxs.push(voteTx);
             }
         }
-        const voteType = await this.governanceComputeService.userVotedProposalsWithVoteType(args.contractAddress, sender, args.proposalId);
+        const voteType = await this.governanceComputeService.getUserVoteOnChain(args.contractAddress, sender, args.proposalId);
         if(voteType === VoteType.NotVoted) {
             const voteTx = this.governanceTransactionsFactory.createTransactionForVoting(new Address(sender), {
                         proposalNonce: args.proposalId,

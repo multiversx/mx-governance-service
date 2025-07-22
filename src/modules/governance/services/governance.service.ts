@@ -170,7 +170,7 @@ export class GovernanceOnChainService extends GovernanceTokenSnapshotService {
         if (!userAddress) {
             return VoteType.NotVoted
         }
-        return this.governanceCompute.userVotedProposalsWithVoteType(
+        return this.governanceCompute.getUserVoteOnChain(
             contractAddress, userAddress, proposalId
         );
     }

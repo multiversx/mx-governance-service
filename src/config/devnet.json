@@ -41,7 +41,32 @@
             "scAddress": "erd1qqqqqqqqqqqqqpgq97wezxw6l7lgg7k9rxvycrz66vn92ksh2tssxwf7ep",
             "lsTokenId": "",
             "voteFunctionName": "delegateVote",
-            "viewUserVotingPowerName": "getVotingPower"
+            "viewUserVotingPowerName": "getVotingPower",
+            "isEnabled": true
+        },
+        {
+            "providerName": "xoxno",
+            "scAddress": "",
+            "lsTokenId": "",
+            "voteFunctionName": "delegateVote",
+            "viewUserVotingPowerName": "getVotingPower",
+            "isEnabled": false
+        },
+        {
+            "providerName": "hatom",
+            "scAddress": "",
+            "lsTokenId": "",
+            "voteFunctionName": "delegateVote",
+            "viewUserVotingPowerName": "getVotingPower",
+            "isEnabled": false
+        },
+        {
+            "providerName": "liquid-staking",
+            "scAddress": "",
+            "lsTokenId": "",
+            "voteFunctionName": "delegateVote",
+            "viewUserVotingPowerName": "getVotingPower",
+            "isEnabled": false
         }
     ]
 }

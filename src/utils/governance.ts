@@ -111,15 +111,26 @@ export const toGovernanceProposalStatus = (status: string): GovernanceProposalSt
     }
 };
 
-export const toVoteType = (event: GOVERNANCE_EVENTS | string): VoteType => {
+export enum GOVERNANCE_ONCHAIN_EVENTS {
+    YES = "yes",
+    NO = "no",
+    VETO = "veto",
+    ABSTAIN = "abstain"
+}
+
+export const toVoteType = (event: GOVERNANCE_EVENTS | GOVERNANCE_ONCHAIN_EVENTS | string): VoteType => {
     switch(event) {
         case GOVERNANCE_EVENTS.UP:
+        case GOVERNANCE_ONCHAIN_EVENTS.YES:
             return VoteType.UpVote;
         case GOVERNANCE_EVENTS.DOWN:
+        case GOVERNANCE_ONCHAIN_EVENTS.NO:
             return VoteType.DownVote;
         case GOVERNANCE_EVENTS.DOWN_VETO:
+        case GOVERNANCE_ONCHAIN_EVENTS.VETO:
             return VoteType.DownVetoVote;
         case GOVERNANCE_EVENTS.ABSTAIN:
+        case GOVERNANCE_ONCHAIN_EVENTS.ABSTAIN:
             return VoteType.AbstainVote;
         default:
             return VoteType.NotVoted;

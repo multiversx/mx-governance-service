@@ -43,7 +43,6 @@ export class DelegateGovernanceService {
     async createDelegateVoteTransaction(sender: string, scAddress: string, proposalId: number, vote: Vote) {
         const provider = DelegateGovernanceService.getDelegateStakingProvider(scAddress);
 
-        const balance = await this.getTokenBalanceForAddress(sender, provider.lsTokenId);
         const contractExecuteInput: ContractExecuteInput = {
             contract: new Address(scAddress),
             gasLimit: gasConfig.governance.vote.onChainDelegate,
@@ -53,6 +52,7 @@ export class DelegateGovernanceService {
 
         const isLiquidStaking = provider.lsTokenId !== '' && provider.lsTokenId;
         if(isLiquidStaking) {
+            const balance = await this.getTokenBalanceForAddress(sender, provider.lsTokenId);
             contractExecuteInput.tokenTransfers = [new TokenTransfer({ token: new Token({identifier: provider.lsTokenId}), amount: BigInt(balance.toString())})];
         }
 
@@ -66,6 +66,9 @@ export class DelegateGovernanceService {
     
     async getUserVotingPowerFromDelegate(userAddress: string, scAddress: string) {
         const provider = DelegateGovernanceService.getDelegateStakingProvider(scAddress);
+        if(!provider.isEnabled) {
+            return "-1";
+        }
         const isLiquidStaking = provider.lsTokenId !== '' && provider.lsTokenId;
 
         let args: any[] = [new AddressValue(new Address(userAddress))];
