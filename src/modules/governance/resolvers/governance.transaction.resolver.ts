@@ -20,7 +20,7 @@ export class GovernanceTransactionService {
 
     @UseGuards(NativeAuthGuard)
     @Query(() => [TransactionModel])
-    async voteV2(
+    async allVotes(
         @Args() args: VoteArgs,
         @AuthUser() user: UserAuthResult,
     ): Promise<TransactionModel[]> {
