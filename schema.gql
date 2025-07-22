@@ -173,7 +173,7 @@ type TransactionModel {
 }
 
 type Query {
-  voteDelegateStaking(contractAddress: String!, delegateContractAddress: String!, proposalId: Int!, vote: Int!): TransactionModel!
+  allVotes(contractAddress: String!, proposalId: Float!, vote: Float!): [TransactionModel!]!
   createProposal(contractAddress: String!, commitHash: String!, startVoteEpoch: Int!, endVoteEpoch: Int!, nativeTokenAmount: String!): TransactionModel!
   closeProposal(contractAddress: String!, proposalId: Int!): TransactionModel!
   vote(contractAddress: String!, proposalId: Float!, vote: Float!): TransactionModel!
