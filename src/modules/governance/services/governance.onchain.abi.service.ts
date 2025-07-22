@@ -3,7 +3,7 @@ import { MXProxyService } from 'src/services/multiversx-communication/mx.proxy.s
 import { GenericAbiService } from 'src/services/generics/generic.abi.service';
 import { ErrorLoggerAsync } from '@multiversx/sdk-nestjs-common';
 import { ProposalVotes } from '../models/governance.proposal.votes.model';
-import { CloseProposalArgs, CreateDelegateVoteArgs, CreateProposalArgs, GovernanceProposalModel, GovernanceProposalStatus, VoteArgs, VoteType, } from '../models/governance.proposal.model';
+import { CloseProposalArgs, CreateDelegateVoteArgs, CreateProposalArgs, DescriptionV2, GovernanceProposalModel, GovernanceProposalStatus, VoteArgs, VoteType, } from '../models/governance.proposal.model';
 import { GovernanceAction } from '../models/governance.action.model';
 import { EsdtTokenPaymentModel } from '../../tokens/models/esdt.token.payment.model';
 import { EsdtTokenPayment } from '@multiversx/sdk-exchange';
@@ -26,6 +26,7 @@ import { ProposalInfoModel } from '../models/proposal.info.model';
 import { GovernanceConfigModel } from '../models/governance.config.model';
 import { DelegateGovernanceService } from './delegate-governance.service';
 import { DelegateUserVotingPower } from '../models/delegate-provider.model';
+import { GovernanceComputeService } from './governance.compute.service';
 
 
 @Injectable()
@@ -39,6 +40,7 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         protected readonly governanceDescription: GovernanceDescriptionService,
         private readonly contextGetter: ContextGetterService,
         private readonly delegateGovernanceService: DelegateGovernanceService,
+        private readonly governanceComputeService: GovernanceComputeService,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     ) {
         super(mxProxy);
@@ -313,19 +315,36 @@ W
         return this.convertTransactionToModel(closeProposalTx);
     }
 
-
     @ErrorLoggerAsync({
         logArgs: true,
     })
-    async vote(sender: string, args: VoteArgs): Promise<TransactionModel> {
+    async vote(sender: string, args: VoteArgs): Promise<TransactionModel[]> {
         const vote = this.voteToSdkVoteType(args.vote);
-        // tx to sc with staking for delegated
-        const voteTx = this.governanceTransactionsFactory.createTransactionForVoting(new Address(sender), {
-            proposalNonce: args.proposalId,
-            vote,
-        })
+        const providers = DelegateGovernanceService.getDelegateStakingProviders();
+        const voteTxs: TransactionModel[] = [];
+        for(const provider of providers) {
+            const voteType = await this.governanceComputeService.userVotedProposalsWithVoteType(provider.scAddress, sender, args.proposalId);
+            if(voteType === VoteType.NotVoted) {
+                const voteTx = await this.createDelegateVoteTransaction(sender, {
+                        contractAddress: args.contractAddress,
+                        delegateContractAddress: provider.scAddress,
+                        proposalId: args.proposalId,
+                        vote: args.vote,
+                });
+                voteTxs.push(voteTx);
+            }
+        }
+        const voteType = await this.governanceComputeService.userVotedProposalsWithVoteType(args.contractAddress, sender, args.proposalId);
+        if(voteType === VoteType.NotVoted) {
+            const voteTx = this.governanceTransactionsFactory.createTransactionForVoting(new Address(sender), {
+                        proposalNonce: args.proposalId,
+                        vote,
+                    })
+            voteTxs.push(this.convertTransactionToModel(voteTx))
+        }
        
-        return this.convertTransactionToModel(voteTx);
+       
+        return voteTxs;
     }
 
     async userVotingPower(address: string) {
@@ -430,7 +449,14 @@ W
             contractAddress: scAddress,
             proposalId: proposalInfo.nonce,
             proposer: proposalInfo.issuer,
-            description: undefined, // TODO: fetch from git commit hash proposed
+            description: new DescriptionV2({
+                strapiId: 0,
+                strapiHash: 'test strapiHash',
+                shortDescription: 'testDescription',
+                title: 'test title',
+                version: 0,
+
+            }), // TODO: fetch from git commit hash proposed
             feePayment:  new EsdtTokenPayment({
                         tokenIdentifier: feeTokenId,
                         tokenNonce: 0,

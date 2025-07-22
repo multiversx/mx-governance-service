@@ -9,6 +9,7 @@ import { NativeAuthGuard } from '../../auth/native.auth.guard';
 import { GovernanceOnChainAbiService } from '../services/governance.onchain.abi.service';
 import { governanceConfig } from 'src/config';
 import { DelegateGovernanceService } from '../services/delegate-governance.service';
+import { GovernanceComputeService } from '../services/governance.compute.service';
 
 @Resolver()
 export class GovernanceTransactionService {
@@ -18,21 +19,17 @@ export class GovernanceTransactionService {
     }
 
     @UseGuards(NativeAuthGuard)
-    @Query(() => TransactionModel)
-    async voteDelegateStaking(
-        @Args() args: CreateDelegateVoteArgs,
+    @Query(() => [TransactionModel])
+    async voteV2(
+        @Args() args: VoteArgs,
         @AuthUser() user: UserAuthResult,
-    ): Promise<TransactionModel> {
+    ): Promise<TransactionModel[]> {
         if(!governanceConfig.onChain.linear.includes(args.contractAddress)) {
-            throw new BadRequestException("Create proposal is supported only by on-chain governance contract !")
-        }
-
-        if(!DelegateGovernanceService.getDelegateStakingProvider(args.delegateContractAddress)) {
-            throw new BadRequestException('The given delegate staking provider is not supported !')
+            throw new BadRequestException("Vote v2 is supported only by on-chain governance contract !")
         }
         
         const onChainAbiService = this.governanceAbiFactory.useAbi(args.contractAddress) as GovernanceOnChainAbiService;
-        return onChainAbiService.createDelegateVoteTransaction(user.address, args)
+        return await onChainAbiService.vote(user.address, args)
     }
 
     @UseGuards(NativeAuthGuard)
@@ -66,7 +63,7 @@ export class GovernanceTransactionService {
     async vote(
         @Args() args: VoteArgs,
         @AuthUser() user: UserAuthResult,
-    ): Promise<TransactionModel> {
+    ): Promise<TransactionModel | TransactionModel[]> {
         return this.governanceAbiFactory
             .useAbi(args.contractAddress)
             .vote(user.address, args)
