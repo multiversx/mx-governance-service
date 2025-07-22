@@ -207,21 +207,15 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
             if (scAddress === 'erd1qqqqqqqqqqqqqpgq8xqp6c0kzwn3f2c5zsxfex6h69s2x9rwhg4smw0gfc') {
                 totalQuorum = '14864643496672232664684799';
             }
-            let description = proposal.description.toString();
-            if (scAddress === 'erd1qqqqqqqqqqqqqpgqfn2mu8l0dte34eqh6qtgmpjpxpkhunccrl4sy2sp07' && proposal.proposal_id.toNumber() === 1) {
-                description = JSON.stringify({
-                    title: 'Andromeda 1.9 Protocol Upgrade',
-                    shortDescription: 'Andromeda is the first major upgrade in a two-step roadmap to drastically reduce transaction time to finality on MultiversX. This release redesigns consensus mechanisms, finalization rules, and cross-shard execution, significantly improving the efficiency, security, and scalability of the network.',
-                    strapiId: 8,
-                    version: 1,
-                });
-            }
+            const proposalId = proposal.proposal_id.toNumber();
             return new GovernanceProposalModel({
                 contractAddress: scAddress,
-                proposalId: proposal.proposal_id.toNumber(),
+                proposalId: proposalId,
                 proposer: proposal.proposer.bech32(),
                 actions,
-                description: this.governanceDescription.getGovernanceDescription(description),
+                description: this.governanceDescription.getGovernanceDescription(
+                    proposal.description.toString(),
+                ),
                 feePayment: new EsdtTokenPaymentModel(
                     EsdtTokenPayment.fromDecodedAttributes(
                         proposal.fee_payment,
@@ -314,30 +308,30 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
             upPercentage:
                 totalVotesBigNumber > 0
                     ? votes.up_votes
-                          .div(totalVotesBigNumber)
-                          .multipliedBy(100)
-                          .toFixed(2)
+                        .div(totalVotesBigNumber)
+                        .multipliedBy(100)
+                        .toFixed(2)
                     : '0',
             downPercentage:
                 totalVotesBigNumber > 0
                     ? votes.down_votes
-                          .div(totalVotesBigNumber)
-                          .multipliedBy(100)
-                          .toFixed(2)
+                        .div(totalVotesBigNumber)
+                        .multipliedBy(100)
+                        .toFixed(2)
                     : '0',
             abstainPercentage:
                 totalVotesBigNumber > 0
                     ? votes.abstain_votes
-                          .div(totalVotesBigNumber)
-                          .multipliedBy(100)
-                          .toFixed(2)
+                        .div(totalVotesBigNumber)
+                        .multipliedBy(100)
+                        .toFixed(2)
                     : '0',
             downVetoPercentage:
                 totalVotesBigNumber > 0
                     ? votes.down_veto_votes
-                          .div(totalVotesBigNumber)
-                          .multipliedBy(100)
-                          .toFixed(2)
+                        .div(totalVotesBigNumber)
+                        .multipliedBy(100)
+                        .toFixed(2)
                     : '0',
             quorum: votes.quorum.toFixed(),
         });
