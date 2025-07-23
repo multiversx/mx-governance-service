@@ -67,7 +67,9 @@ export class GithubService implements OnModuleInit {
   }
 
   async getGithubProposalsRaw(): Promise<GithubProposal[]> {
-    if (!this.git) throw new Error('Repo git is not initalized !');
+    if (!this.git){
+      await this.cloneAndCheckout(this.repoSlug, githubConfig.branch)
+    };
 
     await this.git.checkout(githubConfig.branch);
 
