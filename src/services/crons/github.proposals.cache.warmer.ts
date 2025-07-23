@@ -20,7 +20,6 @@ export class GithubProposalCacheWarmerService {
     async warmGithubProposals(): Promise<void> {
         await this.githubService.cloneOrUpdate();
         const githubProposals = await this.githubService.getGithubProposalsRaw();
-        console.log(githubProposals)
         const cacheKey = CacheTtlInfo.GithubProposals.cacheKey;
         await this.cacheService.set(
             cacheKey,
