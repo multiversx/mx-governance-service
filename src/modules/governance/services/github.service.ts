@@ -25,13 +25,12 @@ export class GithubService implements OnModuleInit {
    ) {
       this.repoSlug = `${githubConfig.user}/${githubConfig.repository}`;
       this.repoPath = this.getRepoPath(this.repoSlug);
-      this.git = simpleGit(this.repoPath);
    }
 
   private getRepoPath(repoSlug: string): string {
     const repoName = repoSlug.split('/').pop();
     const rootPath = process.cwd();
-    return path.join(rootPath, 'github-repos', repoName);
+    return path.join(rootPath, repoName);
   }
 
   async cloneAndCheckout(repoSlug: string, branch: string): Promise<void> {
