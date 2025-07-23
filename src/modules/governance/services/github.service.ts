@@ -125,7 +125,6 @@ export class GithubService implements OnModuleInit {
 
   //TODO: maybe cache this computing
   async getGithubProposalWithStatus() {
-    console.log(this.onChainScAddress)
     const onChainProposals = await this.governanceOnChainAbiService.proposals(this.onChainScAddress);
     const githubProposals = await this.getGithubProposals();
 
