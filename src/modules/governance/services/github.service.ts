@@ -16,13 +16,17 @@ export class GithubService implements OnModuleInit {
   private git: SimpleGit;
   private repoPath: string;
   private readonly onChainScAddress: string = governanceConfig.onChain.linear[0];
-
+  private readonly repoSlug;;
   constructor(
     private readonly config: ConfigService,
     private readonly cacheService: CacheService,
     @Inject(forwardRef(() => GovernanceOnChainAbiService))
     private readonly governanceOnChainAbiService: GovernanceOnChainAbiService,
-   ) {}
+   ) {
+      this.repoSlug = `${githubConfig.user}/${githubConfig.repository}`;
+      this.repoPath = this.getRepoPath(this.repoSlug);
+      this.git = simpleGit(this.repoPath);
+   }
 
   private getRepoPath(repoSlug: string): string {
     const repoName = repoSlug.split('/').pop();
@@ -33,9 +37,6 @@ export class GithubService implements OnModuleInit {
   async cloneAndCheckout(repoSlug: string, branch: string): Promise<void> {
     const token = this.config.get<string>('GITHUB_TOKEN');
     if (!token) throw new Error('GITHUB_TOKEN must be set in .env');
-
-    this.repoPath = this.getRepoPath(repoSlug);
-    console.log(this.repoPath)
 
     try {
       // Check if repo exists locally
@@ -166,13 +167,12 @@ export class GithubService implements OnModuleInit {
   }
 
   async cloneOrUpdate() {
-    const repoSlug = `${githubConfig.user}/${githubConfig.repository}`;
     const branch = githubConfig.branch;
 
-    if (repoSlug) {
-      console.log(`Cloning repo ${repoSlug} on branach ${branch} on start...`);
+    if (this.repoSlug) {
+      console.log(`Cloning repo ${this.repoSlug} on branach ${branch} on start...`);
       try {
-        await this.cloneAndCheckout(repoSlug, branch);
+        await this.cloneAndCheckout(this.repoSlug, branch);
         console.log('Clone & checkout done.');
       } catch (error) {
         console.error('Eroare la cloneAndCheckout:', error);
