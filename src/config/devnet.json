@@ -68,5 +68,10 @@
             "viewUserVotingPowerName": "getVotingPower",
             "isEnabled": false
         }
-    ]
+    ],
+    "github": {
+        "user": "stefangutica",
+        "repository": "governance-test",
+        "branch": "main"
+    }
 }

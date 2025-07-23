@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { MXProxyService } from 'src/services/multiversx-communication/mx.proxy.service';
 import { GenericAbiService } from 'src/services/generics/generic.abi.service';
 import { ErrorLoggerAsync } from '@multiversx/sdk-nestjs-common';
@@ -27,6 +27,7 @@ import { GovernanceConfigModel } from '../models/governance.config.model';
 import { DelegateGovernanceService } from './delegate-governance.service';
 import { DelegateUserVotingPower } from '../models/delegate-provider.model';
 import { GovernanceComputeService } from './governance.compute.service';
+import { GithubService } from './github.service';
 
 
 @Injectable()
@@ -41,6 +42,8 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         private readonly contextGetter: ContextGetterService,
         private readonly delegateGovernanceService: DelegateGovernanceService,
         private readonly governanceComputeService: GovernanceComputeService,
+        @Inject(forwardRef(() => GithubService))
+        private readonly githubService: GithubService,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     ) {
         super(mxProxy);
@@ -452,43 +455,38 @@ W
 
 
     private async convertProposalInfoToGovernanceModel(
-    proposalInfo: ProposalInfoModel,
-    scAddress: string,
-    config: GovernanceConfigModel,
-        ): Promise<GovernanceProposalModel> {
-        const feeTokenId = await this.feeTokenId(scAddress);
-        const [startEpochRound, roundsLeftUntilEpoch] = await Promise.all([ 
-            this.contextGetter.getStartEpochRound(proposalInfo.startVoteEpoch),
-            this.contextGetter.getRoundsLeftUntilEpoch(proposalInfo.startVoteEpoch)
-            ]);
-        const {roundsPerEpoch} = await this.contextGetter.getStats();
-        const voteTimeInEpochs = (proposalInfo.endVoteEpoch + 1) - proposalInfo.startVoteEpoch;
-        const votingPeriodInRounds = voteTimeInEpochs * roundsPerEpoch;
-        const withdrawPercentageDefeated = await this.withdrawPercentageDefeated(scAddress);
-        return new GovernanceProposalModel({
-            contractAddress: scAddress,
-            proposalId: proposalInfo.nonce,
-            proposer: proposalInfo.issuer,
-            description: new DescriptionV2({
-                strapiId: 0,
-                strapiHash: 'test strapiHash',
-                shortDescription: 'testDescription',
-                title: 'test title',
-                version: 0,
-
-            }), // TODO: fetch from git commit hash proposed
-            feePayment:  new EsdtTokenPayment({
-                        tokenIdentifier: feeTokenId,
-                        tokenNonce: 0,
-                        amount: proposalInfo.cost,
-                    }),
-            proposalStartBlock: startEpochRound + 10, // TODO: check
-            votingPeriodInBlocks: votingPeriodInRounds,
-            votingDelayInBlocks: roundsLeftUntilEpoch > 0 ? roundsLeftUntilEpoch + 10 : 0, // TODO: check
-            minimumQuorumPercentage: new BigNumber(config.minQuorum).div(100).toFixed(2),
-            totalQuorum: proposalInfo.quorumStake,
-            withdrawPercentageDefeated,
-        });
+        proposalInfo: ProposalInfoModel,
+        scAddress: string,
+        config: GovernanceConfigModel,
+            ): Promise<GovernanceProposalModel> {
+            const feeTokenId = await this.feeTokenId(scAddress);
+            const [startEpochRound, roundsLeftUntilEpoch] = await Promise.all([ 
+                this.contextGetter.getStartEpochRound(proposalInfo.startVoteEpoch),
+                this.contextGetter.getRoundsLeftUntilEpoch(proposalInfo.startVoteEpoch)
+                ]);
+            const {roundsPerEpoch} = await this.contextGetter.getStats();
+            const voteTimeInEpochs = (proposalInfo.endVoteEpoch + 1) - proposalInfo.startVoteEpoch;
+            const votingPeriodInRounds = voteTimeInEpochs * roundsPerEpoch;
+            const withdrawPercentageDefeated = await this.withdrawPercentageDefeated(scAddress);
+            const description = await this.githubService.getDescription(proposalInfo.commitHash);
+            return new GovernanceProposalModel({
+                contractAddress: scAddress,
+                proposalId: proposalInfo.nonce,
+                proposer: proposalInfo.issuer,
+                description: description,
+                feePayment:  new EsdtTokenPayment({
+                            tokenIdentifier: feeTokenId,
+                            tokenNonce: 0,
+                            amount: proposalInfo.cost,
+                        }),
+                proposalStartBlock: startEpochRound + 10, // TODO: check
+                votingPeriodInBlocks: votingPeriodInRounds,
+                votingDelayInBlocks: roundsLeftUntilEpoch > 0 ? roundsLeftUntilEpoch + 10 : 0, // TODO: check
+                minimumQuorumPercentage: new BigNumber(config.minQuorum).div(100).toFixed(2),
+                totalQuorum: proposalInfo.quorumStake,
+                withdrawPercentageDefeated,
+                commitHash: proposalInfo.commitHash,
+            });
     }
 
     private async getStatusForProposal(proposal: ProposalInfoModel): Promise<GovernanceProposalStatus> {

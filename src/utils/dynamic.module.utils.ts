@@ -2,6 +2,7 @@ import {
     CacheModule,
     RedisCacheModuleOptions,
 } from '@multiversx/sdk-nestjs-cache';
+import { ApiModule, ApiModuleOptions } from '@multiversx/sdk-nestjs-http';
 import { DynamicModule } from '@nestjs/common';
 import { CommonAppModule } from 'src/common.app.module';
 import { mxConfig } from 'src/config';
@@ -25,4 +26,13 @@ export class DynamicModuleUtils {
             },
         );
     }
+    static getApiModule(): DynamicModule {
+        return ApiModule.forRootAsync({
+        useFactory: () => new ApiModuleOptions({
+            axiosTimeout: 30000,
+            serverTimeout: 30000,
+            useKeepAliveAgent: true,
+        }),
+        });
+  }
 }

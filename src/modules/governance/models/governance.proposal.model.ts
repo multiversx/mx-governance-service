@@ -149,6 +149,8 @@ export class GovernanceProposalModel {
     delegateUserVotingPowers?: [DelegateUserVotingPower];
     @Field()
     userVotingPowerDirect?: string;
+    @Field()
+    commitHash?: string;
 
     constructor(init: Partial<GovernanceProposalModel>) {
         Object.assign(this, init);

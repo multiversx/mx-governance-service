@@ -130,6 +130,7 @@ type GovernanceProposalModel {
   userVotingPower: String!
   delegateUserVotingPowers: [DelegateUserVotingPower!]!
   userVotingPowerDirect: String!
+  commitHash: String!
 }
 
 union GovernanceDescriptionVersions = DescriptionV0 | DescriptionV1 | DescriptionV2
@@ -173,6 +174,13 @@ type TransactionModel {
   guardianSignature: String
 }
 
+type GithubProposal {
+  fileName: String!
+  commitHash: String!
+  content: String!
+  existsOnChain: Boolean!
+}
+
 type Query {
   allVotes(contractAddress: String!, proposalId: Float!, vote: Float!): [TransactionModel!]!
   createProposal(contractAddress: String!, commitHash: String!, startVoteEpoch: Int!, endVoteEpoch: Int!, nativeTokenAmount: String!): TransactionModel!
@@ -180,6 +188,7 @@ type Query {
   vote(contractAddress: String!, proposalId: Float!, vote: Float!): TransactionModel!
   governanceContracts(identifiers: [String!], contracts: [String!], type: String): [GovernanceTypes!]!
   maintenance: Boolean!
+  githubProposals: [GithubProposal!]!
 }
 
 union GovernanceTypes = GovernanceTokenSnapshotContract | GovernanceEnergyContract | GovernanceOnChainContract

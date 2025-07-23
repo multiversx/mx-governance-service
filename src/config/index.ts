@@ -1,3 +1,4 @@
+import { GithubConfig } from 'src/modules/governance/models/github.config.model';
 import { envload } from './env_load';
 envload();
 import config from 'config';
@@ -24,3 +25,5 @@ export const governanceConfig = config.get('governance');
 export const constantsConfig = config.get('constants');
 
 export const delegateStakingProviders = config.get('delegateStakingProviders');
+
+export const githubConfig: GithubConfig = config.get('github');

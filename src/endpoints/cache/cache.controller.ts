@@ -14,7 +14,7 @@ export class CacheController {
     @EventPattern('deleteCacheKeys')
     async deleteCacheKey(keys: string[]) {
         for (const key of keys) {
-            await this.cachingService.deleteLocal(key);
+            this.cachingService.deleteLocal(key);
         }
     }
 }

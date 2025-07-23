@@ -27,6 +27,9 @@ import { ElasticService } from 'src/helpers/elastic.service';
 import { RemoteConfigModule } from '../remote-config/remote-config.module';
 import { GovernanceOnChainAbiService } from './services/governance.onchain.abi.service';
 import { DelegateGovernanceService } from './services/delegate-governance.service';
+import { GithubService } from './services/github.service';
+import { GithubResolver } from './resolvers/github.resolver';
+import { DynamicModuleUtils } from 'src/utils/dynamic.module.utils';
 
 @Module({
     imports: [
@@ -36,7 +39,8 @@ import { DelegateGovernanceService } from './services/delegate-governance.servic
         TokenModule,
         EnergyModule,
         LockedAssetModule,
-        RemoteConfigModule
+        RemoteConfigModule,
+        DynamicModuleUtils.getApiModule(),
     ],
     providers: [
         GovernanceTokenSnapshotService,
@@ -61,6 +65,8 @@ import { DelegateGovernanceService } from './services/delegate-governance.servic
         GovernanceOnChainAbiService,
         GovernanceOnChainService,
         DelegateGovernanceService,
+        GithubService,
+        GithubResolver,
     ],
     exports: [
         GovernanceTokenSnapshotAbiService,
@@ -73,6 +79,7 @@ import { DelegateGovernanceService } from './services/delegate-governance.servic
         GovernanceOnChainAbiService,
         GovernanceOnChainService,
         DelegateGovernanceService,
+        GithubService,
     ],
 })
 export class GovernanceModule {}
