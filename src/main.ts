@@ -12,10 +12,8 @@ import { RabbitMqConsumer } from './modules/rabbitmq/rabbitmq.consumer';
 import cookieParser from 'cookie-parser';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { LoggerService } from '@nestjs/common';
-import { ensureGitInstalled } from './ensure-git.installed';
 
 async function bootstrap() {
-    ensureGitInstalled();
     BigNumber.config({ EXPONENTIAL_AT: [-30, 30] });
 
     const app = await NestFactory.create(PublicAppModule, {
