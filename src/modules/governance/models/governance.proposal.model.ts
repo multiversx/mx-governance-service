@@ -63,6 +63,20 @@ export class DescriptionV2 extends DescriptionV1 {
     }
 }
 
+@ObjectType()
+export class DescriptionV3 {
+    @Field()
+    version: number;
+    @Field()
+    title: string;
+    @Field()
+    shortDescription: string;
+
+    constructor(init: Partial<DescriptionV3>) {
+        Object.assign(this, init);
+    }
+}
+
 @ArgsType()
 export class VoteArgs {
     @Field()

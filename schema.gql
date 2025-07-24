@@ -135,7 +135,7 @@ type GovernanceProposalModel {
   commitHash: String!
 }
 
-union GovernanceDescriptionVersions = DescriptionV0 | DescriptionV1 | DescriptionV2
+union GovernanceDescriptionVersions = DescriptionV0 | DescriptionV1 | DescriptionV2 | DescriptionV3
 
 type DescriptionV0 {
   title: String!
@@ -156,6 +156,12 @@ type DescriptionV2 {
   version: Float!
   shortDescription: String!
   strapiHash: String!
+}
+
+type DescriptionV3 {
+  version: Float!
+  title: String!
+  shortDescription: String!
 }
 
 type TransactionModel {

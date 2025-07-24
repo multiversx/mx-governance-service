@@ -6,8 +6,7 @@ import * as path from 'path';
 import { CacheService } from '@multiversx/sdk-nestjs-cache';
 import { CacheTtlInfo } from 'src/services/caching/cache.ttl.info';
 import { githubConfig, governanceConfig } from 'src/config';
-import { GithubConfig } from '../models/github.config.model';
-import { DescriptionV2 } from '../models/governance.proposal.model';
+import {  DescriptionV3 } from '../models/governance.proposal.model';
 import { GovernanceOnChainAbiService } from './governance.onchain.abi.service';
 import { FileContent, GithubProposal } from '../models/github.proposal.model';
 
@@ -162,12 +161,10 @@ export class GithubService implements OnModuleInit {
   async getDescription(commitHash: string) {
     const gitProposals = await this.getGithubProposals();
     const target = gitProposals.find(proposal => proposal.commitHash === commitHash);
-      return new DescriptionV2({
-            strapiId: 0,
-            strapiHash: 'strapiHash not found',
+      return new DescriptionV3({
             shortDescription: target?.fileContent.description ?? 'description not found',
             title: target?.fileContent.title ?? 'title not found',
-            version: 2,
+            version: 3,
         }) // TODO: fix description
   }
 
