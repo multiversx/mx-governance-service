@@ -67,6 +67,14 @@
             "voteFunctionName": "delegateVote",
             "viewUserVotingPowerName": "getVotingPower",
             "isEnabled": false
+        },
+        {
+            "providerName": "salsa",
+            "scAddress": "",
+            "lsTokenId": "",
+            "voteFunctionName": "delegateVote",
+            "viewUserVotingPowerName": "getVotingPower",
+            "isEnabled": false
         }
     ],
     "github": {

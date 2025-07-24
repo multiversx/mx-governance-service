@@ -379,7 +379,7 @@ W
             const delegateUserVotingPowers = await this.delegateUserVotingPowers(address);
 
             const userVotingPowerDelegate = delegateUserVotingPowers.reduce(
-                (acc, curr) => acc.plus(curr.userVotingPower !== DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL ? new BigNumber(curr.userVotingPower) : new BigNumber(0)),
+                (acc, curr) => acc.plus(new BigNumber(curr.userVotingPower)),
                 new BigNumber(0)
             );
             const userVotingPowerTotal = userVotingPowerNormal.plus(userVotingPowerDelegate);
@@ -412,7 +412,9 @@ W
                         providerName: provider.providerName,
                         scAddress: provider.scAddress,
                         lsTokenId: provider.lsTokenId,
-                        userVotingPower: resolvedPromises[idx].toString()})
+                        userVotingPower: resolvedPromises[idx].toString(),
+                        isEnabled: provider.isEnabled,
+                    })
                     ));
 
             return allDelegateVotingPowers;

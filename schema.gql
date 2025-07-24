@@ -107,6 +107,7 @@ type DelegateUserVotingPower {
   scAddress: String!
   lsTokenId: String!
   userVotingPower: String!
+  isEnabled: Boolean!
 }
 
 type GovernanceProposalModel {

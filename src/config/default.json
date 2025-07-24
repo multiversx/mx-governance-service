@@ -21,7 +21,7 @@
             "vote":  {
                 "energy": 7000000,
                 "tokenSnapshot": 50000000,
-                "onChainDelegate": 7000000
+                "onChainDelegate": 150000000
             }
         }
     },

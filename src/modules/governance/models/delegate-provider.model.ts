@@ -10,6 +10,8 @@ export class DelegateUserVotingPower {
     lsTokenId: string;
     @Field()
     userVotingPower: string;
+    @Field()
+    isEnabled: boolean;
 
     constructor(init?: Partial<DelegateUserVotingPower>) {
         Object.assign(this, init);

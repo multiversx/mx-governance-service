@@ -28,7 +28,7 @@ export class DelegateGovernanceService {
         })
     }
 
-    static VOTE_POWER_FOR_NOT_IMPL = '-1';
+    static VOTE_POWER_FOR_NOT_IMPL = '0';
 
     static getDelegateStakingProviders(): DelegateStakingProvider[] {
         const providers: DelegateStakingProvider[] = delegateStakingProviders.map((provider: DelegateStakingProvider) => new DelegateStakingProvider(provider));
