@@ -477,7 +477,7 @@ W
                 contractAddress: scAddress,
                 proposalId: proposalInfo.nonce,
                 proposer: proposalInfo.issuer,
-                description: description,
+                description,
                 feePayment:  new EsdtTokenPayment({
                             tokenIdentifier: feeTokenId,
                             tokenNonce: 0,
