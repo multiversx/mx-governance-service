@@ -356,7 +356,7 @@ W
         remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
         localTtl: CacheTtlInfo.ContractState.localTtl,
     })
-    async userVotingPowerDirect(address: string) {
+    async userVotingPowerDirect(address: string, proposalId: number) {
         try{
             const userVotingPowerDirectRaw = await this.governanceController.getVotingPower(new Address(address))
 
@@ -370,13 +370,13 @@ W
         }
     }
 
-    async userVotingPower(address: string) {
+    async userVotingPower(address: string, proposalId: number) {
         try{
-            const userVotingPowerNormalRaw = await this.userVotingPowerDirect(address);
+            const userVotingPowerNormalRaw = await this.userVotingPowerDirect(address, proposalId);
             const userVotingPowerNormal = new BigNumber(userVotingPowerNormalRaw);
 
             
-            const delegateUserVotingPowers = await this.delegateUserVotingPowers(address);
+            const delegateUserVotingPowers = await this.delegateUserVotingPowers(address, proposalId);
 
             const userVotingPowerDelegate = delegateUserVotingPowers.reduce(
                 (acc, curr) => acc.plus(new BigNumber(curr.userVotingPower)),
@@ -400,22 +400,24 @@ W
         remoteTtl: CacheTtlInfo.BlockTime.remoteTtl,
         localTtl: CacheTtlInfo.BlockTime.localTtl,
     })
-    async delegateUserVotingPowers(address: string) {
+    async delegateUserVotingPowers(address: string, proposalId: number) {
             const providers = DelegateGovernanceService.getDelegateStakingProviders();
 
             const promises = providers.map(provider => this.delegateGovernanceService.getUserVotingPowerFromDelegate(address, provider.scAddress))
             const resolvedPromises = await Promise.all(promises);
             
-            const allDelegateVotingPowers = providers.map(
-                (provider, idx) =>(
+            const allDelegateVotingPowers = await Promise.all(providers.map(
+               async (provider, idx) =>(
+                    
                     new DelegateUserVotingPower({
                         providerName: provider.providerName,
                         scAddress: provider.scAddress,
                         lsTokenId: provider.lsTokenId,
                         userVotingPower: resolvedPromises[idx].toString(),
                         isEnabled: provider.isEnabled,
+                        hasVoted: await this.governanceComputeService.getUserVoteOnChain(provider.scAddress, address, proposalId) !== VoteType.NotVoted,
                     })
-                    ));
+                    )));
 
             return allDelegateVotingPowers;
     }

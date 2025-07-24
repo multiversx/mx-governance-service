@@ -200,21 +200,21 @@ export class GovernanceOnChainService extends GovernanceTokenSnapshotService {
     })
     async userVotingPower(contractAddress: string, proposalId: number, userAddress: string): Promise<string> {
         const onChainAbiService = this.governanceAbiFactory.useAbi(contractAddress) as GovernanceOnChainAbiService;
-        const userVotingPower = await onChainAbiService.userVotingPower(userAddress);
+        const userVotingPower = await onChainAbiService.userVotingPower(userAddress, proposalId);
         
         return userVotingPower;
     }
 
     async userVotingPowerDirect(contractAddress: string, proposalId: number, userAddress: string): Promise<string> {
         const onChainAbiService = this.governanceAbiFactory.useAbi(contractAddress) as GovernanceOnChainAbiService;
-        const userVotingPowerDirect = await onChainAbiService.userVotingPowerDirect(userAddress);
+        const userVotingPowerDirect = await onChainAbiService.userVotingPowerDirect(userAddress, proposalId);
         
         return userVotingPowerDirect;
     }
 
-    async delegateUserVotingPowers(scAddress: string, userAddress: string) {
+    async delegateUserVotingPowers(scAddress: string, userAddress: string, proposalId: number) {
         const onChainAbiService = this.governanceAbiFactory.useAbi(scAddress) as GovernanceOnChainAbiService;
-        return await onChainAbiService.delegateUserVotingPowers(userAddress);
+        return await onChainAbiService.delegateUserVotingPowers(userAddress, proposalId);
     }
 
     smoothingFunction(scAddress: string, quorum: string): string {

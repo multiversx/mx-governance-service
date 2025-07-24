@@ -12,6 +12,8 @@ export class DelegateUserVotingPower {
     userVotingPower: string;
     @Field()
     isEnabled: boolean;
+    @Field()
+    hasVoted: boolean;
 
     constructor(init?: Partial<DelegateUserVotingPower>) {
         Object.assign(this, init);
