@@ -3,20 +3,20 @@ import { ConfigService } from '@nestjs/config';
 import { simpleGit, SimpleGit } from 'simple-git';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { GithubProposal } from '../resolvers/github.resolver';
 import { CacheService } from '@multiversx/sdk-nestjs-cache';
 import { CacheTtlInfo } from 'src/services/caching/cache.ttl.info';
 import { githubConfig, governanceConfig } from 'src/config';
 import { GithubConfig } from '../models/github.config.model';
 import { DescriptionV2 } from '../models/governance.proposal.model';
 import { GovernanceOnChainAbiService } from './governance.onchain.abi.service';
+import { FileContent, GithubProposal } from '../models/github.proposal.model';
 
 @Injectable()
 export class GithubService implements OnModuleInit {
   private git: SimpleGit;
   private repoPath: string;
   private readonly onChainScAddress: string = governanceConfig.onChain.linear[0];
-  private readonly repoSlug;;
+  private readonly repoSlug: string;
   constructor(
     private readonly config: ConfigService,
     private readonly cacheService: CacheService,
@@ -54,7 +54,7 @@ export class GithubService implements OnModuleInit {
 
       this.git = simpleGit(this.repoPath);
       await this.git.checkout(branch);
-      console.log(`Repo ${repoSlug} clonat și branch-ul ${branch} setat.`);
+      console.log(`Repo ${repoSlug} cloned and branch ${branch} set.`);
     }
   }
 
@@ -106,12 +106,12 @@ export class GithubService implements OnModuleInit {
 
       for (const file of addedMdFiles) {
         try {
-          const content = await this.git.show([`${commit.hash}:${file}`]);
-          
+          const fileContentRaw = await this.git.show([`${commit.hash}:${file}`]);
+          const fileContent = this.parseFileContent(fileContentRaw);
           results.push({
             commitHash: commit.hash,
             fileName: file,
-            content,
+            fileContent,
           });
 
           seenFiles.add(file);
@@ -122,6 +122,25 @@ export class GithubService implements OnModuleInit {
     }
 
     return results;
+  }
+
+  private parseFileContent(fileContentRaw: string) {
+    const lines = fileContentRaw.split('\n').map(line => line.trim());
+
+    if (lines.length < 4) {
+      throw new Error('Input must have at least 4 lines');
+    }
+
+    const [title, description, content, proposer] = lines;
+
+    const fileContent = new FileContent({
+      title,
+      description,
+      content,
+      proposer,
+    });
+
+    return fileContent;
   }
 
   //TODO: maybe cache this computing
@@ -145,10 +164,10 @@ export class GithubService implements OnModuleInit {
     const target = gitProposals.find(proposal => proposal.commitHash === commitHash);
       return new DescriptionV2({
             strapiId: 0,
-            strapiHash: 'test strapiHash',
-            shortDescription: target?.content ?? 'not found',
-            title: 'test title',
-            version: 0,
+            strapiHash: 'strapiHash not found',
+            shortDescription: target?.fileContent.description ?? 'description not found',
+            title: target?.fileContent.title ?? 'title not found',
+            version: 2,
         }) // TODO: fix description
   }
 

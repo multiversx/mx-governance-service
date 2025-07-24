@@ -176,10 +176,17 @@ type TransactionModel {
   guardianSignature: String
 }
 
+type FileContent {
+  title: String!
+  description: String!
+  content: String!
+  proposer: String!
+}
+
 type GithubProposal {
   fileName: String!
   commitHash: String!
-  content: String!
+  fileContent: FileContent!
   existsOnChain: Boolean!
 }
 
