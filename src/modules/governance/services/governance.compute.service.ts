@@ -10,6 +10,7 @@ import { ElasticQuery, QueryType } from '@multiversx/sdk-nestjs-elastic';
 import { ElasticService } from 'src/helpers/elastic.service';
 import {  toVoteType } from '../../../utils/governance';
 import { governanceConfig } from 'src/config';
+import { DelegateGovernanceService } from './delegate-governance.service';
 
 @Injectable()
 export class GovernanceComputeService {
@@ -22,15 +23,20 @@ export class GovernanceComputeService {
     @ErrorLoggerAsync()
     @GetOrSetCache({
         baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl, // TODO: invalidate cache / lower ttl
+        remoteTtl: CacheTtlInfo.BlockTime.remoteTtl,
+        localTtl: CacheTtlInfo.BlockTime.localTtl, // TODO: invalidate cache / conditional ttl
     })
     async getUserVoteOnChain(scAddress: string, userAddress: string, proposalId: number): Promise<VoteType> {
         const onChainScAddress = governanceConfig.onChain.linear[0];
         const isDelegateVote = onChainScAddress !== scAddress;
+
+         if(isDelegateVote && !DelegateGovernanceService.getDelegateStakingProvider(scAddress).isEnabled) {
+            return VoteType.NotVoted;
+        }
+
         let voteType = VoteType.NotVoted;
         const eventName = isDelegateVote ? 'delegateVote' : 'vote';
-
+       
         const event = await this.getVoteEventOnChain(eventName, scAddress, userAddress, proposalId, onChainScAddress);
         if(event) {
             const voteEvent = event._source;

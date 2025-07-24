@@ -108,6 +108,7 @@ type DelegateUserVotingPower {
   lsTokenId: String!
   userVotingPower: String!
   isEnabled: Boolean!
+  hasVoted: Boolean!
 }
 
 type GovernanceProposalModel {

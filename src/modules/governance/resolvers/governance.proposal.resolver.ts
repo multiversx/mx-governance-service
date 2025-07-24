@@ -88,7 +88,7 @@ export class GovernanceProposalResolver {
         }
         
         const governanceOnChainService = this.governanceServiceFactory.userService(governanceProposal.contractAddress) as GovernanceOnChainService;
-        return await governanceOnChainService.delegateUserVotingPowers(governanceProposal.contractAddress,user.address);
+        return await governanceOnChainService.delegateUserVotingPowers(governanceProposal.contractAddress,user.address, governanceProposal.proposalId);
     }
 
     @UseGuards(NativeAuthGuard)
