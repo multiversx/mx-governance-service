@@ -1,23 +1,6 @@
-import { Resolver, Query, Args } from '@nestjs/graphql';
-
-import { ObjectType, Field } from '@nestjs/graphql';
+import { Resolver, Query } from '@nestjs/graphql';
 import { GithubService } from '../services/github.service';
-
-@ObjectType()
-export class GithubProposal {
-  @Field()
-  fileName: string;
-
-  @Field()
-  commitHash: string;
-
-  @Field()
-  content: string;
-
-  @Field()
-  existsOnChain?: boolean = false;
-}
-
+import { GithubProposal } from '../models/github.proposal.model';
 
 @Resolver()
 export class GithubResolver {
