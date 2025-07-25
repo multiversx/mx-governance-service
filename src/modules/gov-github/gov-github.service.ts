@@ -144,6 +144,8 @@ export class GovGithubService {
                     : (error.response?.data as Record<string, unknown>) || 'GitHub API request failed';
             const status: number =
                 typeof error.response?.status === 'number' ? error.response.status : 500;
+            // log
+            console.error('GitHub proposal creation error:', message);
             throw new HttpException(message, status);
         }
     }
