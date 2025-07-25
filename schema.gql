@@ -203,6 +203,7 @@ type Query {
   governanceContracts(identifiers: [String!], contracts: [String!], type: String): [GovernanceTypes!]!
   maintenance: Boolean!
   githubProposals: [GithubProposal!]!
+  githubOAuthToken(code: String!): String!
 }
 
 union GovernanceTypes = GovernanceTokenSnapshotContract | GovernanceEnergyContract | GovernanceOnChainContract
@@ -250,4 +251,8 @@ type GovernanceOnChainContract {
   proposals(proposalId: Int): [GovernanceProposalModel!]!
   vetoPercentageLimit: Float!
   votingPowerDecimals: Int!
+}
+
+type Mutation {
+  createGithubProposal(title: String!, description: String!, proposal: String!, accessToken: String!): String!
 }

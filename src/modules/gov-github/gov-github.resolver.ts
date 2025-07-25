@@ -24,7 +24,7 @@ export class GovGithubResolver {
         @Args('accessToken') accessToken: string,
         @AuthUser() user: UserAuthResult,
     ) {
-        const result = await this.govGithubService.createProposal({ title, description, proposal, accessToken, user });
+        const result = await this.govGithubService.createProposal({ title, description, proposal, accessToken, user: user.address });
         return result.url;
     }
 

@@ -11,8 +11,7 @@
     },
     "governance": {
         "oldEnergy": {
-            "cvadratic": [
-            ]
+            "cvadratic": []
         },
         "energy": {
             "cvadratic": [
@@ -78,8 +77,8 @@
         }
     ],
     "github": {
-        "user": "stefangutica",
-        "repository": "governance-proposals-test",
+        "user": "multiversx",
+        "repository": "multiversx-improvement-documents",
         "branch": "main"
     }
 }
