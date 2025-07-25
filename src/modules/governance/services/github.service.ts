@@ -162,8 +162,12 @@ export class GithubService implements OnModuleInit {
     const gitProposals = await this.getGithubProposals();
     const target = gitProposals.find(proposal => proposal.commitHash === commitHash);
       return new DescriptionV3({
-            shortDescription: target?.fileContent.description ?? 'description not found',
-            title: target?.fileContent.title ?? 'title not found',
+            fileContent: target?.fileContent ?? new FileContent({
+              title: 'No title found',
+              description: 'No description found',
+              content: 'No content found',
+              proposer: 'No proposer found',
+            }),
             version: 3,
         }) // TODO: fix description
   }

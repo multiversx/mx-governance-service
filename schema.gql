@@ -111,6 +111,20 @@ type DelegateUserVotingPower {
   hasVoted: Boolean!
 }
 
+type FileContent {
+  title: String!
+  description: String!
+  content: String!
+  proposer: String!
+}
+
+type GithubProposal {
+  fileName: String!
+  commitHash: String!
+  fileContent: FileContent!
+  existsOnChain: Boolean!
+}
+
 type GovernanceProposalModel {
   contractAddress: String!
   proposalId: Float!
@@ -160,8 +174,7 @@ type DescriptionV2 {
 
 type DescriptionV3 {
   version: Float!
-  title: String!
-  shortDescription: String!
+  fileContent: FileContent!
 }
 
 type TransactionModel {
@@ -180,20 +193,6 @@ type TransactionModel {
   guardian: String
   signature: String
   guardianSignature: String
-}
-
-type FileContent {
-  title: String!
-  description: String!
-  content: String!
-  proposer: String!
-}
-
-type GithubProposal {
-  fileName: String!
-  commitHash: String!
-  fileContent: FileContent!
-  existsOnChain: Boolean!
 }
 
 type Query {

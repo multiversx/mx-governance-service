@@ -4,6 +4,7 @@ import { EsdtTokenPaymentModel } from '../../tokens/models/esdt.token.payment.mo
 import { ProposalVotes } from './governance.proposal.votes.model';
 import { GovernanceDescriptionUnion } from './governance.union';
 import { DelegateUserVotingPower } from './delegate-provider.model';
+import { FileContent } from './github.proposal.model';
 
 export enum GovernanceProposalStatus {
     None = 'None',
@@ -67,10 +68,8 @@ export class DescriptionV2 extends DescriptionV1 {
 export class DescriptionV3 {
     @Field()
     version: number;
-    @Field()
-    title: string;
-    @Field()
-    shortDescription: string;
+    @Field(() => FileContent)
+    fileContent: FileContent;
 
     constructor(init: Partial<DescriptionV3>) {
         Object.assign(this, init);
