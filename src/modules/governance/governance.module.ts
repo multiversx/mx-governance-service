@@ -30,6 +30,7 @@ import { DelegateGovernanceService } from './services/delegate-governance.servic
 import { GithubService } from './services/github.service';
 import { GithubResolver } from './resolvers/github.resolver';
 import { DynamicModuleUtils } from 'src/utils/dynamic.module.utils';
+import { GovGithubModule } from '../gov-github/gov-github.module';
 
 @Module({
     imports: [
@@ -41,6 +42,7 @@ import { DynamicModuleUtils } from 'src/utils/dynamic.module.utils';
         LockedAssetModule,
         RemoteConfigModule,
         DynamicModuleUtils.getApiModule(),
+        GovGithubModule,
     ],
     providers: [
         GovernanceTokenSnapshotService,
@@ -82,4 +84,4 @@ import { DynamicModuleUtils } from 'src/utils/dynamic.module.utils';
         GithubService,
     ],
 })
-export class GovernanceModule {}
+export class GovernanceModule { }
