@@ -6,7 +6,7 @@ import * as path from 'path';
 import { CacheService } from '@multiversx/sdk-nestjs-cache';
 import { CacheTtlInfo } from 'src/services/caching/cache.ttl.info';
 import { githubConfig, governanceConfig } from 'src/config';
-import {  DescriptionV3 } from '../models/governance.proposal.model';
+import { DescriptionV3 } from '../models/governance.proposal.model';
 import { GovernanceOnChainAbiService } from './governance.onchain.abi.service';
 import { FileContent, GithubProposal } from '../models/github.proposal.model';
 
@@ -21,10 +21,10 @@ export class GithubService implements OnModuleInit {
     private readonly cacheService: CacheService,
     @Inject(forwardRef(() => GovernanceOnChainAbiService))
     private readonly governanceOnChainAbiService: GovernanceOnChainAbiService,
-   ) {
-      this.repoSlug = `${githubConfig.user}/${githubConfig.repository}`;
-      this.repoPath = this.getRepoPath(this.repoSlug);
-   }
+  ) {
+    this.repoSlug = `${githubConfig.user}/${githubConfig.repository}`;
+    this.repoPath = this.getRepoPath(this.repoSlug);
+  }
 
   private getRepoPath(repoSlug: string): string {
     const repoName = repoSlug.split('/').pop();
@@ -66,7 +66,7 @@ export class GithubService implements OnModuleInit {
   }
 
   async getGithubProposalsRaw(): Promise<GithubProposal[]> {
-    if (!this.git){
+    if (!this.git) {
       await this.cloneAndCheckout(this.repoSlug, githubConfig.branch)
     };
 
@@ -130,7 +130,10 @@ export class GithubService implements OnModuleInit {
       throw new Error('Input must have at least 4 lines');
     }
 
-    const [title, description, content, proposer] = lines;
+    const title = lines[0];
+    const description = lines[1];
+    const proposer = lines[lines.length - 1];
+    const content = lines.slice(2, -1).join('\n');
 
     const fileContent = new FileContent({
       title,
@@ -161,15 +164,15 @@ export class GithubService implements OnModuleInit {
   async getDescription(commitHash: string) {
     const gitProposals = await this.getGithubProposals();
     const target = gitProposals.find(proposal => proposal.commitHash === commitHash);
-      return new DescriptionV3({
-            fileContent: target?.fileContent ?? new FileContent({
-              title: 'No title found',
-              description: 'No description found',
-              content: 'No content found',
-              proposer: 'No proposer found',
-            }),
-            version: 3,
-        }) // TODO: fix description
+    return new DescriptionV3({
+      fileContent: target?.fileContent ?? new FileContent({
+        title: 'No title found',
+        description: 'No description found',
+        content: 'No content found',
+        proposer: 'No proposer found',
+      }),
+      version: 3,
+    }) // TODO: fix description
   }
 
 

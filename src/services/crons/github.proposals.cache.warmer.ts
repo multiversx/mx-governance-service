@@ -13,9 +13,9 @@ export class GithubProposalCacheWarmerService {
         private readonly githubService: GithubService,
         private readonly cacheService: CacheService,
         @Inject(PUB_SUB) private pubSub: RedisPubSub,
-    ) {}
+    ) { }
 
-    @Cron(CronExpression.EVERY_MINUTE)
+    @Cron(CronExpression.EVERY_30_SECONDS)
     @Lock({ name: 'warmGithubProposals', verbose: true })
     async warmGithubProposals(): Promise<void> {
         await this.githubService.cloneOrUpdate();
