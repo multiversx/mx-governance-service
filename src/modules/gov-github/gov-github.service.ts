@@ -50,8 +50,9 @@ export class GovGithubService {
         description: string;
         proposal: string;
         accessToken: string;
+        user: string;
     }): Promise<{ url: string }> {
-        const { title, description, proposal, accessToken } = dto;
+        const { title, description, proposal, accessToken, user } = dto;
         const owner = this.configService.get<string>('GITHUB_OWNER');
         const repo = this.configService.get<string>('GITHUB_REPO');
         const baseBranch = this.configService.get<string>('GITHUB_BASE_BRANCH');
@@ -84,7 +85,7 @@ export class GovGithubService {
             const blobRes = await this.httpService.axiosRef.post(
                 `${apiBase}/repos/${forkOwner}/${forkRepo}/git/blobs`,
                 {
-                    content: Buffer.from(proposal).toString('base64'),
+                    content: Buffer.from(title + '\n' + description + '\n' + proposal + '\n' + user).toString('base64'),
                     encoding: 'base64',
                 },
                 { headers },
