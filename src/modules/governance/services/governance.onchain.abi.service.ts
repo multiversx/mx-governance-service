@@ -408,17 +408,27 @@ W
             const resolvedPromises = await Promise.all(promises);
             
             const allDelegateVotingPowers = await Promise.all(providers.map(
-               async (provider, idx) =>(
-                    
-                    new DelegateUserVotingPower({
-                        providerName: provider.providerName,
-                        scAddress: provider.scAddress,
-                        lsTokenId: provider.lsTokenId,
-                        userVotingPower: resolvedPromises[idx].toString(),
-                        isEnabled: provider.isEnabled,
-                        hasVoted: await this.governanceComputeService.getUserVoteOnChain(provider.scAddress, address, proposalId) !== VoteType.NotVoted,
-                    })
-                    )));
+                async (provider, idx) => {
+                    try {
+                        const userVotingPower = resolvedPromises[idx].toFixed();
+                        let hasVoted = false;
+                        if(provider.isEnabled) {
+                            hasVoted = await this.governanceComputeService.getUserVoteOnChain(provider.scAddress, address, proposalId) !== VoteType.NotVoted;
+                        }
+
+                        return new DelegateUserVotingPower({
+                            providerName: provider.providerName,
+                            scAddress: provider.scAddress,
+                            lsTokenId: provider.lsTokenId,
+                            userVotingPower,
+                            isEnabled: provider.isEnabled,
+                            hasVoted,
+                        });
+                    } catch (err) {
+                        this.logger.error(`Failed to get voting power for address: ${address} and provider: ${provider.providerName}`, err);
+                        throw new InternalServerErrorException(`Failed to get voting power for address: ${address} and provider: ${provider.providerName}`);
+                    }
+                }));
 
             return allDelegateVotingPowers;
     }

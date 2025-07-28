@@ -74,7 +74,7 @@ export class DelegateGovernanceService {
     async getUserVotingPowerFromDelegate(userAddress: string, scAddress: string) {
         const provider = DelegateGovernanceService.getDelegateStakingProvider(scAddress);
         if(!provider.isEnabled) {
-            return DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL;
+            return new BigNumber(DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL);
         }
         const isLiquidStaking = provider.lsTokenId !== '' && provider.lsTokenId;
 
