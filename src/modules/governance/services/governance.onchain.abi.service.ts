@@ -343,6 +343,7 @@ W
                         proposalNonce: args.proposalId,
                         vote,
                     })
+            voteTx.gasLimit = BigInt(gasConfig.governance.vote.onChainDelegate); // TODO: should be removed when the gas limit is set in the sdk
             voteTxs.push(this.convertTransactionToModel(voteTx))
         }
        
