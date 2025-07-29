@@ -41,7 +41,7 @@ export class RabbitMqConsumer {
                     this.logger.info('Processing on-chain governance event', rawEventType);
                     const newTopics = rawEventType.identifier === 'delegateVote' 
                     ? [rawEventType.topics[1], rawEventType.topics[2], rawEventType.topics[0], rawEventType.topics[3], rawEventType.topics[4]] 
-                    : [rawEventType.topics[1], rawEventType.address, rawEventType.topics[0], rawEventType.topics[2], rawEventType.topics[3]];
+                    : [rawEventType.topics[1], Buffer.from(rawEventType.address).toString('base64'), rawEventType.topics[0], rawEventType.topics[2], rawEventType.topics[3]];
                     rawEventType.topics = newTopics;
                 }
                 return new RawEvent(rawEventType);
