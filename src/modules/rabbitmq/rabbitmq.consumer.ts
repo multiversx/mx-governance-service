@@ -43,10 +43,11 @@ export class RabbitMqConsumer {
                     if(rawEventType.identifier === 'delegateVote') {
                         rawEventType.topics =  [rawEventType.topics[1], rawEventType.topics[2], rawEventType.topics[0], rawEventType.topics[3], rawEventType.topics[4]] 
                     } else if (rawEventType.identifier === 'vote') {
-                        rawEventType.address = governanceConfig.onChain.linear[0]; // TODO: check
-                        ; // ensure address is valid
                         const hexAddress = Address.newFromBech32(rawEventType.address).toHex();
                         const base64Address = Buffer.from(hexAddress, 'hex').toString('base64');
+
+                        rawEventType.address = governanceConfig.onChain.linear[0];
+                        
                         rawEventType.topics = [rawEventType.topics[1], base64Address, rawEventType.topics[0], rawEventType.topics[2], rawEventType.topics[3]];
                     }
                 }
