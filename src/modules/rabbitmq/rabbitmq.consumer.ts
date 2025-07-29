@@ -10,9 +10,9 @@ import {
     VoteEvent,
 } from '@multiversx/sdk-exchange';
 import { EnergyHandler } from './handlers/energy.handler.service';
-import { governanceContractsAddresses } from '../../utils/governance';
+import { GOVERNANCE_ONCHAIN_EVENTS, governanceContractsAddresses } from '../../utils/governance';
 import { GovernanceHandlerService } from './handlers/governance.handler.service';
-import { scAddress } from 'src/config';
+import { governanceConfig, scAddress } from 'src/config';
 
 @Injectable()
 export class RabbitMqConsumer {
@@ -35,12 +35,21 @@ export class RabbitMqConsumer {
                 address: string;
                 identifier: string
             }) => this.isFilteredAddress(rawEvent.address))
-            .map((rawEventType) => new RawEvent(rawEventType));
+            .map((rawEventType) => {
+                if(governanceConfig.governanceConfig.onChain.linear.includes(rawEventType.address)) {
+                    const newTopics = rawEventType.identifier === 'delegateVote' 
+                    ? [rawEventType.topics[1], rawEventType.topics[2], rawEventType.topics[0], rawEventType.topics[3], rawEventType.topics[4]] 
+                    : [rawEventType.topics[1], rawEventType.address, rawEventType.topics[0], rawEventType.topics[2], rawEventType.topics[3]];
+                    rawEventType.topics = newTopics;
+                }
+                return new RawEvent(rawEventType);
+            });
 
         this.data = [];
 
         for (const rawEvent of events) {
-            if (rawEvent.data === '' && rawEvent.name !== GOVERNANCE_EVENTS.UP && rawEvent.name !== GOVERNANCE_EVENTS.DOWN && rawEvent.name !== GOVERNANCE_EVENTS.ABSTAIN && rawEvent.name !== GOVERNANCE_EVENTS.DOWN_VETO) {
+            const validEvents = Object.values(GOVERNANCE_EVENTS).map(event => event.toString()).concat(Object.values(GOVERNANCE_ONCHAIN_EVENTS).map(event => event.toString()));
+            if (rawEvent.data === '' || !validEvents.includes(rawEvent.name)) {
                 this.logger.info('Event skipped', {
                     address: rawEvent.address,
                     identifier: rawEvent.identifier,
@@ -66,6 +75,12 @@ export class RabbitMqConsumer {
                 case GOVERNANCE_EVENTS.DOWN_VETO:
                 case GOVERNANCE_EVENTS.ABSTAIN:
                     await this.governanceHandler.handleGovernanceVoteEvent(new VoteEvent(rawEvent), rawEvent.name);
+                    break;
+                case GOVERNANCE_ONCHAIN_EVENTS.YES:
+                case GOVERNANCE_ONCHAIN_EVENTS.NO:
+                case GOVERNANCE_ONCHAIN_EVENTS.ABSTAIN:
+                case GOVERNANCE_ONCHAIN_EVENTS.VETO:
+                    await this.governanceHandler.handleOnChainGovernanceVoteEvent(new VoteEvent(rawEvent), rawEvent.name);
                     break;
             }
         }
