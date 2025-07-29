@@ -210,7 +210,7 @@ union GovernanceTypes = GovernanceTokenSnapshotContract | GovernanceEnergyContra
 
 type GovernanceTokenSnapshotContract {
   address: String!
-  shard: Int!
+  shard: String!
   minFeeForPropose: String!
   quorum: String!
   votingDelayInBlocks: Int!
@@ -224,7 +224,7 @@ type GovernanceTokenSnapshotContract {
 
 type GovernanceEnergyContract {
   address: String!
-  shard: Int!
+  shard: String!
   minFeeForPropose: String!
   quorum: String!
   votingDelayInBlocks: Int!
@@ -241,7 +241,7 @@ type GovernanceEnergyContract {
 
 type GovernanceOnChainContract {
   address: String!
-  shard: Int!
+  shard: String!
   minFeeForPropose: String!
   quorum: String!
   votingDelayInBlocks: Int!

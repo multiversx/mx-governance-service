@@ -366,7 +366,7 @@ W
                 return '0';
             }
             this.logger.error(error);
-            throw new InternalServerErrorException();
+            throw error;
         }
     }
 
@@ -390,7 +390,7 @@ W
                 return '0';
             }
             this.logger.error(error);
-            throw new InternalServerErrorException();
+            throw error;
         }
     }
 
@@ -423,9 +423,9 @@ W
                             isEnabled: provider.isEnabled,
                             hasVoted,
                         });
-                    } catch (err) {
-                        this.logger.error(`Failed to get voting power for address: ${address} and provider: ${provider.providerName}`, err);
-                        throw new InternalServerErrorException(`Failed to get voting power for address: ${address} and provider: ${provider.providerName}`);
+                    } catch (error) {
+                        this.logger.error(`Failed to get voting power for address: ${address} and provider: ${provider.providerName}`, error);
+                        throw error;
                     }
                 }));
 
