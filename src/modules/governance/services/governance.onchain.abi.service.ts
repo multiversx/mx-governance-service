@@ -325,7 +325,7 @@ W
         const delegateUserVotingPowers = await this.delegateUserVotingPowers(sender, args.proposalId);
         const voteTxs: TransactionModel[] = [];
         for(const providerInfo of delegateUserVotingPowers) {
-            const hasVoted = providerInfo
+            const hasVoted = providerInfo.hasVoted;
             const userVotingPower = providerInfo.userVotingPower;
             if(!hasVoted && userVotingPower !== '0') {
                 const voteTx = await this.createDelegateVoteTransaction(sender, {
