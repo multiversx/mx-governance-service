@@ -37,6 +37,7 @@ export class RabbitMqConsumer {
             }) => this.isFilteredAddress(rawEvent.address))
             .map((rawEventType) => {
                 if(governanceConfig.onChain.linear.includes(rawEventType.address)) {
+                    this.logger.info('Processing on-chain governance event', rawEventType);
                     const newTopics = rawEventType.identifier === 'delegateVote' 
                     ? [rawEventType.topics[1], rawEventType.topics[2], rawEventType.topics[0], rawEventType.topics[3], rawEventType.topics[4]] 
                     : [rawEventType.topics[1], rawEventType.address, rawEventType.topics[0], rawEventType.topics[2], rawEventType.topics[3]];
