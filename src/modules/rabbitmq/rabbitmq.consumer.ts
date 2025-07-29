@@ -35,7 +35,7 @@ export class RabbitMqConsumer {
             ?.filter((rawEvent: {
                 address: string;
                 identifier: string
-            }) => this.isFilteredAddress(rawEvent.address))
+            }) => this.isFilteredAddress(rawEvent.address) || this.isOnChainGovernanceEvent(rawEvent, rawEvents.shardId))
             .map((rawEventType) => {
                 if(governanceConfig.onChain.linear.includes(rawEventType.address)) {
                     this.logger.info('Processing on-chain governance event', rawEventType);
@@ -46,12 +46,12 @@ export class RabbitMqConsumer {
                 }
                 return new RawEvent(rawEventType);
             });
-
+        
         this.data = [];
 
         for (const rawEvent of events) {
             const validEvents = Object.values(GOVERNANCE_EVENTS).map(event => event.toString()).concat(Object.values(GOVERNANCE_ONCHAIN_EVENTS).map(event => event.toString()));
-            if (rawEvent.data === '' || !validEvents.includes(rawEvent.name)) {
+            if (rawEvent.data === '' && !validEvents.includes(rawEvent.name)) {
                 this.logger.info('Event skipped', {
                     address: rawEvent.address,
                     identifier: rawEvent.identifier,
@@ -97,5 +97,9 @@ export class RabbitMqConsumer {
 
     private isFilteredAddress(address: string): boolean {
         return (this.filterAddresses.find((filterAddress) => address === filterAddress) !== undefined);
+    }
+
+    private isOnChainGovernanceEvent(event: {address: string, identifier: string}, shardId: string): boolean {
+        return ['vote', 'delegateVote'].includes(event.identifier) && shardId === '4294967295';
     }
 }
