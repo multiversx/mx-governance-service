@@ -34,8 +34,8 @@ export class GovernanceOldEnergyAbiService extends GovernanceEnergyAbiService {
         return Promise.resolve('');
     }
 
-    async getAddressShardID(scAddress: string): Promise<number> {
-        return Promise.resolve(1);
+    async getAddressShardID(scAddress: string): Promise<string> {
+        return '1';
     }
 
     async minEnergyForPropose(scAddress: string): Promise<string> {

@@ -60,10 +60,9 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         })
     }
 
-    async getAddressShardID(scAddress: string): Promise<number> {
+    async getAddressShardID(scAddress: string): Promise<string> {
         // metachain
-        return -1;
-        return 4294967295;
+        return '4294967295';
     }
 
     @ErrorLoggerAsync()

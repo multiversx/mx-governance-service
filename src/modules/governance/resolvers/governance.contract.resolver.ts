@@ -15,7 +15,7 @@ export class GovernanceTokenSnapshotContractResolver {
     }
 
     @ResolveField()
-    async shard(@Parent() contract: GovernanceTokenSnapshotContract): Promise<number> {
+    async shard(@Parent() contract: GovernanceTokenSnapshotContract): Promise<string> {
         return this.governanceAbiFactory.useAbi(contract.address).getAddressShardID(contract.address);
     }
 

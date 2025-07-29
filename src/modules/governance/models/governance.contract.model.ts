@@ -6,8 +6,8 @@ import { EsdtToken } from '../../tokens/models/esdtToken.model';
 export class GovernanceTokenSnapshotContract {
     @Field()
     address: string;
-    @Field(() => Int)
-    shard: number;
+    @Field(() => String)
+    shard: string;
     @Field()
     minFeeForPropose: string;
     @Field()

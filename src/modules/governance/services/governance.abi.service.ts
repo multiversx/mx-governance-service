@@ -36,7 +36,7 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
         remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
         localTtl: CacheTtlInfo.ContractState.localTtl,
     })
-    async getAddressShardID(scAddress: string): Promise<number> {
+    async getAddressShardID(scAddress: string): Promise<string> {
         return await this.mxProxy.getAddressShardID(scAddress);
     }
 
