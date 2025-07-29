@@ -398,8 +398,8 @@ W
     @ErrorLoggerAsync()
     @GetOrSetCache({
         baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.BlockTime.remoteTtl,
-        localTtl: CacheTtlInfo.BlockTime.localTtl,
+        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
+        localTtl: CacheTtlInfo.ContractState.localTtl,
     })
     async delegateUserVotingPowers(address: string, proposalId: number) {
             const providers = DelegateGovernanceService.getDelegateStakingProviders();
@@ -528,8 +528,8 @@ W
     @ErrorLoggerAsync()
     @GetOrSetCache({
         baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.BlockTime.remoteTtl,
-        localTtl: CacheTtlInfo.BlockTime.localTtl,
+        remoteTtl: CacheTtlInfo.BlockTime.remoteTtl * 5,
+        localTtl: CacheTtlInfo.BlockTime.localTtl * 5,
     })
     private async getConfig(): Promise<GovernanceConfigModel> {
         const config = await this.governanceController.getConfig();
@@ -541,8 +541,8 @@ W
     @ErrorLoggerAsync()
     @GetOrSetCache({
         baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.BlockTime.remoteTtl,
-        localTtl: CacheTtlInfo.BlockTime.localTtl,
+        remoteTtl: CacheTtlInfo.BlockTime.remoteTtl * 5,
+        localTtl: CacheTtlInfo.BlockTime.localTtl * 5,
     })
     private async getProposal(proposalId: number): Promise<ProposalInfoModel> {
         const proposal = await this.governanceController.getProposal(proposalId);
