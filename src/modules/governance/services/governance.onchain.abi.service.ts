@@ -322,22 +322,25 @@ W
     })
     async vote(sender: string, args: VoteArgs): Promise<TransactionModel[]> {
         const vote = this.voteToSdkVoteType(args.vote);
-        const providers = DelegateGovernanceService.getEnabledDelegateStakingProviders();
+        const delegateUserVotingPowers = await this.delegateUserVotingPowers(sender, args.proposalId);
         const voteTxs: TransactionModel[] = [];
-        for(const provider of providers) {
-            const voteType = await this.governanceComputeService.getUserVoteOnChain(provider.scAddress, sender, args.proposalId);
-            if(voteType === VoteType.NotVoted) {
+        for(const providerInfo of delegateUserVotingPowers) {
+            const hasVoted = providerInfo
+            const userVotingPower = providerInfo.userVotingPower;
+            if(!hasVoted && userVotingPower !== '0') {
                 const voteTx = await this.createDelegateVoteTransaction(sender, {
                         contractAddress: args.contractAddress,
-                        delegateContractAddress: provider.scAddress,
+                        delegateContractAddress: providerInfo.scAddress,
                         proposalId: args.proposalId,
                         vote: args.vote,
                 });
                 voteTxs.push(voteTx);
             }
         }
+
         const voteType = await this.governanceComputeService.getUserVoteOnChain(args.contractAddress, sender, args.proposalId);
-        if(voteType === VoteType.NotVoted) {
+        const userVotingPowerDirect = await this.userVotingPowerDirect(sender, args.proposalId);
+        if(voteType === VoteType.NotVoted && userVotingPowerDirect !== '0') {
             const voteTx = this.governanceTransactionsFactory.createTransactionForVoting(new Address(sender), {
                         proposalNonce: args.proposalId,
                         vote,
@@ -400,7 +403,7 @@ W
         remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
         localTtl: CacheTtlInfo.ContractState.localTtl,
     })
-    async delegateUserVotingPowers(address: string, proposalId: number) {
+    async delegateUserVotingPowers(address: string, proposalId: number): Promise<DelegateUserVotingPower[]> {
             const providers = DelegateGovernanceService.getDelegateStakingProviders();
 
             const promises = providers.map(provider => this.delegateGovernanceService.getUserVotingPowerFromDelegate(address, provider.scAddress))
