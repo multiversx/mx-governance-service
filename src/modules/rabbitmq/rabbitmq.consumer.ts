@@ -39,10 +39,14 @@ export class RabbitMqConsumer {
                 // means is on chain governance event
                 if(!this.isFilteredAddress(rawEventType.address)) {
                     this.logger.info('Processing on-chain governance event', rawEventType);
-                    const newTopics = rawEventType.identifier === 'delegateVote' 
-                    ? [rawEventType.topics[1], rawEventType.topics[2], rawEventType.topics[0], rawEventType.topics[3], rawEventType.topics[4]] 
-                    : [rawEventType.topics[1], Buffer.from(rawEventType.address).toString('base64'), rawEventType.topics[0], rawEventType.topics[2], rawEventType.topics[3]];
-                    rawEventType.topics = newTopics;
+                    if(rawEventType.identifier === 'delegateVote') {
+                        rawEventType.address = governanceConfig.onChain.linear[0];
+                        rawEventType.topics =  [rawEventType.topics[1], rawEventType.topics[2], rawEventType.topics[0], rawEventType.topics[3], rawEventType.topics[4]] 
+                    } else if (rawEventType.identifier === 'vote') {
+                        const hexAddress = Buffer.from(rawEventType.address, 'utf-8').toString('hex');
+                        const base64Address = Buffer.from(hexAddress, 'hex').toString('base64');
+                        rawEventType.topics = [rawEventType.topics[1], base64Address, rawEventType.topics[0], rawEventType.topics[2], rawEventType.topics[3]];
+                    }
                 }
                 return new RawEvent(rawEventType);
             });
