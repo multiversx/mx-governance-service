@@ -30,12 +30,11 @@ export class RabbitMqConsumer {
         if (!rawEvents.events) {
             return;
         }
-        console.log(rawEvents);
         const events: RawEvent[] = rawEvents?.events
             ?.filter((rawEvent: {
                 address: string;
                 identifier: string
-            }) => this.isFilteredAddress(rawEvent.address) || this.isOnChainGovernanceEvent(rawEvent, rawEvents.shardId))
+            }) => this.isFilteredAddress(rawEvent.address) || this.isOnChainGovernanceEvent(rawEvent, rawEvents.shardId.toString()))
             .map((rawEventType) => {
                 // means is on chain governance event
                 if(!this.isFilteredAddress(rawEventType.address)) {
@@ -101,6 +100,11 @@ export class RabbitMqConsumer {
     }
 
     private isOnChainGovernanceEvent(event: {address: string, identifier: string}, shardId: string): boolean {
+        console.log('Checking if event is on-chain governance event', {
+            address: event.address,
+            identifier: event.identifier,
+            shardId: shardId,
+        });
         return ['vote', 'delegateVote'].includes(event.identifier) && shardId === '4294967295';
     }
 }
