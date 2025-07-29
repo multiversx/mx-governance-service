@@ -30,7 +30,7 @@ export class RabbitMqConsumer {
         if (!rawEvents.events) {
             return;
         }
-        console.log(rawEvents.events);
+        console.log(rawEvents);
         const events: RawEvent[] = rawEvents?.events
             ?.filter((rawEvent: {
                 address: string;
