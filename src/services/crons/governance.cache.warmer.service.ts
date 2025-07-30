@@ -69,7 +69,7 @@ export class GovernanceCacheWarmerService {
         const onChainAbiService = this.governanceAbiFactory.useAbi(scAddress) as GovernanceOnChainAbiService;
         const configCacheKeys = [];
         const config = await onChainAbiService.getConfigRaw();
-        configCacheKeys.push(await this.governanceSetter.config(config));
+        configCacheKeys.push(await this.governanceSetter.getConfig(config));
 
         await this.deleteCacheKeys(configCacheKeys);
 
