@@ -167,7 +167,7 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
         return response.firstValue.valueOf().toNumber();
     }
 
-      async proposalsWithPagination(scAddress: string, pagination?: PaginationArgs): Promise<GovernanceProposalModel[]> {
+    async proposalsWithPagination(scAddress: string, pagination?: PaginationArgs): Promise<GovernanceProposalModel[]> {
         const allProposals = await this.proposals(scAddress);
 
         if (!pagination) {

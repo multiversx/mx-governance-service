@@ -153,6 +153,8 @@ type GovernanceProposalModel {
   delegateUserVotingPowers: [DelegateUserVotingPower!]!
   userVotingPowerDirect: String!
   commitHash: String!
+  startVoteTimestamp: Int!
+  endVoteTimestamp: Int!
 }
 
 union GovernanceDescriptionVersions = DescriptionV0 | DescriptionV1 | DescriptionV2 | DescriptionV3

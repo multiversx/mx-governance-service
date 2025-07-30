@@ -164,6 +164,10 @@ export class GovernanceProposalModel {
     userVotingPowerDirect?: string;
     @Field()
     commitHash?: string;
+    @Field(() => Int)
+    startVoteTimestamp?: number;
+    @Field(() => Int)
+    endVoteTimestamp?: number;
 
     constructor(init: Partial<GovernanceProposalModel>) {
         Object.assign(this, init);

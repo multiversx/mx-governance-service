@@ -6,6 +6,7 @@ import { CacheService } from '@multiversx/sdk-nestjs-cache';
 import { MXApiService } from '../multiversx-communication/mx.api.service';
 import { GenericGetterService } from '../generics/generic.getter.service';
 import { Stats } from 'src/models/stats.model';
+import { mxConfig } from 'src/config';
 
 @Injectable()
 export class ContextGetterService extends GenericGetterService {
@@ -34,6 +35,30 @@ export class ContextGetterService extends GenericGetterService {
             Constants.oneSecond() * 6,
         );
     }
+
+    async getFirstBlockTimestampByEpochAndShardRaw(epoch: number, shardID: string): Promise<number> {
+        const cacheKey = this.getCacheKey(`timestamp:${shardID}:${epoch}`);
+        return await this.getData(
+            cacheKey,
+            async () => await this.apiService.getFirstBlockTimestampByEpochAndShard(epoch, shardID),
+            Constants.oneMinute(),
+        );
+    }
+
+    async getFirstBlockTimestampByEpochAndShard(targetEpoch: number, shardID: string): Promise<number> {
+        const {epoch: currentEpoch} = await this.getStats();
+
+        if(targetEpoch <= currentEpoch) {
+            return await this.getFirstBlockTimestampByEpochAndShardRaw(targetEpoch, shardID);
+        }
+
+        const currentEpochStartBlockTimestamp = await this.getFirstBlockTimestampByEpochAndShardRaw(currentEpoch, shardID);
+        const epochDiff = targetEpoch - currentEpoch;
+
+        const epochTime = mxConfig.chainID === '1' ? Constants.oneDay() : Constants.oneHour() * 2;
+        return currentEpochStartBlockTimestamp + (epochDiff * epochTime);
+    }
+
     async getStartEpochRound(epoch: number) {
         const cacheKey = this.getCacheKey(`start-epoch:${epoch}:round`);
         const stats = await this.getStats();

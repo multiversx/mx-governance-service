@@ -484,16 +484,20 @@ W
             const withdrawPercentageDefeated = await this.withdrawPercentageDefeated(scAddress);
             const description = await this.githubService.getDescription(proposalInfo.commitHash);
             const status = await this.proposalStatus(scAddress,proposalInfo.nonce);
+            const shardId= await this.getAddressShardID(scAddress);
+            const startVoteTimestamp = await this.contextGetter.getFirstBlockTimestampByEpochAndShard(proposalInfo.startVoteEpoch, shardId);
+            const endVoteTimestamp = await this.contextGetter.getFirstBlockTimestampByEpochAndShard(proposalInfo.endVoteEpoch + 1, shardId);
+
             return new GovernanceProposalModel({
                 contractAddress: scAddress,
                 proposalId: proposalInfo.nonce,
                 proposer: proposalInfo.issuer,
                 description,
-                feePayment:  new EsdtTokenPayment({
-                            tokenIdentifier: feeTokenId,
-                            tokenNonce: 0,
-                            amount: proposalInfo.cost,
-                        }),
+                feePayment: new EsdtTokenPayment({
+                                tokenIdentifier: feeTokenId,
+                                tokenNonce: 0,
+                                amount: proposalInfo.cost,
+                            }),
                 proposalStartBlock: startEpochRound + 10, // TODO: check
                 votingPeriodInBlocks: votingPeriodInRounds,
                 votingDelayInBlocks: roundsLeftUntilEpoch > 0 ? roundsLeftUntilEpoch + 10 : 0, // TODO: check
@@ -502,6 +506,8 @@ W
                 withdrawPercentageDefeated,
                 commitHash: proposalInfo.commitHash,
                 status,
+                startVoteTimestamp,
+                endVoteTimestamp,
             });
     }
 
