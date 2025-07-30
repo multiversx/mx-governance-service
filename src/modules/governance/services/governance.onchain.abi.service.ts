@@ -29,7 +29,6 @@ import { DelegateUserVotingPower } from '../models/delegate-provider.model';
 import { GovernanceComputeService } from './governance.compute.service';
 import { GithubService } from './github.service';
 
-
 @Injectable()
 export class GovernanceOnChainAbiService extends GenericAbiService {
     static PROPOSAL_NONCE_THRESHOLD = 100; // early exit in case of a bug in vm query to not go into infinite loop
@@ -400,7 +399,7 @@ W
             const allDelegateVotingPowers = await Promise.all(providers.map(
                 async (provider, idx) => {
                     try {
-                        const userVotingPower = resolvedPromises[idx].toFixed();
+                        const userVotingPower = resolvedPromises[idx].toString();
                         let hasVoted = false;
                         if(provider.isEnabled) {
                             hasVoted = await this.governanceComputeService.getUserVoteOnChain(provider.scAddress, address, proposalId) !== VoteType.NotVoted;
