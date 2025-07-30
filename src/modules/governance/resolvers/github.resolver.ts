@@ -11,6 +11,6 @@ export class GithubResolver {
   @Query(() => [GithubProposal])
   async githubProposals(
   ): Promise<GithubProposal[]> {
-    return this.githubService.getGithubProposalWithStatus();
+    return this.githubService.getGithubProposalWithChainInfo();
   }
 }

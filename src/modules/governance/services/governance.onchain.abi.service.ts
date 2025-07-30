@@ -28,6 +28,7 @@ import { DelegateGovernanceService } from './delegate-governance.service';
 import { DelegateUserVotingPower } from '../models/delegate-provider.model';
 import { GovernanceComputeService } from './governance.compute.service';
 import { GithubService } from './github.service';
+import { PaginationArgs } from '../models/pagination.model';
 
 @Injectable()
 export class GovernanceOnChainAbiService extends GenericAbiService {
@@ -130,6 +131,15 @@ W
         return Number(new BigNumber(lostProposalFee.toString()).multipliedBy(new BigNumber(100)).dividedBy(new BigNumber(proposalFee.toString())).toFixed());
     }
 
+    async proposalsWithPagination(scAddress: string, pagination?: PaginationArgs): Promise<GovernanceProposalModel[]> {
+        const allProposals = await this.proposals(scAddress);
+
+        if (!pagination) {
+            return allProposals.sort((a, b) => b.proposalId - a.proposalId);
+        }
+
+        return allProposals.sort((a, b) => b.proposalId - a.proposalId).slice(pagination.offset, pagination.offset + pagination.limit);
+    }
 
     @ErrorLoggerAsync()
     @GetOrSetCache({
@@ -473,6 +483,7 @@ W
             const votingPeriodInRounds = voteTimeInEpochs * roundsPerEpoch;
             const withdrawPercentageDefeated = await this.withdrawPercentageDefeated(scAddress);
             const description = await this.githubService.getDescription(proposalInfo.commitHash);
+            const status = await this.proposalStatus(scAddress,proposalInfo.nonce);
             return new GovernanceProposalModel({
                 contractAddress: scAddress,
                 proposalId: proposalInfo.nonce,
@@ -490,6 +501,7 @@ W
                 totalQuorum: proposalInfo.quorumStake,
                 withdrawPercentageDefeated,
                 commitHash: proposalInfo.commitHash,
+                status,
             });
     }
 

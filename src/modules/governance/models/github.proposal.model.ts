@@ -1,4 +1,5 @@
 import { Field, ObjectType } from "@nestjs/graphql";
+import { GovernanceProposalStatus } from "./governance.proposal.model";
 
 @ObjectType()
 export class FileContent {
@@ -20,6 +21,22 @@ export class FileContent {
 }
 
 @ObjectType()
+export class ChainInfo {
+  @Field()
+  existsOnChain: boolean;
+
+  @Field({ nullable: true })
+  status?: GovernanceProposalStatus;
+
+  @Field({ nullable: true })
+  proposalId?: number;
+
+  constructor(init?: Partial<ChainInfo>) {
+    Object.assign(this, init);
+  }
+}
+
+@ObjectType()
 export class GithubProposal {
   @Field()
   fileName: string;
@@ -31,7 +48,7 @@ export class GithubProposal {
   fileContent: FileContent;
 
   @Field()
-  existsOnChain?: boolean = false;
+  chainInfo?: ChainInfo;
 }
 
 

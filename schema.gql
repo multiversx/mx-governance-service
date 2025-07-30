@@ -118,11 +118,17 @@ type FileContent {
   proposer: String!
 }
 
+type ChainInfo {
+  existsOnChain: Boolean!
+  status: String
+  proposalId: Float
+}
+
 type GithubProposal {
   fileName: String!
   commitHash: String!
   fileContent: FileContent!
-  existsOnChain: Boolean!
+  chainInfo: ChainInfo!
 }
 
 type GovernanceProposalModel {
@@ -217,7 +223,7 @@ type GovernanceTokenSnapshotContract {
   votingPeriodInBlocks: Int!
   feeToken: EsdtToken!
   withdrawPercentageDefeated: Int!
-  proposals(proposalId: Int): [GovernanceProposalModel!]!
+  proposals(proposalId: Int, offset: Int! = 0, limit: Int! = 10): [GovernanceProposalModel!]!
   vetoPercentageLimit: Float!
   votingPowerDecimals: Int!
 }
@@ -231,7 +237,7 @@ type GovernanceEnergyContract {
   votingPeriodInBlocks: Int!
   feeToken: EsdtToken!
   withdrawPercentageDefeated: Int!
-  proposals(proposalId: Int): [GovernanceProposalModel!]!
+  proposals(proposalId: Int, offset: Int! = 0, limit: Int! = 10): [GovernanceProposalModel!]!
   vetoPercentageLimit: Float!
   votingPowerDecimals: Int!
   minEnergyForPropose: String!
@@ -248,7 +254,7 @@ type GovernanceOnChainContract {
   votingPeriodInBlocks: Int!
   feeToken: EsdtToken!
   withdrawPercentageDefeated: Int!
-  proposals(proposalId: Int): [GovernanceProposalModel!]!
+  proposals(proposalId: Int, offset: Int! = 0, limit: Int! = 10): [GovernanceProposalModel!]!
   vetoPercentageLimit: Float!
   votingPowerDecimals: Int!
 }

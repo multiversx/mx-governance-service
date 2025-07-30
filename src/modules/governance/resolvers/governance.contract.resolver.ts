@@ -5,6 +5,7 @@ import { GovernanceEnergyContract, GovernanceOnChainContract, GovernanceTokenSna
 import { GovernanceAbiFactory } from '../services/governance.abi.factory';
 import { GovernanceServiceFactory } from '../services/governance.factory';
 import { GovernanceEnergyAbiService } from '../services/governance.abi.service';
+import { PaginationArgs } from '../models/pagination.model';
 
 @Resolver(() => GovernanceTokenSnapshotContract)
 export class GovernanceTokenSnapshotContractResolver {
@@ -57,9 +58,10 @@ export class GovernanceTokenSnapshotContractResolver {
     @ResolveField(() => [GovernanceProposalModel])
     async proposals(
         @Parent() contract: GovernanceTokenSnapshotContract,
-        @Args('proposalId', {type: ()=> Int, nullable: true}) proposalId?: number
+        @Args('proposalId', {type: ()=> Int, nullable: true}) proposalId?: number,
+        @Args() pagination?: PaginationArgs,
     ): Promise<GovernanceProposalModel[]> {
-        const proposals = await this.governanceAbiFactory.useAbi(contract.address).proposals(contract.address);
+        const proposals = await this.governanceAbiFactory.useAbi(contract.address).proposalsWithPagination(contract.address, pagination);
 
         if(proposalId) {
             return proposals.filter(proposal => proposal.proposalId === proposalId);

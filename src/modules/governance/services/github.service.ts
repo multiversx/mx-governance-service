@@ -6,9 +6,9 @@ import * as path from 'path';
 import { CacheService } from '@multiversx/sdk-nestjs-cache';
 import { CacheTtlInfo } from 'src/services/caching/cache.ttl.info';
 import { githubConfig, governanceConfig } from 'src/config';
-import { DescriptionV3 } from '../models/governance.proposal.model';
+import { DescriptionV3, GovernanceProposalStatus } from '../models/governance.proposal.model';
 import { GovernanceOnChainAbiService } from './governance.onchain.abi.service';
-import { FileContent, GithubProposal } from '../models/github.proposal.model';
+import { ChainInfo, FileContent, GithubProposal } from '../models/github.proposal.model';
 
 @Injectable()
 export class GithubService implements OnModuleInit {
@@ -145,20 +145,26 @@ export class GithubService implements OnModuleInit {
     return fileContent;
   }
 
-  //TODO: maybe cache this computing
-  async getGithubProposalWithStatus() {
-    const onChainProposals = await this.governanceOnChainAbiService.proposals(this.onChainScAddress);
-    const githubProposals = await this.getGithubProposals();
+    //TODO: maybe cache this computing
+    async getGithubProposalWithChainInfo() {
+      const onChainProposals = await this.governanceOnChainAbiService.proposals(this.onChainScAddress);
+      const githubProposals = await this.getGithubProposals();
 
-    const proposalWithStatus = githubProposals.map(gitProposal => {
-      const existsOnChain = onChainProposals.find(onChainProposal => onChainProposal.commitHash === gitProposal.commitHash) !== undefined
+      const proposalsWithChainInfo = githubProposals.map(gitProposal => {
+      const chainInfoRaw = onChainProposals.find(onChainProposal => onChainProposal.commitHash === gitProposal.commitHash)
+      const existsOnChain = chainInfoRaw !== undefined;
+
       return {
         ...gitProposal,
-        existsOnChain,
+        chainInfo: new ChainInfo({
+          existsOnChain,
+          status: existsOnChain ? chainInfoRaw?.status : GovernanceProposalStatus.None,
+          proposalId: existsOnChain ? chainInfoRaw?.proposalId : undefined,
+        }),
       }
     })
 
-    return proposalWithStatus;
+    return proposalsWithChainInfo;
   }
 
   async getDescription(commitHash: string) {

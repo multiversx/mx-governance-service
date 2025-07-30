@@ -18,6 +18,7 @@ import { GetOrSetCache } from '../../../helpers/decorators/caching.decorator';
 import { CacheTtlInfo } from '../../../services/caching/cache.ttl.info';
 import { decimalToHex } from '../../../utils/token.converters';
 import { ResultsParser } from 'src/utils/results.parser';
+import { PaginationArgs } from '../models/pagination.model';
 
 @Injectable()
 export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
@@ -164,6 +165,16 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
         const response = await this.getGenericData(interaction);
 
         return response.firstValue.valueOf().toNumber();
+    }
+
+      async proposalsWithPagination(scAddress: string, pagination?: PaginationArgs): Promise<GovernanceProposalModel[]> {
+        const allProposals = await this.proposals(scAddress);
+
+        if (!pagination) {
+            return allProposals;
+        }
+
+        return allProposals.slice(pagination.offset, pagination.offset + pagination.limit);
     }
 
     @ErrorLoggerAsync()
