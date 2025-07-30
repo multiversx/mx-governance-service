@@ -5,6 +5,9 @@ import { ApiConfigService } from "src/helpers/api.config.service";
 import { DelegateStakingProvider } from "../models/delegate-provider.model";
 import BigNumber from "bignumber.js";
 import { TokenService } from "src/modules/tokens/services/token.service";
+import { ErrorLoggerAsync } from "@multiversx/sdk-nestjs-common";
+import { GetOrSetCache } from "src/helpers/decorators/caching.decorator";
+import { CacheTtlInfo } from "src/services/caching/cache.ttl.info";
 
 @Injectable()
 export class DelegateGovernanceService {
@@ -71,6 +74,12 @@ export class DelegateGovernanceService {
         return delegateVoteTx;
     }
     
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'governance',
+        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
+        localTtl: CacheTtlInfo.ContractState.localTtl,
+    })
     async getUserVotingPowerFromDelegate(userAddress: string, scAddress: string) {
         const provider = DelegateGovernanceService.getDelegateStakingProvider(scAddress);
         if(!provider.isEnabled) {

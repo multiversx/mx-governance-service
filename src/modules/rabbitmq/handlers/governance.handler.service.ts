@@ -25,18 +25,6 @@ export class GovernanceHandlerService {
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     ) {}
 
-    async handleOnChainGovernanceVoteEvent(event: VoteEvent, voteType: GOVERNANCE_ONCHAIN_EVENTS) {
-        const topics = event.getTopics();
-        console.log('Handling on-chain governance vote event', {
-            address: event.address,
-            proposalId: topics.proposalId,
-            voter: topics.voter,
-            voteType: voteType,
-            nrVotes: topics.nrVotes,
-            quorumUsed: topics.quorumUsed,
-        });
-    }
-
     async handleGovernanceVoteEvent(
         event: VoteEvent,
         voteType: GOVERNANCE_EVENTS,

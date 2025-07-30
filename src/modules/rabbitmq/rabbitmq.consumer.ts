@@ -14,17 +14,23 @@ import { GOVERNANCE_ONCHAIN_EVENTS, governanceContractsAddresses } from '../../u
 import { GovernanceHandlerService } from './handlers/governance.handler.service';
 import { governanceConfig, scAddress } from 'src/config';
 import { Address } from '@multiversx/sdk-core/out';
+import { GovernanceOnChainHandlerService } from './handlers/governance.onchain.handler.service';
 
 @Injectable()
 export class RabbitMqConsumer {
     private filterAddresses: string[];
     private data: any[];
 
-    constructor(private readonly energyHandler: EnergyHandler, private readonly governanceHandler: GovernanceHandlerService, @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger) {
-    }
+    constructor(
+        private readonly energyHandler: EnergyHandler,
+        private readonly governanceHandler: GovernanceHandlerService,
+        private readonly onChainGovernanceHandler: GovernanceOnChainHandlerService,
+        @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+    ) {}
 
     @CompetingRabbitConsumer({
-        queueName: process.env.RABBITMQ_QUEUE, exchange: process.env.RABBITMQ_EXCHANGE,
+        queueName: process.env.RABBITMQ_QUEUE,
+        exchange: process.env.RABBITMQ_EXCHANGE,
     })
     async consumeEvents(rawEvents: any) {
         this.logger.info('Start Processing events...');
@@ -89,7 +95,7 @@ export class RabbitMqConsumer {
                 case GOVERNANCE_ONCHAIN_EVENTS.NO:
                 case GOVERNANCE_ONCHAIN_EVENTS.ABSTAIN:
                 case GOVERNANCE_ONCHAIN_EVENTS.VETO:
-                    await this.governanceHandler.handleOnChainGovernanceVoteEvent(new VoteEvent(rawEvent), rawEvent.name);
+                    await this.onChainGovernanceHandler.handleOnChainGovernanceVoteEvent(new VoteEvent(rawEvent), rawEvent.name);
                     break;
             }
         }

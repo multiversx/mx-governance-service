@@ -23,8 +23,8 @@ export class GovernanceComputeService {
     @ErrorLoggerAsync()
     @GetOrSetCache({
         baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.BlockTime.remoteTtl,
-        localTtl: CacheTtlInfo.BlockTime.localTtl, // TODO: invalidate cache / conditional ttl
+        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
+        localTtl: CacheTtlInfo.ContractState.localTtl,
     })
     async getUserVoteOnChain(scAddress: string, userAddress: string, proposalId: number): Promise<VoteType> {
         const onChainScAddress = governanceConfig.onChain.linear[0];
