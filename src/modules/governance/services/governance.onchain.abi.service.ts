@@ -32,6 +32,8 @@ import { GithubService } from './github.service';
 
 @Injectable()
 export class GovernanceOnChainAbiService extends GenericAbiService {
+    static PROPOSAL_NONCE_THRESHOLD = 100; // early exit in case of a bug in vm query to not go into infinite loop
+
     protected type = GovernanceType.ONCHAIN;
     private governanceController: GovernanceController;
     private governanceTransactionsFactory: GovernanceTransactionsFactory;
@@ -65,12 +67,6 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         return '4294967295';
     }
 
-    @ErrorLoggerAsync()
-    @GetOrSetCache({
-        baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl,
-    })
     async minFeeForPropose(scAddress: string): Promise<string> {
         return await this.minFeeForProposeRaw(scAddress);
     }
@@ -80,12 +76,6 @@ export class GovernanceOnChainAbiService extends GenericAbiService {
         return proposalFee.toString();
     }
 
-    @ErrorLoggerAsync()
-    @GetOrSetCache({
-        baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl,
-    })
     async quorum(scAddress: string): Promise<string> {
         return await this.quorumRaw(scAddress);
     }
@@ -132,12 +122,6 @@ W
         return 'EGLD-000000'
     }
 
-    @ErrorLoggerAsync()
-    @GetOrSetCache({
-        baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl,
-    })
     async withdrawPercentageDefeated(scAddress: string): Promise<number> {
         return await this.withdrawPercentageDefeatedRaw(scAddress);
     }
@@ -164,9 +148,9 @@ W
         if(!(Number.isInteger(lastProposalNonce) && lastProposalNonce > 0)) {
             lastProposalNonce = 0;
         }
-        const proposalNonceThreshold = 50; // early exit in case of a bug in vm query to not go into infinite loop
-        if(lastProposalNonce > proposalNonceThreshold) {
-            lastProposalNonce = proposalNonceThreshold;
+
+        if(lastProposalNonce > GovernanceOnChainAbiService.PROPOSAL_NONCE_THRESHOLD) {
+            lastProposalNonce = GovernanceOnChainAbiService.PROPOSAL_NONCE_THRESHOLD;
         }
 
         const proposalsRaw: ProposalInfoModel[] = [];
@@ -404,6 +388,10 @@ W
         localTtl: CacheTtlInfo.ContractState.localTtl,
     })
     async delegateUserVotingPowers(address: string, proposalId: number): Promise<DelegateUserVotingPower[]> {
+        return await this.delegateUserVotingPowersRaw(address, proposalId);
+    }
+    
+    async delegateUserVotingPowersRaw(address: string, proposalId: number): Promise<DelegateUserVotingPower[]> {
             const providers = DelegateGovernanceService.getDelegateStakingProviders();
 
             const promises = providers.map(provider => this.delegateGovernanceService.getUserVotingPowerFromDelegate(address, provider.scAddress))
@@ -506,7 +494,7 @@ W
             });
     }
 
-    private async getStatusForProposal(proposal: ProposalInfoModel): Promise<GovernanceProposalStatus> {
+    async getStatusForProposal(proposal: ProposalInfoModel): Promise<GovernanceProposalStatus> {
         if(proposal.isPassed){
             return GovernanceProposalStatus.Succeeded;
         }
@@ -530,10 +518,14 @@ W
     @ErrorLoggerAsync()
     @GetOrSetCache({
         baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.BlockTime.remoteTtl * 5,
-        localTtl: CacheTtlInfo.BlockTime.localTtl * 5,
+        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
+        localTtl: CacheTtlInfo.ContractState.localTtl,
     })
-    private async getConfig(): Promise<GovernanceConfigModel> {
+    async getConfig(): Promise<GovernanceConfigModel> {
+        return await this.getConfigRaw();
+    }
+
+    async getConfigRaw(): Promise<GovernanceConfigModel> {
         const config = await this.governanceController.getConfig();
         const stringifiedConfig = this.convertToRedisTypes(config);
         // we can't serialize bigint in order to store obj in redis
@@ -543,10 +535,14 @@ W
     @ErrorLoggerAsync()
     @GetOrSetCache({
         baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.BlockTime.remoteTtl * 5,
-        localTtl: CacheTtlInfo.BlockTime.localTtl * 5,
+        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
+        localTtl: CacheTtlInfo.ContractState.localTtl,
     })
-    private async getProposal(proposalId: number): Promise<ProposalInfoModel> {
+    async getProposal(proposalId: number): Promise<ProposalInfoModel> {
+        return await this.getProposalRaw(proposalId);
+    }
+
+    async getProposalRaw(proposalId: number): Promise<ProposalInfoModel> {
         const proposal = await this.governanceController.getProposal(proposalId);
         const stringifiedProposal = this.convertToRedisTypes(proposal);
         // we can't serialize bigint in order to store obj in redis
