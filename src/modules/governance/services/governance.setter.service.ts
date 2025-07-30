@@ -64,9 +64,9 @@ export class GovernanceSetterService extends GenericSetterService {
         );
     }
 
-    async config(value: GovernanceConfigModel) {
+    async getConfig(value: GovernanceConfigModel) {
         return await this.setData(
-            this.getCacheKey('config'),
+            this.getCacheKey('getConfig'),
             value,
             CacheTtlInfo.ContractState.remoteTtl,
             CacheTtlInfo.ContractState.localTtl,
