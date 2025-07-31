@@ -135,10 +135,13 @@ W
         const allProposals = await this.proposals(scAddress);
 
         if (!pagination) {
-            return allProposals.sort((a, b) => b.proposalId - a.proposalId);
+            return allProposals.slice().reverse();
         }
-
-        return allProposals.sort((a, b) => b.proposalId - a.proposalId).slice(pagination.offset, pagination.offset + pagination.limit);
+        
+        const start = -pagination.offset || undefined;
+        const end = -start - pagination.limit;
+        
+        return allProposals.slice(start, end).reverse();
     }
 
     @ErrorLoggerAsync()

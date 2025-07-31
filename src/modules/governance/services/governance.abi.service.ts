@@ -171,10 +171,13 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
         const allProposals = await this.proposals(scAddress);
 
         if (!pagination) {
-            return allProposals;
+            return allProposals.slice().reverse();
         }
 
-        return allProposals.slice(pagination.offset, pagination.offset + pagination.limit);
+        const start = -pagination.offset || undefined;
+        const end = -start - pagination.limit;
+        
+        return allProposals.slice(start, end).reverse();
     }
 
     @ErrorLoggerAsync()
