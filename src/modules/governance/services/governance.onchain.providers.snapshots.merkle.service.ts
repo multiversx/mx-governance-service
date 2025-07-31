@@ -49,7 +49,9 @@ export class GovernanceOnchainProvidersSnapshotsMerkleService {
             providerAddress,
             proposalId,
         );
-        return merkleTree.getRootHash();
+        const rootHashRaw = merkleTree.getRootHash();
+        const rootHash = rootHashRaw.slice(2); // 0x should not appear
+        return rootHash;
     }
 
     async getAddressBalance(
