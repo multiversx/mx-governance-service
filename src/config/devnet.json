@@ -64,7 +64,7 @@
         },
         {
             "providerName": "liquid-staking",
-            "voteScAddress": "erd1qqqqqqqqqqqqqpgq9e9xs552du22z42p7n56kwwkmgnnnt0ld8ssfsyy5f",
+            "voteScAddress": "erd1qqqqqqqqqqqqqpgqlavy2909f0pa9yf66es5cwh53m0wue28u7hs79g2m2",
             "stakeScAddress": "erd1qqqqqqqqqqqqqpgq845jaruj408at074rzxc0gez5c9dyag0u7hsgulv55",
             "lsTokenId": "",
             "voteFunctionName": "delegate_vote",
