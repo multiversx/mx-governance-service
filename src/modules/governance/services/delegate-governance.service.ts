@@ -65,8 +65,8 @@ export class DelegateGovernanceService {
         const isLiquidStaking = provider.voteScAddress !== provider.stakeScAddress;
         if(isLiquidStaking) {
             const balance = await this.providersMerkleTreeService.getAddressBalance(provider.voteScAddress, proposalId.toString(), sender);
-            const proof = await this.providersMerkleTreeService.getRootHashForProvider(provider.voteScAddress, proposalId.toString());
-            contractExecuteInput.arguments.push(new BigUIntValue(balance), new StringValue(proof));
+            const rootHash = await this.providersMerkleTreeService.getRootHashForProvider(provider.voteScAddress, proposalId.toString());
+            contractExecuteInput.arguments.push(new BigUIntValue(balance), new StringValue(rootHash));
         }
 
         const delegateVoteTx = this.smartContractTransactionFactory.createTransactionForExecute(
