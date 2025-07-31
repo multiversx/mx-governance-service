@@ -22,7 +22,8 @@ export class DelegateUserVotingPower {
 
 export class DelegateStakingProvider {
     providerName: string;
-    scAddress: string;
+    voteScAddress: string;
+    stakeScAddress: string;
     lsTokenId: string;
     voteFunctionName: string;
     viewUserVotingPowerName: string;

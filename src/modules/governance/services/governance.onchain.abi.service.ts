@@ -406,7 +406,7 @@ W
     async delegateUserVotingPowersRaw(address: string, proposalId: number): Promise<DelegateUserVotingPower[]> {
             const providers = DelegateGovernanceService.getDelegateStakingProviders();
 
-            const promises = providers.map(provider => this.delegateGovernanceService.getUserVotingPowerFromDelegate(address, provider.scAddress))
+            const promises = providers.map(provider => this.delegateGovernanceService.getUserVotingPowerFromDelegate(address, provider.voteScAddress, proposalId))
             const resolvedPromises = await Promise.all(promises);
             
             const allDelegateVotingPowers = await Promise.all(providers.map(
@@ -415,12 +415,12 @@ W
                         const userVotingPower = resolvedPromises[idx].toString();
                         let hasVoted = false;
                         if(provider.isEnabled) {
-                            hasVoted = await this.governanceComputeService.getUserVoteOnChain(provider.scAddress, address, proposalId) !== VoteType.NotVoted;
+                            hasVoted = await this.governanceComputeService.getUserVoteOnChain(provider.voteScAddress, address, proposalId) !== VoteType.NotVoted;
                         }
 
                         return new DelegateUserVotingPower({
                             providerName: provider.providerName,
-                            scAddress: provider.scAddress,
+                            scAddress: provider.voteScAddress,
                             lsTokenId: provider.lsTokenId,
                             userVotingPower,
                             isEnabled: provider.isEnabled,

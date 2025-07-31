@@ -37,7 +37,8 @@
     "delegateStakingProviders": [
         {
             "providerName": "legacy-delegation",
-            "scAddress": "erd1qqqqqqqqqqqqqpgq97wezxw6l7lgg7k9rxvycrz66vn92ksh2tssxwf7ep",
+            "voteScAddress": "erd1qqqqqqqqqqqqqpgq97wezxw6l7lgg7k9rxvycrz66vn92ksh2tssxwf7ep",
+            "stakeScAddress": "erd1qqqqqqqqqqqqqpgq97wezxw6l7lgg7k9rxvycrz66vn92ksh2tssxwf7ep",
             "lsTokenId": "",
             "voteFunctionName": "delegateVote",
             "viewUserVotingPowerName": "getVotingPower",
@@ -45,34 +46,38 @@
         },
         {
             "providerName": "xoxno",
-            "scAddress": "",
+            "voteScAddress": "",
+            "stakeScAddress": "",
             "lsTokenId": "",
-            "voteFunctionName": "delegateVote",
-            "viewUserVotingPowerName": "getVotingPower",
+            "voteFunctionName": "delegate_vote",
+            "viewUserVotingPowerName": "",
             "isEnabled": false
         },
         {
             "providerName": "hatom",
-            "scAddress": "",
+            "voteScAddress": "",
+            "stakeScAddress": "",
             "lsTokenId": "",
-            "voteFunctionName": "delegateVote",
-            "viewUserVotingPowerName": "getVotingPower",
+            "voteFunctionName": "delegate_vote",
+            "viewUserVotingPowerName": "",
             "isEnabled": false
         },
         {
             "providerName": "liquid-staking",
-            "scAddress": "",
+            "voteScAddress": "erd1qqqqqqqqqqqqqpgq9e9xs552du22z42p7n56kwwkmgnnnt0ld8ssfsyy5f",
+            "stakeScAddress": "erd1qqqqqqqqqqqqqpgq845jaruj408at074rzxc0gez5c9dyag0u7hsgulv55",
             "lsTokenId": "",
-            "voteFunctionName": "delegateVote",
-            "viewUserVotingPowerName": "getVotingPower",
-            "isEnabled": false
+            "voteFunctionName": "delegate_vote",
+            "viewUserVotingPowerName": "",
+            "isEnabled": true
         },
         {
             "providerName": "salsa",
-            "scAddress": "",
+            "voteScAddress": "",
+            "stakeScAddress": "",
             "lsTokenId": "",
-            "voteFunctionName": "delegateVote",
-            "viewUserVotingPowerName": "getVotingPower",
+            "voteFunctionName": "delegate_vote",
+            "viewUserVotingPowerName": "",
             "isEnabled": false
         }
     ],

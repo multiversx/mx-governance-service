@@ -225,7 +225,7 @@ type GovernanceTokenSnapshotContract {
   votingPeriodInBlocks: Int!
   feeToken: EsdtToken!
   withdrawPercentageDefeated: Int!
-  proposals(proposalId: Int, offset: Int! = 0, limit: Int! = 10): [GovernanceProposalModel!]!
+  proposals(proposalId: Int, offset: Int! = 0, limit: Int! = 200): [GovernanceProposalModel!]!
   vetoPercentageLimit: Float!
   votingPowerDecimals: Int!
 }
@@ -239,7 +239,7 @@ type GovernanceEnergyContract {
   votingPeriodInBlocks: Int!
   feeToken: EsdtToken!
   withdrawPercentageDefeated: Int!
-  proposals(proposalId: Int, offset: Int! = 0, limit: Int! = 10): [GovernanceProposalModel!]!
+  proposals(proposalId: Int, offset: Int! = 0, limit: Int! = 200): [GovernanceProposalModel!]!
   vetoPercentageLimit: Float!
   votingPowerDecimals: Int!
   minEnergyForPropose: String!
@@ -256,7 +256,7 @@ type GovernanceOnChainContract {
   votingPeriodInBlocks: Int!
   feeToken: EsdtToken!
   withdrawPercentageDefeated: Int!
-  proposals(proposalId: Int, offset: Int! = 0, limit: Int! = 10): [GovernanceProposalModel!]!
+  proposals(proposalId: Int, offset: Int! = 0, limit: Int! = 200): [GovernanceProposalModel!]!
   vetoPercentageLimit: Float!
   votingPowerDecimals: Int!
 }

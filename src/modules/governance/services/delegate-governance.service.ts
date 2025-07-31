@@ -8,6 +8,7 @@ import { TokenService } from "src/modules/tokens/services/token.service";
 import { ErrorLoggerAsync } from "@multiversx/sdk-nestjs-common";
 import { GetOrSetCache } from "src/helpers/decorators/caching.decorator";
 import { CacheTtlInfo } from "src/services/caching/cache.ttl.info";
+import { GovernanceOnchainProvidersSnapshotsMerkleService } from "./governance.onchain.providers.snapshots.merkle.service";
 
 @Injectable()
 export class DelegateGovernanceService {
@@ -17,6 +18,7 @@ export class DelegateGovernanceService {
     constructor( 
         private readonly apiConfigService: ApiConfigService,
         private readonly tokenService: TokenService,
+        private readonly providersMerkleTreeService: GovernanceOnchainProvidersSnapshotsMerkleService,
     ) {
        this.smartContractController = new SmartContractController(
             {
@@ -43,27 +45,28 @@ export class DelegateGovernanceService {
         return providers.filter(provider => provider.isEnabled);
     }
 
-    static getDelegateStakingProvider(scAddress: string): DelegateStakingProvider {
+    static getDelegateStakingProvider(voteScAddress: string): DelegateStakingProvider {
         const providers: DelegateStakingProvider[] = delegateStakingProviders.map((provider: DelegateStakingProvider) => new DelegateStakingProvider(provider));
-        const targetProvider = providers.find(provider => provider.scAddress === scAddress);
+        const targetProvider = providers.find(provider => provider.voteScAddress === voteScAddress);
 
         return targetProvider;
     }
 
-    async createDelegateVoteTransaction(sender: string, scAddress: string, proposalId: number, vote: Vote) {
-        const provider = DelegateGovernanceService.getDelegateStakingProvider(scAddress);
+    async createDelegateVoteTransaction(sender: string, voteScAddress: string, proposalId: number, vote: Vote) {
+        const provider = DelegateGovernanceService.getDelegateStakingProvider(voteScAddress);
 
         const contractExecuteInput: ContractExecuteInput = {
-            contract: new Address(scAddress),
+            contract: new Address(provider.voteScAddress),
             gasLimit: gasConfig.governance.vote.onChainDelegate,
             function: provider.voteFunctionName,
             arguments: [new BigUIntValue(proposalId), new StringValue(vote)],
         }
 
-        const isLiquidStaking = provider.lsTokenId !== '' && provider.lsTokenId;
+        const isLiquidStaking = provider.voteScAddress !== provider.stakeScAddress;
         if(isLiquidStaking) {
-            const balance = await this.getTokenBalanceForAddress(sender, provider.lsTokenId);
-            contractExecuteInput.tokenTransfers = [new TokenTransfer({ token: new Token({identifier: provider.lsTokenId}), amount: BigInt(balance.toString())})];
+            const balance = await this.providersMerkleTreeService.getAddressBalance(provider.voteScAddress, proposalId.toString(), sender);
+            const proof = await this.providersMerkleTreeService.getRootHashForProvider(provider.voteScAddress, proposalId.toString());
+            contractExecuteInput.arguments.push(new BigUIntValue(balance), new StringValue(proof));
         }
 
         const delegateVoteTx = this.smartContractTransactionFactory.createTransactionForExecute(
@@ -80,21 +83,23 @@ export class DelegateGovernanceService {
         remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
         localTtl: CacheTtlInfo.ContractState.localTtl,
     })
-    async getUserVotingPowerFromDelegate(userAddress: string, scAddress: string) {
+    async getUserVotingPowerFromDelegate(userAddress: string, scAddress: string, proposalId: number) {
         const provider = DelegateGovernanceService.getDelegateStakingProvider(scAddress);
         if(!provider.isEnabled) {
             return new BigNumber(DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL);
         }
-        const isLiquidStaking = provider.lsTokenId !== '' && provider.lsTokenId;
-
+       
+        const isLiquidStaking = provider.voteScAddress !== provider.stakeScAddress;
         let args: any[] = [new AddressValue(new Address(userAddress))];
         if(isLiquidStaking) {
-            const balance = await this.getTokenBalanceForAddress(userAddress, provider.lsTokenId);
-            args.push(new TokenTransfer({ token: new Token({identifier: provider.lsTokenId}), amount: BigInt(balance.toString())}));
+            const balance = await this.providersMerkleTreeService.getAddressBalance(provider.voteScAddress, proposalId.toString(), userAddress);
+            if(balance === '0') {
+                return new BigNumber(DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL);
+            }
+            return new BigNumber(balance);
         }
 
         const smartContractQueryInput: SmartContractQueryInput = {
-            // caller: new Address('erd1nszf4y8dkply45skqxa2998uypc53tdsd26ycl5yndtqhl7j2tssfxzk2y'),
             contract: new Address(scAddress),
             function: provider.viewUserVotingPowerName,
             arguments: args,

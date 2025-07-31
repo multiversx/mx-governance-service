@@ -31,6 +31,7 @@ import { GithubService } from './services/github.service';
 import { GithubResolver } from './resolvers/github.resolver';
 import { DynamicModuleUtils } from 'src/utils/dynamic.module.utils';
 import { GovGithubModule } from '../gov-github/gov-github.module';
+import { GovernanceOnchainProvidersSnapshotsMerkleService } from './services/governance.onchain.providers.snapshots.merkle.service';
 
 @Module({
     imports: [
@@ -54,6 +55,7 @@ import { GovGithubModule } from '../gov-github/gov-github.module';
         GovernanceOldEnergyAbiService,
         GovernanceQuorumService,
         GovernanceTokenSnapshotMerkleService,
+        GovernanceOnchainProvidersSnapshotsMerkleService,
         GovernanceSetterService,
         GovernanceComputeService,
         GovernanceTransactionService,
