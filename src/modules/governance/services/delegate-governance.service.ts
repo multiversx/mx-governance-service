@@ -1,4 +1,4 @@
-import { Address, AddressValue, ApiNetworkProvider, BigUIntValue, ContractExecuteInput, SmartContractController, SmartContractQueryInput, SmartContractTransactionsFactory, StringValue, Token, TokenTransfer, TransactionsFactoryConfig, Vote } from "@multiversx/sdk-core/out";
+import { Address, AddressValue, ApiNetworkProvider, BigUIntValue, BytesValue, ContractExecuteInput, SmartContractController, SmartContractQueryInput, SmartContractTransactionsFactory, StringValue, Token, TokenTransfer, TransactionsFactoryConfig, Vote } from "@multiversx/sdk-core/out";
 import { Injectable } from "@nestjs/common";
 import { delegateStakingProviders, gasConfig, mxConfig } from "src/config";
 import { ApiConfigService } from "src/helpers/api.config.service";
@@ -66,7 +66,7 @@ export class DelegateGovernanceService {
         if(isLiquidStaking) {
             const balance = await this.providersMerkleTreeService.getAddressBalance(provider.voteScAddress, proposalId.toString(), sender);
             const rootHash = await this.providersMerkleTreeService.getRootHashForProvider(provider.voteScAddress, proposalId.toString());
-            contractExecuteInput.arguments.push(new BigUIntValue(balance), new StringValue(rootHash));
+            contractExecuteInput.arguments.push(new BigUIntValue(balance), new BytesValue(Buffer.from(rootHash, 'hex')));
         }
 
         const delegateVoteTx = this.smartContractTransactionFactory.createTransactionForExecute(
