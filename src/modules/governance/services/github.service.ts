@@ -23,10 +23,10 @@ export class GithubService implements OnModuleInit {
     private readonly governanceOnChainAbiService: GovernanceOnChainAbiService,
   ) {
     this.repoSlug = `${githubConfig.user}/${githubConfig.repository}`;
-    this.repoPath = this.getRepoPath(this.repoSlug);
+    this.repoPath = GithubService.getRepoPath(this.repoSlug);
   }
 
-  private getRepoPath(repoSlug: string): string {
+  static getRepoPath(repoSlug: string): string {
     const repoName = repoSlug.split('/').pop();
     const rootPath = process.cwd();
     return path.join(rootPath, repoName);
@@ -183,12 +183,12 @@ export class GithubService implements OnModuleInit {
 
 
   async cleanup(repoSlug: string): Promise<void> {
-    const pathToRemove = this.getRepoPath(repoSlug);
+    const pathToRemove = GithubService.getRepoPath(repoSlug);
     try {
       await fs.rm(pathToRemove, { recursive: true, force: true });
     } catch (err) {
-      console.warn(`Error on cleanup: ${err.message}`);
-    }
+        console.warn(`Error on cleanup: ${err.message}`);
+      }
   }
 
   async onModuleInit() {
