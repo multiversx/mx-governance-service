@@ -64,7 +64,8 @@ export class GovernanceOnchainProvidersSnapshotsMerkleService {
         );
         return merkleTree.getLeaves().find(leaf => leaf.address === address)?.balance ?? '0';
         } catch (error) {
-            this.logger.error(`Error getting address balance for ${address} in provider ${providerAddress} and proposal ${proposalId}: ${error.message}`);
+            //TODO: remove for development, add for production, should not happen on mainnet
+            // this.logger.error(`Error getting address balance for ${address} in provider ${providerAddress} and proposal ${proposalId}: ${error.message}`);
             return '0';
         }
     }
