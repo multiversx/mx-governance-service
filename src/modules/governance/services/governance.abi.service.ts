@@ -174,9 +174,9 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
             return allProposals.slice().reverse();
         }
 
-        const start = -pagination.offset || undefined;
-        const end = -start - pagination.limit;
-        
+        const start = Math.max(allProposals.length - pagination.offset - pagination.limit, 0);
+        const end = allProposals.length - pagination.offset;
+
         return allProposals.slice(start, end).reverse();
     }
 
