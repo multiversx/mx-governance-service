@@ -55,8 +55,11 @@ export class ContextGetterService extends GenericGetterService {
         const currentEpochStartBlockTimestamp = await this.getFirstBlockTimestampByEpochAndShardRaw(currentEpoch, shardID);
         const epochDiff = targetEpoch - currentEpoch;
 
-        const epochTime = mxConfig.chainID === '1' ? Constants.oneDay() : Constants.oneHour() * 2;
-        return currentEpochStartBlockTimestamp + (epochDiff * epochTime);
+        const epochTime = mxConfig.chainID === '1' ? Constants.oneDay() : Constants.oneHour() * 4;
+
+        const targetEpochTime = currentEpochStartBlockTimestamp + (epochDiff * epochTime);
+
+        return targetEpochTime;
     }
 
     async getStartEpochRound(epoch: number) {
