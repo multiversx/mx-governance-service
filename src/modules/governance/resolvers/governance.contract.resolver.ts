@@ -62,22 +62,12 @@ export class GovernanceTokenSnapshotContractResolver {
         @Args('proposalId', {type: ()=> Int, nullable: true}) proposalId?: number,
         @Args() pagination?: PaginationArgs,
     ): Promise<GovernanceProposalModel[]> {
-        const abiService = this.governanceAbiFactory.useAbi(contract.address);
-        const proposals = await abiService.proposals(contract.address);
+        const proposals = await this.governanceAbiFactory.useAbi(contract.address).proposals(contract.address);
 
         if(proposalId) {
             return proposals.filter(proposal => proposal.proposalId === proposalId);
         }
         
-        if(abiService instanceof GovernanceOnChainAbiService) {
-            const start = Math.max(proposals.length - pagination.offset - pagination.limit, 0);
-            const end = proposals.length - pagination.offset;
-
-            if(start < 0 || end < 0) {
-                return [];
-            }
-            return proposals.slice(start, end).reverse();
-        }
         return proposals;
     }
 }
@@ -119,21 +109,34 @@ export class GovernanceOnChainContractResolver extends GovernanceTokenSnapshotCo
         super(governanceAbiFactory, governanceServiceFactory);
     }
 
-    // @ResolveField()
-    // async minEnergyForPropose(@Parent() contract: GovernanceEnergyContract): Promise<string> {
-    //     const abi = this.governanceAbiFactory.useAbi(contract.address) as GovernanceEnergyAbiService;
-    //     return abi.minEnergyForPropose(contract.address);
-    // }
+    @ResolveField(() => [GovernanceProposalModel])
+    async proposals(
+        @Parent() contract: GovernanceOnChainContract,
+        @Args('proposalId', {type: ()=> Int, nullable: true}) proposalId?: number,
+        @Args() pagination?: PaginationArgs,
+    ): Promise<GovernanceProposalModel[]> {
+        const proposals = await this.governanceAbiFactory.useAbi(contract.address).proposals(contract.address);
 
-    // @ResolveField()
-    // async feesCollectorAddress(@Parent() contract: GovernanceEnergyContract): Promise<string> {
-    //     const abi = this.governanceAbiFactory.useAbi(contract.address) as GovernanceEnergyAbiService;
-    //     return abi.feesCollectorAddress(contract.address);
-    // }
+        if(proposalId) {
+            return proposals.filter(proposal => proposal.proposalId === proposalId);
+        }
+        
+       if(pagination) {
+            const start = Math.max(proposals.length - pagination.offset - pagination.limit, 0);
+            const end = proposals.length - pagination.offset;
 
-    // @ResolveField()
-    // async energyFactoryAddress(@Parent() contract: GovernanceEnergyContract): Promise<string> {
-    //     const abi = this.governanceAbiFactory.useAbi(contract.address) as GovernanceEnergyAbiService;
-    //     return abi.energyFactoryAddress(contract.address);
-    // }
+            if(start < 0 || end < 0) {
+                return [];
+            }
+
+            return proposals.slice(start, end).reverse();
+        }
+        return proposals;
+    }
+
+    @ResolveField()
+    async totalOnChainProposals(@Parent() contract: GovernanceOnChainContract): Promise<number> {
+        const onChainAbiService = this.governanceAbiFactory.useAbi(contract.address) as GovernanceOnChainAbiService;
+        return onChainAbiService.totalOnChainProposals();
+    }
 }

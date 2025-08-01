@@ -49,29 +49,8 @@ export class GovernanceEnergyContract extends GovernanceTokenSnapshotContract {
 
 @ObjectType()
 export class GovernanceOnChainContract extends GovernanceTokenSnapshotContract {
-    // TODO: fix fields 
-    // @Field()
-    // address: string;
-    // @Field(() => Int)
-    // shard: number;
-    // @Field()
-    // minFeeForPropose: string;
-    // @Field()
-    // quorum: string;
-    // @Field(() => Int)
-    // votingDelayInBlocks: number;
-    // @Field(() => Int)
-    // votingPeriodInBlocks: number;
-    // @Field()
-    // feeToken: EsdtToken;
-    // @Field(() => Int)
-    // withdrawPercentageDefeated: number;
-    // @Field(() => [GovernanceProposalModel])
-    // proposals: GovernanceProposalModel[];
-    // @Field(() => Float)
-    // vetoPercentageLimit = 33.33;
-    // @Field(() => Int)
-    // votingPowerDecimals: number;
+    @Field(() => Int)
+    totalOnChainProposals: number;
 
     constructor(init: Partial<GovernanceOnChainContract>) {
         super(init)

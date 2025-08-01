@@ -122,6 +122,11 @@ W
         return 'EGLD-000000'
     }
 
+    async totalOnChainProposals() {
+        const { lastProposalNonce } = await this.getConfig();
+        return lastProposalNonce;
+    }
+
     async withdrawPercentageDefeated(scAddress: string): Promise<number> {
         return await this.withdrawPercentageDefeatedRaw(scAddress);
     }

@@ -259,6 +259,7 @@ type GovernanceOnChainContract {
   proposals(proposalId: Int, offset: Int! = 0, limit: Int! = 200): [GovernanceProposalModel!]!
   vetoPercentageLimit: Float!
   votingPowerDecimals: Int!
+  totalOnChainProposals: Int!
 }
 
 type Mutation {
