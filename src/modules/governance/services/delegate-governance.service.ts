@@ -1,4 +1,4 @@
-import { Address, AddressValue, ApiNetworkProvider, BigUIntValue, BytesValue, ContractExecuteInput, SmartContractController, SmartContractQueryInput, SmartContractTransactionsFactory, StringValue, Token, TokenTransfer, TransactionsFactoryConfig, Vote } from "@multiversx/sdk-core/out";
+import { Address, AddressValue, ApiNetworkProvider, BigUIntValue, BytesValue, ContractExecuteInput, SmartContractController, SmartContractQueryInput, SmartContractTransactionsFactory, StringValue, Token, TokenTransfer, TransactionsFactoryConfig, U32Value, U64Value, Vote } from "@multiversx/sdk-core/out";
 import { Injectable } from "@nestjs/common";
 import { delegateStakingProviders, gasConfig, mxConfig } from "src/config";
 import { ApiConfigService } from "src/helpers/api.config.service";
@@ -9,6 +9,7 @@ import { ErrorLoggerAsync } from "@multiversx/sdk-nestjs-common";
 import { GetOrSetCache } from "src/helpers/decorators/caching.decorator";
 import { CacheTtlInfo } from "src/services/caching/cache.ttl.info";
 import { GovernanceOnchainProvidersSnapshotsMerkleService } from "./governance.onchain.providers.snapshots.merkle.service";
+import { toVoteType } from "src/utils/governance";
 
 @Injectable()
 export class DelegateGovernanceService {
@@ -54,22 +55,21 @@ export class DelegateGovernanceService {
 
     async createDelegateVoteTransaction(sender: string, voteScAddress: string, proposalId: number, vote: Vote) {
         const provider = DelegateGovernanceService.getDelegateStakingProvider(voteScAddress);
-
         const contractExecuteInput: ContractExecuteInput = {
             contract: new Address(provider.voteScAddress),
             gasLimit: gasConfig.governance.vote.onChainDelegate,
             function: provider.voteFunctionName,
-            arguments: [new BigUIntValue(proposalId), new StringValue(vote)],
+            arguments: [new BigUIntValue(proposalId)],
         }
 
         const isLiquidStaking = provider.voteScAddress !== provider.stakeScAddress;
         if(isLiquidStaking) {
             const balance = await this.providersMerkleTreeService.getAddressBalance(provider.voteScAddress, proposalId.toString(), sender);
             // const rootHash = await this.providersMerkleTreeService.getRootHashForProvider(provider.voteScAddress, proposalId.toString());
-            const merkleTree = await this.providersMerkleTreeService.getMerkleTreeForProvider(provider.voteScAddress, proposalId.toString());
-            const addressLeaf = merkleTree.getUserLeaf(sender);
-            const proofBuffer = merkleTree.getProofBuffer(addressLeaf);
-            contractExecuteInput.arguments.push(new BigUIntValue(balance), new BytesValue(proofBuffer));
+            const proofBuffer = await this.getProofForProvider(sender, provider.voteScAddress, proposalId);
+            contractExecuteInput.arguments.push(new U64Value(toVoteType(vote)), new BigUIntValue(balance), new BytesValue(proofBuffer));
+        } else {
+            contractExecuteInput.arguments.push(new StringValue(vote));
         }
 
         const delegateVoteTx = this.smartContractTransactionFactory.createTransactionForExecute(
@@ -93,25 +93,56 @@ export class DelegateGovernanceService {
         }
        
         const isLiquidStaking = provider.voteScAddress !== provider.stakeScAddress;
-        let args: any[] = [new AddressValue(new Address(userAddress))];
+
         if(isLiquidStaking) {
-            const balance = await this.providersMerkleTreeService.getAddressBalance(provider.voteScAddress, proposalId.toString(), userAddress);
-            if(balance === '0') {
+            const userVotingPower = await this.providersMerkleTreeService.getAddressBalance(provider.voteScAddress, proposalId.toString(), userAddress);
+            if(userVotingPower === '0') {
                 return new BigNumber(DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL);
             }
-            return new BigNumber(balance);
+            return userVotingPower;
+            // const proofBuffer = await this.getProofForProvider(userAddress, provider.voteScAddress, proposalId);
+            // const isUserVotigPowerCorrect = await this.confirmVotingPower(provider, proposalId, userVotingPower, proofBuffer);
+            // return isUserVotigPowerCorrect ? new BigNumber(userVotingPower) : new BigNumber(DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL);
         }
 
+        const userVotingPower = await this.viewUserVotingPower(provider, userAddress);
+
+        return userVotingPower;
+    }
+
+    private async viewUserVotingPower(provider: DelegateStakingProvider, userAddress: string) {
         const smartContractQueryInput: SmartContractQueryInput = {
-            contract: new Address(scAddress),
+            contract: new Address(provider.voteScAddress),
             function: provider.viewUserVotingPowerName,
-            arguments: args,
+            arguments: [new AddressValue(new Address(userAddress))],
         }
+
         const resultRaw = await this.smartContractController.query(smartContractQueryInput);
         const resultHex = Buffer.from(resultRaw[0]).toString('hex');
         const userVotingPower = new BigNumber(resultHex, 16);
-        
+
         return userVotingPower;
+    }
+
+    private async confirmVotingPower(provider: DelegateStakingProvider, proposal_id: number, userVotingPower: string, proof: Buffer) {
+        const smartContractQueryInput: SmartContractQueryInput = {
+            contract: new Address(provider.voteScAddress),
+            function: 'confirmVotingPower',
+            arguments: [new U32Value(proposal_id), new BigUIntValue(userVotingPower), new BytesValue(proof)],
+        }
+
+        const resultRaw = await this.smartContractController.query(smartContractQueryInput);
+        const isUserVotingPowerCorrect = Buffer.from(resultRaw).toString() === "true"
+
+        return isUserVotingPowerCorrect
+    }
+
+    private async getProofForProvider(userAddress: string, voteScAddress: string, proposalId: number) {
+        const merkleTree = await this.providersMerkleTreeService.getMerkleTreeForProvider(voteScAddress, proposalId.toString());
+        const addressLeaf = merkleTree.getUserLeaf(userAddress);
+        const proofBuffer = merkleTree.getProofBuffer(addressLeaf);
+
+        return proofBuffer;
     }
 
     private async getTokenBalanceForAddress(userAddress: string, tokenID: string) {
