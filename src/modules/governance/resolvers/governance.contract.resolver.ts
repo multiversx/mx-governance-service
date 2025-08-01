@@ -6,6 +6,7 @@ import { GovernanceAbiFactory } from '../services/governance.abi.factory';
 import { GovernanceServiceFactory } from '../services/governance.factory';
 import { GovernanceEnergyAbiService } from '../services/governance.abi.service';
 import { PaginationArgs } from '../models/pagination.model';
+import { GovernanceOnChainAbiService } from '../services/governance.onchain.abi.service';
 
 @Resolver(() => GovernanceTokenSnapshotContract)
 export class GovernanceTokenSnapshotContractResolver {
@@ -61,13 +62,23 @@ export class GovernanceTokenSnapshotContractResolver {
         @Args('proposalId', {type: ()=> Int, nullable: true}) proposalId?: number,
         @Args() pagination?: PaginationArgs,
     ): Promise<GovernanceProposalModel[]> {
-        const proposals = await this.governanceAbiFactory.useAbi(contract.address).proposalsWithPagination(contract.address, pagination);
+        const abiService = this.governanceAbiFactory.useAbi(contract.address);
+        const proposals = await abiService.proposals(contract.address);
 
         if(proposalId) {
             return proposals.filter(proposal => proposal.proposalId === proposalId);
-        } else {
-            return proposals;
         }
+        
+        if(abiService instanceof GovernanceOnChainAbiService) {
+            const start = Math.max(proposals.length - pagination.offset - pagination.limit, 0);
+            const end = proposals.length - pagination.offset;
+
+            if(start < 0 || end < 0) {
+                return [];
+            }
+            return proposals.slice(start, end).reverse();
+        }
+        return proposals;
     }
 }
 
