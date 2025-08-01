@@ -80,12 +80,6 @@ export class DelegateGovernanceService {
         return delegateVoteTx;
     }
     
-    @ErrorLoggerAsync()
-    @GetOrSetCache({
-        baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl,
-    })
     async getUserVotingPowerFromDelegate(userAddress: string, scAddress: string, proposalId: number) {
         const provider = DelegateGovernanceService.getDelegateStakingProvider(scAddress);
         if(!provider.isEnabled) {
@@ -96,6 +90,7 @@ export class DelegateGovernanceService {
 
         if(isLiquidStaking) {
             const userVotingPower = await this.providersMerkleTreeService.getAddressBalance(provider.voteScAddress, proposalId.toString(), userAddress);
+            // TODO: maybe we should remove this check
             if(userVotingPower === '0') {
                 return new BigNumber(DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL);
             }
