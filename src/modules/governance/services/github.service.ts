@@ -73,9 +73,46 @@ export class GithubService implements OnModuleInit {
     await this.git.checkout(githubConfig.branch);
 
     const commits = await this.git.log();
-
     const seenFiles = new Set<string>();
     const results: GithubProposal[] = [];
+
+    // Fetch open PRs first
+    const openPRs = await this.getOpenPullRequests();
+    for (const pr of openPRs) {
+      try {
+        // Only consider PRs with one file added
+        const prFilesUrl = pr.url + '/files';
+        const token = this.config.get<string>('GITHUB_TOKEN');
+        const prFilesResp = await fetch(prFilesUrl, {
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github+json',
+          },
+        });
+        if (prFilesResp.ok) {
+          const prFiles = await prFilesResp.json();
+          // Find files with status 'added'
+          const addedFiles = prFiles.filter((f: any) => f.status === 'added' && f.filename.endsWith('.md'));
+          if (addedFiles.length === 1) {
+            const fileRawResp = await fetch(addedFiles[0].raw_url);
+            if (fileRawResp.ok) {
+              const fileContentRaw = await fileRawResp.text();
+              const fileContent = this.parseFileContent(fileContentRaw);
+              results.push({
+                commitHash: pr.head.sha,
+                fileName: addedFiles[0].filename,
+                fileContent,
+                prMerged: false,
+              });
+              seenFiles.add(addedFiles[0].filename);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn(`Skipping PR ${pr.url} due to error: ${err.message}`);
+        continue;
+      }
+    }
 
     for (const commit of commits.all) {
       // check if commit has a parent
@@ -111,8 +148,8 @@ export class GithubService implements OnModuleInit {
             commitHash: commit.hash,
             fileName: file,
             fileContent,
+            prMerged: true,
           });
-
           seenFiles.add(file);
         } catch (err) {
           console.error(`Error reading file ${file} în ${commit.hash}: ${err.message}`);
@@ -145,12 +182,12 @@ export class GithubService implements OnModuleInit {
     return fileContent;
   }
 
-    //TODO: maybe cache this computing
-    async getGithubProposalWithChainInfo() {
-      const onChainProposals = await this.governanceOnChainAbiService.proposals(this.onChainScAddress);
-      const githubProposals = await this.getGithubProposals();
+  //TODO: maybe cache this computing
+  async getGithubProposalWithChainInfo() {
+    const onChainProposals = await this.governanceOnChainAbiService.proposals(this.onChainScAddress);
+    const githubProposals = await this.getGithubProposals();
 
-      const proposalsWithChainInfo = githubProposals.map(gitProposal => {
+    const proposalsWithChainInfo = githubProposals.map(gitProposal => {
       const chainInfoRaw = onChainProposals.find(onChainProposal => onChainProposal.commitHash === gitProposal.commitHash)
       const existsOnChain = chainInfoRaw !== undefined;
 
@@ -187,8 +224,8 @@ export class GithubService implements OnModuleInit {
     try {
       await fs.rm(pathToRemove, { recursive: true, force: true });
     } catch (err) {
-        console.warn(`Error on cleanup: ${err.message}`);
-      }
+      console.warn(`Error on cleanup: ${err.message}`);
+    }
   }
 
   async onModuleInit() {
@@ -209,5 +246,25 @@ export class GithubService implements OnModuleInit {
     } else {
       console.error('Env var INIT_REPO is NOT set. Nothing is cloned...');
     }
+  }
+
+  async getOpenPullRequests(): Promise<any[]> {
+    const token = this.config.get<string>('GITHUB_TOKEN');
+    const owner = githubConfig.user;
+    const repo = githubConfig.repository;
+    const url = `https://api.github.com/repos/${owner}/${repo}/pulls?state=open`;
+
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/vnd.github+json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch open PRs: ${response.statusText}`);
+    }
+    const resp = await response.json();
+    console.log(resp);
+    return resp;
   }
 }

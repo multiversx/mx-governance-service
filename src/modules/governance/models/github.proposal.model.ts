@@ -49,6 +49,9 @@ export class GithubProposal {
 
   @Field()
   chainInfo?: ChainInfo;
+
+  @Field({ nullable: true })
+  prMerged?: boolean;
 }
 
 
