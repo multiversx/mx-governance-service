@@ -141,6 +141,26 @@ export class GithubService implements OnModuleInit {
           !f.toLowerCase().includes('readme')
         );
 
+      // Check for deleted files in this commit
+      const deletedOutput = await this.git.diff([
+        '--diff-filter=D',
+        '--name-only',
+        `${commit.hash}~1`,
+        commit.hash,
+      ]);
+      const deletedFiles = deletedOutput
+        .split('\n')
+        .map((f) => f.trim())
+        .filter((f) => f.endsWith('.md') && results.some(r => r.fileName === f));
+      // Remove deleted files from results
+      for (const file of deletedFiles) {
+        const idx = results.findIndex(r => r.fileName === file);
+        if (idx !== -1) {
+          results.splice(idx, 1);
+          seenFiles.delete(file);
+        }
+      }
+
       for (const file of addedMdFiles) {
         try {
           const fileContentRaw = await this.git.show([`${commit.hash}:${file}`]);
