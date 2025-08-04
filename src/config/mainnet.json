@@ -14,12 +14,12 @@
     "governance": {
         "oldEnergy": {
             "cvadratic": [
-            "erd1qqqqqqqqqqqqqpgqdt9aady5jp7av97m7rqxh6e5ywyqsplz2jps5mw02n"
+                "erd1qqqqqqqqqqqqqpgqdt9aady5jp7av97m7rqxh6e5ywyqsplz2jps5mw02n"
             ]
         },
         "energy": {
             "cvadratic": [
-              "erd1qqqqqqqqqqqqqpgqyxqwuhtj3xhftcpn2kzuq07lhdp4ng222jps650gtt"
+                "erd1qqqqqqqqqqqqqpgqyxqwuhtj3xhftcpn2kzuq07lhdp4ng222jps650gtt"
             ]
         },
         "tokenSnapshot": {
@@ -35,8 +35,60 @@
         },
         "onChain": {
             "linear": [
-                "erd1..."
+                "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqrlllsrujgla"
             ]
         }
+    },
+    "delegateStakingProviders": [
+        {
+            "providerName": "legacy-delegation",
+            "voteScAddress": "erd1qqqqqqqqqqqqqpgq97wezxw6l7lgg7k9rxvycrz66vn92ksh2tssxwf7ep",
+            "stakeScAddress": "erd1qqqqqqqqqqqqqpgq97wezxw6l7lgg7k9rxvycrz66vn92ksh2tssxwf7ep",
+            "lsTokenId": "",
+            "voteFunctionName": "delegateVote",
+            "viewUserVotingPowerName": "getVotingPower",
+            "isEnabled": true
+        },
+        {
+            "providerName": "xoxno",
+            "voteScAddress": "",
+            "stakeScAddress": "",
+            "lsTokenId": "",
+            "voteFunctionName": "delegate_vote",
+            "viewUserVotingPowerName": "",
+            "isEnabled": false
+        },
+        {
+            "providerName": "hatom",
+            "voteScAddress": "",
+            "stakeScAddress": "",
+            "lsTokenId": "",
+            "voteFunctionName": "delegate_vote",
+            "viewUserVotingPowerName": "",
+            "isEnabled": false
+        },
+        {
+            "providerName": "liquid-staking",
+            "voteScAddress": "erd1qqqqqqqqqqqqqpgqlavy2909f0pa9yf66es5cwh53m0wue28u7hs79g2m2",
+            "stakeScAddress": "erd1qqqqqqqqqqqqqpgq845jaruj408at074rzxc0gez5c9dyag0u7hsgulv55",
+            "lsTokenId": "",
+            "voteFunctionName": "delegate_vote",
+            "viewUserVotingPowerName": "",
+            "isEnabled": true
+        },
+        {
+            "providerName": "salsa",
+            "voteScAddress": "",
+            "stakeScAddress": "",
+            "lsTokenId": "",
+            "voteFunctionName": "delegate_vote",
+            "viewUserVotingPowerName": "",
+            "isEnabled": false
+        }
+    ],
+    "github": {
+        "user": "multiversx",
+        "repository": "multiversx-improvement-documents",
+        "branch": "main"
     }
 }
