@@ -55,6 +55,9 @@ export class GithubProposal {
 
   @Field({ nullable: true })
   prNumber?: number;
+
+  @Field({ nullable: true })
+  prUrl?: string;
 }
 
 

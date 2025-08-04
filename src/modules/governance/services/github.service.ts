@@ -103,7 +103,7 @@ export class GithubService implements OnModuleInit {
                 fileName: addedFiles[0].filename,
                 fileContent,
                 prMerged: false,
-                prNumber: pr.number,
+                prUrl: pr.html_url,
               });
               seenFiles.add(addedFiles[0].filename);
             }
@@ -114,7 +114,7 @@ export class GithubService implements OnModuleInit {
         continue;
       }
     }
-
+    console.log(results);
     for (const commit of commits.all) {
       // check if commit has a parent
       const parentsRaw = await this.git.raw(['rev-list', '--parents', '-n', '1', commit.hash]);

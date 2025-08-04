@@ -130,6 +130,8 @@ type GithubProposal {
   fileContent: FileContent!
   chainInfo: ChainInfo!
   prMerged: Boolean
+  prNumber: Float
+  prUrl: String
 }
 
 type GovernanceProposalModel {
