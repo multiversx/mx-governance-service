@@ -103,6 +103,7 @@ export class GithubService implements OnModuleInit {
                 fileName: addedFiles[0].filename,
                 fileContent,
                 prMerged: false,
+                prNumber: pr.number,
               });
               seenFiles.add(addedFiles[0].filename);
             }

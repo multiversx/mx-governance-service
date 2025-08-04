@@ -52,6 +52,9 @@ export class GithubProposal {
 
   @Field({ nullable: true })
   prMerged?: boolean;
+
+  @Field({ nullable: true })
+  prNumber?: number;
 }
 
 
