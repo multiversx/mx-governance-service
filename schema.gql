@@ -129,6 +129,7 @@ type GithubProposal {
   commitHash: String!
   fileContent: FileContent!
   chainInfo: ChainInfo!
+  prMerged: Boolean
 }
 
 type GovernanceProposalModel {
