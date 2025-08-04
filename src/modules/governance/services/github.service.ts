@@ -263,8 +263,6 @@ export class GithubService implements OnModuleInit {
     if (!response.ok) {
       throw new Error(`Failed to fetch open PRs: ${response.statusText}`);
     }
-    const resp = await response.json();
-    console.log(resp);
-    return resp;
+    return response.json();
   }
 }
