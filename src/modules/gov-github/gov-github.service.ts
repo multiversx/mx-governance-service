@@ -95,13 +95,17 @@ export class GovGithubService {
                 { headers },
             );
             const baseTreeSha = commitRes.data.tree.sha;
+            const folder = process.env.NODE_ENV === 'devnet' || process.env.NODE_ENV === 'testnet'
+                ? `${process.env.NODE_ENV}/proposals`
+                : 'proposals';
+            const filePath = `${folder}/${branchName}.md`;
             const treeRes = await this.httpService.axiosRef.post(
                 `${apiBase}/repos/${forkOwner}/${forkRepo}/git/trees`,
                 {
                     base_tree: baseTreeSha,
                     tree: [
                         {
-                            path: `proposals/${branchName}.md`,
+                            path: filePath,
                             mode: '100644',
                             type: 'blob',
                             sha: blobRes.data.sha,
