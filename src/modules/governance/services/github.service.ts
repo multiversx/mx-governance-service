@@ -24,12 +24,22 @@ export class GithubService implements OnModuleInit {
   ) {
     this.repoSlug = `${githubConfig.user}/${githubConfig.repository}`;
     this.repoPath = GithubService.getRepoPath(this.repoSlug);
+    console.log(`Repo path: ${this.repoPath}`);
   }
 
   static getRepoPath(repoSlug: string): string {
     const repoName = repoSlug.split('/').pop();
     const rootPath = process.cwd();
-    return path.join(rootPath, repoName);
+    const env = process.env.NODE_ENV;
+    const baseRepoPath = path.join(rootPath, repoName);
+    if (env === 'devnet') {
+      return path.join(baseRepoPath, 'devnet');
+    } else if (env === 'testnet') {
+      return path.join(baseRepoPath, 'testnet');
+    } else {
+      // mainnet or default
+      return baseRepoPath;
+    }
   }
 
   async cloneAndCheckout(repoSlug: string, branch: string): Promise<void> {
@@ -72,6 +82,13 @@ export class GithubService implements OnModuleInit {
 
     await this.git.checkout(githubConfig.branch);
 
+    // Determine the proposals folder based on env
+    const env = process.env.NODE_ENV;
+    let proposalsFolder = 'proposals';
+    if (env === 'devnet' || env === 'testnet') {
+      proposalsFolder = path.join(env, 'proposals');
+    }
+
     const commits = await this.git.log();
     const seenFiles = new Set<string>();
     const results: GithubProposal[] = [];
@@ -80,7 +97,6 @@ export class GithubService implements OnModuleInit {
     const openPRs = await this.getOpenPullRequests();
     for (const pr of openPRs) {
       try {
-        // Only consider PRs with one file added
         const prFilesUrl = pr.url + '/files';
         const token = this.config.get<string>('GITHUB_TOKEN');
         const prFilesResp = await fetch(prFilesUrl, {
@@ -91,8 +107,7 @@ export class GithubService implements OnModuleInit {
         });
         if (prFilesResp.ok) {
           const prFiles = await prFilesResp.json();
-          // Find files with status 'added'
-          const addedFiles = prFiles.filter((f: any) => f.status === 'added' && f.filename.endsWith('.md'));
+          const addedFiles = prFiles.filter((f: any) => f.status === 'added' && f.filename.endsWith('.md') && f.filename.startsWith(proposalsFolder + '/'));
           if (addedFiles.length === 1) {
             const fileRawResp = await fetch(addedFiles[0].raw_url);
             if (fileRawResp.ok) {
@@ -114,7 +129,6 @@ export class GithubService implements OnModuleInit {
         continue;
       }
     }
-    console.log(results);
     for (const commit of commits.all) {
       // check if commit has a parent
       const parentsRaw = await this.git.raw(['rev-list', '--parents', '-n', '1', commit.hash]);
@@ -131,12 +145,12 @@ export class GithubService implements OnModuleInit {
         `${commit.hash}~1`,
         commit.hash,
       ]);
-
       const addedMdFiles = diffOutput
         .split('\n')
         .map((f) => f.trim())
         .filter((f) =>
           f.endsWith('.md') &&
+          f.startsWith(proposalsFolder + '/') &&
           !seenFiles.has(f) &&
           !f.toLowerCase().includes('readme')
         );
@@ -151,8 +165,8 @@ export class GithubService implements OnModuleInit {
       const deletedFiles = deletedOutput
         .split('\n')
         .map((f) => f.trim())
-        .filter((f) => f.endsWith('.md') && results.some(r => r.fileName === f));
-      // Remove deleted files from results
+        .filter((f) => f && f.endsWith('.md'));
+      // Remove deleted files from results (compare full relative path)
       for (const file of deletedFiles) {
         const idx = results.findIndex(r => r.fileName === file);
         if (idx !== -1) {
@@ -177,7 +191,7 @@ export class GithubService implements OnModuleInit {
         }
       }
     }
-
+    console.log(results);
     return results;
   }
 
