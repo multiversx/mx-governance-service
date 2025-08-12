@@ -168,7 +168,9 @@ export class GovernanceProposalModel {
     startVoteTimestamp?: number;
     @Field(() => Int)
     endVoteTimestamp?: number;
-
+    @Field(() => Int)
+    proposalIndex?: number;
+    
     constructor(init: Partial<GovernanceProposalModel>) {
         Object.assign(this, init);
     }

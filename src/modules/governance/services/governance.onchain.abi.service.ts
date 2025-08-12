@@ -486,6 +486,7 @@ W
             return new GovernanceProposalModel({
                 contractAddress: scAddress,
                 proposalId: proposalInfo.nonce,
+                proposalIndex: proposalInfo.nonce + mxConfig.existingProposals,
                 proposer: proposalInfo.issuer,
                 description,
                 feePayment: new EsdtTokenPayment({

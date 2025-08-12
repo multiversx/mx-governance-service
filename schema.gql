@@ -158,6 +158,7 @@ type GovernanceProposalModel {
   commitHash: String!
   startVoteTimestamp: Int!
   endVoteTimestamp: Int!
+  proposalIndex: Int!
 }
 
 union GovernanceDescriptionVersions = DescriptionV0 | DescriptionV1 | DescriptionV2 | DescriptionV3
