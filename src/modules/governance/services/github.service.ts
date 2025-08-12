@@ -14,6 +14,7 @@ import { ChainInfo, FileContent, GithubProposal } from '../models/github.proposa
 export class GithubService implements OnModuleInit {
   private git: SimpleGit;
   private repoPath: string;
+  private networkPath: string;
   private readonly onChainScAddress: string = governanceConfig.onChain.linear[0];
   private readonly repoSlug: string;
   constructor(
@@ -24,22 +25,28 @@ export class GithubService implements OnModuleInit {
   ) {
     this.repoSlug = `${githubConfig.user}/${githubConfig.repository}`;
     this.repoPath = GithubService.getRepoPath(this.repoSlug);
+    this.networkPath = GithubService.getNetworkPath(this.repoPath);
     console.log(`Repo path: ${this.repoPath}`);
   }
 
   static getRepoPath(repoSlug: string): string {
     const repoName = repoSlug.split('/').pop();
     const rootPath = process.cwd();
-    const env = process.env.NODE_ENV;
     const baseRepoPath = path.join(rootPath, repoName);
+
+    return baseRepoPath;
+  }
+
+  static getNetworkPath(baseRepoPath: string) {
+    const env = process.env.NODE_ENV;
     if (env === 'devnet') {
-      return path.join(baseRepoPath, 'devnet');
-    } else if (env === 'testnet') {
-      return path.join(baseRepoPath, 'testnet');
-    } else {
-      // mainnet or default
-      return baseRepoPath;
-    }
+        return path.join(baseRepoPath, 'devnet');
+      } else if (env === 'testnet') {
+        return path.join(baseRepoPath, 'testnet');
+      } else {
+        // mainnet or default
+        return baseRepoPath;
+      }
   }
 
   async cloneAndCheckout(repoSlug: string, branch: string): Promise<void> {
@@ -49,12 +56,12 @@ export class GithubService implements OnModuleInit {
     try {
       // Check if repo exists locally
       await fs.access(this.repoPath);
-
+      console.log(`Repo ${repoSlug} already exists, perform git pull on branch: ${branch}.`);
       this.git = simpleGit(this.repoPath);
       await this.git.fetch();
       await this.git.checkout(branch);
       await this.git.pull('origin', branch);
-      console.log(`Repo ${repoSlug} already exists, perform git pull on branch: ${branch}.`);
+      console.log(`Fetch, checkout & pull done.`);
     } catch {
       // Repo doesn't exist. We clone it...
       const authedUrl = `https://${token}@github.com/${repoSlug}.git`;
@@ -155,28 +162,13 @@ export class GithubService implements OnModuleInit {
           !f.toLowerCase().includes('readme')
         );
 
-      // Check for deleted files in this commit
-      const deletedOutput = await this.git.diff([
-        '--diff-filter=D',
-        '--name-only',
-        `${commit.hash}~1`,
-        commit.hash,
-      ]);
-      const deletedFiles = deletedOutput
-        .split('\n')
-        .map((f) => f.trim())
-        .filter((f) => f && f.endsWith('.md'));
-      // Remove deleted files from results (compare full relative path)
-      for (const file of deletedFiles) {
-        const idx = results.findIndex(r => r.fileName === file);
-        if (idx !== -1) {
-          results.splice(idx, 1);
-          seenFiles.delete(file);
-        }
-      }
-
       for (const file of addedMdFiles) {
         try {
+          const filePath = `${this.repoPath}/${file}`
+          const exists = await this.fileExists(filePath);
+          if(!exists) {
+            continue;
+          }
           const fileContentRaw = await this.git.show([`${commit.hash}:${file}`]);
           const fileContent = this.parseFileContent(fileContentRaw);
           results.push({
@@ -191,7 +183,7 @@ export class GithubService implements OnModuleInit {
         }
       }
     }
-    console.log(results);
+
     return results;
   }
 
@@ -271,10 +263,10 @@ export class GithubService implements OnModuleInit {
     const branch = githubConfig.branch;
 
     if (this.repoSlug) {
-      console.log(`Cloning repo ${this.repoSlug} on branach ${branch} on start...`);
+      console.log(`Cloning repo ${this.repoSlug} on branch ${branch} on start...`);
       try {
         await this.cloneAndCheckout(this.repoSlug, branch);
-        console.log('Clone & checkout done.');
+        console.log('Clone or update done.');
       } catch (error) {
         console.error('Eroare la cloneAndCheckout:', error);
       }
@@ -299,5 +291,14 @@ export class GithubService implements OnModuleInit {
       throw new Error(`Failed to fetch open PRs: ${response.statusText}`);
     }
     return response.json();
+  }
+
+  private async fileExists(filePath: string) {
+    try {
+      await fs.access(filePath);
+      return true;
+    } catch {
+      return false;
+    }
   }
 }

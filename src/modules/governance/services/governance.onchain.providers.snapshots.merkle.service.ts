@@ -6,6 +6,7 @@ import { MerkleTreeUtils } from '../../../utils/merkle-tree/markle-tree.utils';
 import { promises } from 'fs';
 import { githubConfig } from 'src/config';
 import path from 'path';
+import { GithubService } from './github.service';
 
 @Injectable()
 export class GovernanceOnchainProvidersSnapshotsMerkleService {
@@ -16,9 +17,15 @@ export class GovernanceOnchainProvidersSnapshotsMerkleService {
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     ) {
         GovernanceOnchainProvidersSnapshotsMerkleService.merkleTrees = [];
+        const env = process.env.NODE_ENV;
+        let network = '';
+        if(env === 'devnet' || env === 'testnet') {
+            network = env;
+        }
+        
         this.snapshotsPath = path.join(
             process.cwd(),
-            githubConfig.repository,
+            network !== '' ? `${githubConfig.repository}/${network}` : githubConfig.repository,
             'snapshots'
         )
     }
