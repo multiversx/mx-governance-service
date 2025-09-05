@@ -242,7 +242,7 @@ export class GithubService implements OnModuleInit {
         proposer: 'No proposer found',
       }),
       version: 3,
-    }) // TODO: fix description
+    })
   }
 
 
