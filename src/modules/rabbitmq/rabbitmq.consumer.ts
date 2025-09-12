@@ -113,11 +113,6 @@ export class RabbitMqConsumer {
     }
 
     private isOnChainGovernanceEvent(event: {address: string, identifier: string}, shardId: string): boolean {
-        console.log('Checking if event is on-chain governance event', {
-            address: event.address,
-            identifier: event.identifier,
-            shardId: shardId,
-        });
         return ['vote', 'delegateVote'].includes(event.identifier) && shardId === '4294967295';
     }
 }
