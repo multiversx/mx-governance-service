@@ -40,5 +40,8 @@
     "constants": {
         "MAINTENANCE": false,
         "MAX_USER_NFTS": 10000
+    },
+    "systemContracts": {
+        "stakingContract": "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqplllst77y4l"
     }
 }
