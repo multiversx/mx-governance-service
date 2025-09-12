@@ -6,7 +6,7 @@ import { CacheService } from '@multiversx/sdk-nestjs-cache';
 import { MXApiService } from '../multiversx-communication/mx.api.service';
 import { GenericGetterService } from '../generics/generic.getter.service';
 import { Stats } from 'src/models/stats.model';
-import { mxConfig } from 'src/config';
+import { mxConfig, systemContracts } from 'src/config';
 
 @Injectable()
 export class ContextGetterService extends GenericGetterService {
@@ -85,5 +85,17 @@ export class ContextGetterService extends GenericGetterService {
             () => roundsLeftUntilEpoch,
             Constants.oneMinute(),
         );
+    }
+
+    async getTotalQuorum(): Promise<string> {
+        const cacheKey = this.getCacheKey('total-quorum');
+        const stakingContract = systemContracts.stakingContract;
+        const totalQuroum = await this.getData(
+            cacheKey,
+            async () => await this.apiService.getBalanceForAddress(stakingContract),
+            Constants.oneMinute() * 5,
+        );
+        
+        return totalQuroum;
     }
 }

@@ -178,9 +178,18 @@ export class MXApiService {
 
     async getCurrentBlockNonce(shardId: number): Promise<number> {
         const latestBlock = await this.doGetGeneric(
-            this.getCurrentNonce.name,
+            this.getCurrentBlockNonce.name,
             `blocks?size=1&shard=${shardId}`,
         );
         return latestBlock[0].nonce;
+    }
+
+    async getBalanceForAddress(address: string): Promise<string> {
+        const { balance } = await this.doGetGeneric(
+            this.getBalanceForAddress.name,
+            `accounts/${address}?fields=balance`
+        ) as { balance: string };
+        
+        return balance;
     }
 }

@@ -479,10 +479,11 @@ W
             const withdrawPercentageDefeated = await this.withdrawPercentageDefeated(scAddress);
             const description = await this.githubService.getDescription(proposalInfo.commitHash);
             const status = await this.proposalStatus(scAddress,proposalInfo.nonce);
-            const shardId= await this.getAddressShardID(scAddress);
+            const shardId = await this.getAddressShardID(scAddress);
             const startVoteTimestamp = await this.contextGetter.getFirstBlockTimestampByEpochAndShard(proposalInfo.startVoteEpoch, shardId);
             const endVoteTimestamp = await this.contextGetter.getFirstBlockTimestampByEpochAndShard(proposalInfo.endVoteEpoch + 1, shardId);
-
+            const totalQuorum = await this.getTotalQuorum();
+           
             return new GovernanceProposalModel({
                 contractAddress: scAddress,
                 proposalId: proposalInfo.nonce,
@@ -498,7 +499,7 @@ W
                 votingPeriodInBlocks: votingPeriodInRounds,
                 votingDelayInBlocks: roundsLeftUntilEpoch > 0 ? roundsLeftUntilEpoch + 10 : 0, // TODO: check
                 minimumQuorumPercentage: new BigNumber(config.minQuorum).div(100).toFixed(2),
-                totalQuorum: proposalInfo.quorumStake,
+                totalQuorum,
                 withdrawPercentageDefeated,
                 commitHash: proposalInfo.commitHash,
                 status,
@@ -582,5 +583,9 @@ W
         }
 
         return obj;
+    }
+
+    private async getTotalQuorum() {
+        return await this.contextGetter.getTotalQuorum();
     }
 }

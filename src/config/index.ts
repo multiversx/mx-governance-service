@@ -27,3 +27,5 @@ export const constantsConfig = config.get('constants');
 export const delegateStakingProviders = config.get('delegateStakingProviders');
 
 export const githubConfig: GithubConfig = config.get('github');
+
+export const systemContracts = config.get('systemContracts');
