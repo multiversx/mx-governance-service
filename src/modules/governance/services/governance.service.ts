@@ -30,8 +30,8 @@ export class GovernanceTokenSnapshotService {
         protected readonly governanceCompute: GovernanceComputeService,
         protected readonly governanceQuorum: GovernanceQuorumService,
         protected readonly tokenService: TokenService,
-    ) {
-    }
+    ) { }
+    
     async getGovernanceContracts(filters: GovernanceContractsFiltersArgs): Promise<Array<typeof GovernanceUnion>> {
         let governanceAddresses = governanceContractsAddresses();
 
