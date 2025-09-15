@@ -21,6 +21,7 @@ import { EnergyService } from '../../energy/services/energy.service';
 import { GovernanceAbiFactory } from './governance.abi.factory';
 import { TokenService } from 'src/modules/tokens/services/token.service';
 import { GovernanceOnChainAbiService } from './governance.onchain.abi.service';
+import { governanceConfig } from '../../../config';
 
 @Injectable()
 export class GovernanceTokenSnapshotService {
@@ -33,27 +34,34 @@ export class GovernanceTokenSnapshotService {
     }
     async getGovernanceContracts(filters: GovernanceContractsFiltersArgs): Promise<Array<typeof GovernanceUnion>> {
         let governanceAddresses = governanceContractsAddresses();
-       
+
         if (filters.contracts) {
             governanceAddresses = governanceAddresses.filter((address) => filters.contracts.includes(address));
         }
 
+        const requestSpecificContracts = governanceConfig.requestExplicit || [];
+
         const governance: Array<typeof GovernanceUnion> = [];
         for (const address of governanceAddresses) {
+            if (requestSpecificContracts.includes(address) &&
+                (!filters.contracts || !filters.contracts.includes(address))) {
+                continue;
+            }
+
             const type = governanceType(address);
             let contractInstance;
             switch (type) {
                 case GovernanceType.ENERGY:
                 case GovernanceType.OLD_ENERGY:
                     contractInstance = new GovernanceEnergyContract({
-                            address,
-                        });
+                        address,
+                    });
                     break;
                 case GovernanceType.TOKEN_SNAPSHOT:
                     contractInstance = new GovernanceTokenSnapshotContract({
                         address,
                     });
-                   break;
+                    break;
                 case GovernanceType.ONCHAIN:
                     contractInstance = new GovernanceOnChainContract({
                         address,
@@ -66,7 +74,7 @@ export class GovernanceTokenSnapshotService {
 
             // Add the contract to the list
             governance.push(contractInstance);
-            
+
         }
 
         return governance;
@@ -112,7 +120,7 @@ export class GovernanceTokenSnapshotService {
     }
 
     smoothingFunction(scAddress: string, quorum: string): string {
-        switch (governanceSmoothingFunction(scAddress)){
+        switch (governanceSmoothingFunction(scAddress)) {
             case GovernanceSmoothingFunction.CVADRATIC:
                 return new BigNumber(quorum).sqrt().integerValue().toFixed();
             case GovernanceSmoothingFunction.LINEAR:
@@ -149,7 +157,7 @@ export class GovernanceEnergyService extends GovernanceTokenSnapshotService {
 
 @Injectable()
 export class GovernanceOnChainService extends GovernanceTokenSnapshotService {
-      constructor(
+    constructor(
         protected readonly governanceAbiFactory: GovernanceAbiFactory,
         protected readonly governanceCompute: GovernanceComputeService,
         protected readonly governanceQuorum: GovernanceQuorumService,
@@ -201,14 +209,14 @@ export class GovernanceOnChainService extends GovernanceTokenSnapshotService {
     async userVotingPower(contractAddress: string, proposalId: number, userAddress: string): Promise<string> {
         const onChainAbiService = this.governanceAbiFactory.useAbi(contractAddress) as GovernanceOnChainAbiService;
         const userVotingPower = await onChainAbiService.userVotingPower(userAddress, proposalId);
-        
+
         return userVotingPower;
     }
 
     async userVotingPowerDirect(contractAddress: string, proposalId: number, userAddress: string): Promise<string> {
         const onChainAbiService = this.governanceAbiFactory.useAbi(contractAddress) as GovernanceOnChainAbiService;
         const userVotingPowerDirect = await onChainAbiService.userVotingPowerDirect(userAddress, proposalId);
-        
+
         return userVotingPowerDirect;
     }
 
@@ -218,7 +226,7 @@ export class GovernanceOnChainService extends GovernanceTokenSnapshotService {
     }
 
     smoothingFunction(scAddress: string, quorum: string): string {
-        switch (governanceSmoothingFunction(scAddress)){
+        switch (governanceSmoothingFunction(scAddress)) {
             case GovernanceSmoothingFunction.CVADRATIC:
                 return new BigNumber(quorum).sqrt().integerValue().toFixed();
             case GovernanceSmoothingFunction.LINEAR:
