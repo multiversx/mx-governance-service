@@ -22,6 +22,8 @@ export const abiConfig = config.get('abi');
 
 export const governanceConfig = config.get('governance');
 
+export const requestExplicitContracts = config.get('requestExplicit');
+
 export const constantsConfig = config.get('constants');
 
 export const delegateStakingProviders = config.get('delegateStakingProviders');
