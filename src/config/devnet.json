@@ -35,11 +35,11 @@
             "linear": [
                 "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqrlllsrujgla"
             ]
-        },
-        "requestExplicit": [
-            "erd1qqqqqqqqqqqqqpgqqcuhgg6f83jzfjqsv47h24jxt95r6jhqad7qaxvle3"
-        ]
+        }
     },
+    "requestExplicit": [
+        "erd1qqqqqqqqqqqqqpgqqcuhgg6f83jzfjqsv47h24jxt95r6jhqad7qaxvle3"
+    ],
     "delegateStakingProviders": [
         {
             "providerName": "legacy-delegation",

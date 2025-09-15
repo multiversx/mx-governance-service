@@ -21,7 +21,7 @@ import { EnergyService } from '../../energy/services/energy.service';
 import { GovernanceAbiFactory } from './governance.abi.factory';
 import { TokenService } from 'src/modules/tokens/services/token.service';
 import { GovernanceOnChainAbiService } from './governance.onchain.abi.service';
-import { governanceConfig } from '../../../config';
+import { requestExplicitContracts } from '../../../config';
 
 @Injectable()
 export class GovernanceTokenSnapshotService {
@@ -39,7 +39,7 @@ export class GovernanceTokenSnapshotService {
             governanceAddresses = governanceAddresses.filter((address) => filters.contracts.includes(address));
         }
 
-        const requestSpecificContracts = governanceConfig.requestExplicit || [];
+        const requestSpecificContracts = requestExplicitContracts || [];
 
         const governance: Array<typeof GovernanceUnion> = [];
         for (const address of governanceAddresses) {
