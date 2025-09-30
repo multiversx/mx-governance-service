@@ -10,11 +10,14 @@ import { GovernanceOnChainAbiService } from '../services/governance.onchain.abi.
 import { governanceConfig } from 'src/config';
 import { DelegateGovernanceService } from '../services/delegate-governance.service';
 import { GovernanceComputeService } from '../services/governance.compute.service';
+import { EndPollArgs, NewPollArgs, VotePollArgs } from '../models/pulse.poll.model';
+import { GovernancePulseAbiService } from '../services/governance.pulse.abi.service';
 
 @Resolver()
 export class GovernanceTransactionService {
     constructor(
         private readonly governanceAbiFactory: GovernanceAbiFactory,
+        private readonly pulseAbiService: GovernancePulseAbiService, 
     ) {
     }
 
@@ -67,5 +70,43 @@ export class GovernanceTransactionService {
         return this.governanceAbiFactory
             .useAbi(args.contractAddress)
             .vote(user.address, args)
+    }
+
+    @UseGuards(NativeAuthGuard)
+    @Query(() => TransactionModel)
+    createPoll(
+        @Args() args: NewPollArgs,
+        @AuthUser() user: UserAuthResult,
+    ): TransactionModel {
+        if(!governanceConfig.pulse.linear.includes(args.contractAddress)) {
+            throw new BadRequestException("Open poll is supported only by pulse contract !")
+        }
+        return this.pulseAbiService.newPoll(user.address, args);
+    }
+
+    @UseGuards(NativeAuthGuard)
+    @Query(() => TransactionModel)
+    endPoll(
+        @Args() args: EndPollArgs,
+        @AuthUser() user: UserAuthResult,
+    ): TransactionModel {
+        if(!governanceConfig.pulse.linear.includes(args.contractAddress)) {
+            throw new BadRequestException("End poll is supported only by pulse contract !")
+        }
+
+        return this.pulseAbiService.endPoll(user.address, args)
+    }
+
+    @UseGuards(NativeAuthGuard)
+    @Query(() => TransactionModel)
+    votePoll(
+        @Args() args: VotePollArgs,
+        @AuthUser() user: UserAuthResult,
+    ): TransactionModel {
+        if(!governanceConfig.pulse.linear.includes(args.contractAddress)) {
+            throw new BadRequestException("Vote poll is supported only by pulse contract !")
+        }
+
+        return this.pulseAbiService.votePoll(user.address, args)
     }
 }

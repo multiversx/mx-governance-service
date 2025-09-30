@@ -102,6 +102,26 @@ type EsdtTokenPaymentModel {
   amount: String!
 }
 
+type PollResult {
+  optionId: Int!
+  votingPower: String!
+  nrVotes: Float!
+}
+
+type PulsePollModel {
+  contractAddress: String!
+  pollId: Float!
+  initiator: String!
+  options: [String!]!
+  question: String!
+  status: String!
+  pollEndTime: Int!
+  pollResults: [PollResult!]!
+  hasVoted: Boolean!
+  userVotingOption: Float!
+  userVotingPower: String!
+}
+
 type DelegateUserVotingPower {
   providerName: String!
   scAddress: String!
@@ -212,13 +232,16 @@ type Query {
   createProposal(contractAddress: String!, commitHash: String!, startVoteEpoch: Int!, endVoteEpoch: Int!, nativeTokenAmount: String!): TransactionModel!
   closeProposal(contractAddress: String!, proposalId: Int!): TransactionModel!
   vote(contractAddress: String!, proposalId: Float!, vote: Float!): TransactionModel!
+  createPoll(contractAddress: String!, question: String!, options: [String!]!, duration: Int!): TransactionModel!
+  endPoll(contractAddress: String!, pollId: Int!): TransactionModel!
+  votePoll(contractAddress: String!, pollId: Float!, optionId: Float!, votingPower: String!, proof: String!): TransactionModel!
   governanceContracts(identifiers: [String!], contracts: [String!], type: String): [GovernanceTypes!]!
   maintenance: Boolean!
   githubProposals: [GithubProposal!]!
   githubOAuthToken(code: String!): String!
 }
 
-union GovernanceTypes = GovernanceTokenSnapshotContract | GovernanceEnergyContract | GovernanceOnChainContract
+union GovernanceTypes = GovernanceTokenSnapshotContract | GovernanceEnergyContract | GovernanceOnChainContract | GovernancePulseContract
 
 type GovernanceTokenSnapshotContract {
   address: String!
@@ -264,6 +287,13 @@ type GovernanceOnChainContract {
   vetoPercentageLimit: Float!
   votingPowerDecimals: Int!
   totalOnChainProposals: Int!
+}
+
+type GovernancePulseContract {
+  address: String!
+  shard: String!
+  polls(pollId: Int, offset: Int! = 0, limit: Int! = 200): [PulsePollModel!]!
+  totalPolls: Int!
 }
 
 type Mutation {

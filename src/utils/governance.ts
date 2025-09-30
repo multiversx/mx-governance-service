@@ -8,6 +8,7 @@ export enum GovernanceType {
     OLD_ENERGY = 'oldEnergy',
     TOKEN_SNAPSHOT = 'tokenSnapshot',
     ONCHAIN= 'onChain',
+    PULSE = 'pulse',
 }
 
 registerEnumType(GovernanceType, { name: 'GovernanceType' });
@@ -22,6 +23,8 @@ const toTypeEnum = (type: string): GovernanceType => {
             return GovernanceType.OLD_ENERGY;
         case GovernanceType.ONCHAIN.toString():
             return GovernanceType.ONCHAIN;
+        case GovernanceType.PULSE.toString():
+            return GovernanceType.PULSE;
         default:
             return undefined;
     }

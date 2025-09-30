@@ -9,7 +9,7 @@ import {
 import { GovernanceContractsFiltersArgs } from '../models/governance.contracts.filter.args';
 import { GovernanceUnion } from '../models/governance.union';
 import { EsdtToken } from '../../tokens/models/esdtToken.model';
-import { GovernanceEnergyContract, GovernanceOnChainContract, GovernanceTokenSnapshotContract } from '../models/governance.contract.model';
+import { GovernanceEnergyContract, GovernanceOnChainContract, GovernancePulseContract, GovernanceTokenSnapshotContract } from '../models/governance.contract.model';
 import { VoteType } from '../models/governance.proposal.model';
 import { GovernanceComputeService } from './governance.compute.service';
 import { GovernanceQuorumService } from './governance.quorum.service';
@@ -64,6 +64,11 @@ export class GovernanceTokenSnapshotService {
                     break;
                 case GovernanceType.ONCHAIN:
                     contractInstance = new GovernanceOnChainContract({
+                        address,
+                    })
+                    break;
+                case GovernanceType.PULSE:
+                    contractInstance = new GovernancePulseContract({
                         address,
                     })
                     break;

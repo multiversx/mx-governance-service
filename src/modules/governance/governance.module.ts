@@ -13,6 +13,7 @@ import { GovernanceDescriptionService } from './services/governance.description.
 import {
     GovernanceEnergyContractResolver,
     GovernanceOnChainContractResolver,
+    GovernancePulseContractResolver,
     GovernanceTokenSnapshotContractResolver,
 } from './resolvers/governance.contract.resolver';
 import { GovernanceSetterService } from './services/governance.setter.service';
@@ -32,6 +33,9 @@ import { GithubResolver } from './resolvers/github.resolver';
 import { DynamicModuleUtils } from 'src/utils/dynamic.module.utils';
 import { GovGithubModule } from '../gov-github/gov-github.module';
 import { GovernanceOnchainProvidersSnapshotsMerkleService } from './services/governance.onchain.providers.snapshots.merkle.service';
+import { GovernancePulseAbiService } from './services/governance.pulse.abi.service';
+import { GovernancePulseService } from './services/governance.pulse.service';
+import { PulsePollResolver } from './resolvers/pulse.poll.resolver';
 
 @Module({
     imports: [
@@ -71,6 +75,10 @@ import { GovernanceOnchainProvidersSnapshotsMerkleService } from './services/gov
         DelegateGovernanceService,
         GithubService,
         GithubResolver,
+        GovernancePulseContractResolver,
+        GovernancePulseAbiService,
+        GovernancePulseService,
+        PulsePollResolver,
     ],
     exports: [
         GovernanceTokenSnapshotAbiService,
@@ -84,6 +92,9 @@ import { GovernanceOnchainProvidersSnapshotsMerkleService } from './services/gov
         GovernanceOnChainService,
         DelegateGovernanceService,
         GithubService,
+        GovernancePulseContractResolver,
+        GovernancePulseAbiService,
+        GovernancePulseService,
     ],
 })
 export class GovernanceModule { }

@@ -10,7 +10,7 @@ import { GovernanceServiceFactory } from '../services/governance.factory';
 import { NativeAuthGuard } from '../../auth/native.auth.guard';
 import { DelegateUserVotingPower } from '../models/delegate-provider.model';
 import { governanceConfig } from 'src/config';
-import { GovernanceOnChainService } from '../services/governance.service';
+import { GovernanceOnChainService, GovernanceTokenSnapshotService } from '../services/governance.service';
 
 @Resolver(() => GovernanceProposalModel)
 export class GovernanceProposalResolver {
@@ -48,8 +48,8 @@ export class GovernanceProposalResolver {
         @AuthUser() user: UserAuthResult,
         @Parent() governanceProposal: GovernanceProposalModel
     ): Promise<boolean> {
-        const userVoteType = await this.governanceServiceFactory
-            .userService(governanceProposal.contractAddress)
+        const userVoteType = await (this.governanceServiceFactory
+            .userService(governanceProposal.contractAddress) as GovernanceTokenSnapshotService)
             .userVote(governanceProposal.contractAddress, governanceProposal.proposalId, user.address);
         return userVoteType !== VoteType.NotVoted;
     }
@@ -60,8 +60,8 @@ export class GovernanceProposalResolver {
         @AuthUser() user: UserAuthResult,
         @Parent() governanceProposal: GovernanceProposalModel
     ): Promise<VoteType> {
-        return this.governanceServiceFactory
-            .userService(governanceProposal.contractAddress)
+        return (this.governanceServiceFactory
+            .userService(governanceProposal.contractAddress) as GovernanceTokenSnapshotService)
             .userVote(governanceProposal.contractAddress, governanceProposal.proposalId, user.address);
     }
 
@@ -71,8 +71,8 @@ export class GovernanceProposalResolver {
         @AuthUser() user: UserAuthResult,
         @Parent() governanceProposal: GovernanceProposalModel
     ): Promise<string> {
-        return this.governanceServiceFactory
-            .userService(governanceProposal.contractAddress)
+        return (this.governanceServiceFactory
+            .userService(governanceProposal.contractAddress) as GovernanceTokenSnapshotService)
             .userVotingPower(governanceProposal.contractAddress, governanceProposal.proposalId, user.address);
     }
 

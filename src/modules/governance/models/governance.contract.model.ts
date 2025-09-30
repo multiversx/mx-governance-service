@@ -1,6 +1,7 @@
 import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import { GovernanceProposalModel } from './governance.proposal.model';
 import { EsdtToken } from '../../tokens/models/esdtToken.model';
+import { PulsePollModel } from './pulse.poll.model';
 
 @ObjectType()
 export class GovernanceTokenSnapshotContract {
@@ -54,6 +55,25 @@ export class GovernanceOnChainContract extends GovernanceTokenSnapshotContract {
 
     constructor(init: Partial<GovernanceOnChainContract>) {
         super(init)
+        Object.assign(this, init);
+    }
+}
+
+@ObjectType()
+export class GovernancePulseContract {
+    @Field()
+    address: string;
+
+    @Field(() => String)
+    shard: string;
+
+    @Field(() => [PulsePollModel])
+    polls: PulsePollModel[];
+    
+    @Field(() => Int)
+    totalPolls: number;
+
+    constructor(init: Partial<GovernancePulseContract>) {
         Object.assign(this, init);
     }
 }

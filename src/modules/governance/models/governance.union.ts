@@ -1,5 +1,5 @@
 import { createUnionType } from '@nestjs/graphql';
-import { GovernanceEnergyContract, GovernanceOnChainContract, GovernanceTokenSnapshotContract } from './governance.contract.model';
+import { GovernanceEnergyContract, GovernanceOnChainContract, GovernancePulseContract, GovernanceTokenSnapshotContract } from './governance.contract.model';
 import { DescriptionV0, DescriptionV1, DescriptionV2, DescriptionV3 } from './governance.proposal.model';
 
 export const GovernanceUnion = createUnionType({
@@ -9,6 +9,7 @@ export const GovernanceUnion = createUnionType({
             GovernanceTokenSnapshotContract,
             GovernanceEnergyContract,
             GovernanceOnChainContract,
+            GovernancePulseContract,
         ] as const,
     resolveType(governance) {
         switch (governance.constructor.name) {
@@ -18,6 +19,8 @@ export const GovernanceUnion = createUnionType({
                 return GovernanceEnergyContract;
             case GovernanceOnChainContract.name:
                 return GovernanceOnChainContract;
+            case GovernancePulseContract.name:
+                return GovernancePulseContract;
         }
     },
 });

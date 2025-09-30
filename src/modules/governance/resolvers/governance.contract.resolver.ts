@@ -1,12 +1,15 @@
 import { Args, Int, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { GovernanceProposalModel } from '../models/governance.proposal.model';
 import { EsdtToken } from '../../tokens/models/esdtToken.model';
-import { GovernanceEnergyContract, GovernanceOnChainContract, GovernanceTokenSnapshotContract } from '../models/governance.contract.model';
+import { GovernanceEnergyContract, GovernanceOnChainContract, GovernancePulseContract, GovernanceTokenSnapshotContract } from '../models/governance.contract.model';
 import { GovernanceAbiFactory } from '../services/governance.abi.factory';
 import { GovernanceServiceFactory } from '../services/governance.factory';
 import { GovernanceEnergyAbiService } from '../services/governance.abi.service';
 import { PaginationArgs } from '../models/pagination.model';
 import { GovernanceOnChainAbiService } from '../services/governance.onchain.abi.service';
+import { PulsePollModel } from '../models/pulse.poll.model';
+import { GovernanceTokenSnapshotService } from '../services/governance.service';
+import { GovernancePulseService } from '../services/governance.pulse.service';
 
 @Resolver(() => GovernanceTokenSnapshotContract)
 export class GovernanceTokenSnapshotContractResolver {
@@ -43,7 +46,7 @@ export class GovernanceTokenSnapshotContractResolver {
 
     @ResolveField()
     async feeToken(@Parent() contract: GovernanceTokenSnapshotContract): Promise<EsdtToken> {
-        return this.governanceServiceFactory.userService(contract.address).feeToken(contract.address);
+        return (this.governanceServiceFactory.userService(contract.address) as GovernanceTokenSnapshotService).feeToken(contract.address);
     }
 
     @ResolveField()
@@ -53,7 +56,7 @@ export class GovernanceTokenSnapshotContractResolver {
 
     @ResolveField()
     async votingPowerDecimals(@Parent() contract: GovernanceTokenSnapshotContract): Promise<number> {
-        return this.governanceServiceFactory.userService(contract.address).votingPowerDecimals(contract.address);
+        return (this.governanceServiceFactory.userService(contract.address) as GovernanceTokenSnapshotService).votingPowerDecimals(contract.address);
     }
 
     @ResolveField(() => [GovernanceProposalModel])
@@ -138,5 +141,49 @@ export class GovernanceOnChainContractResolver extends GovernanceTokenSnapshotCo
     async totalOnChainProposals(@Parent() contract: GovernanceOnChainContract): Promise<number> {
         const onChainAbiService = this.governanceAbiFactory.useAbi(contract.address) as GovernanceOnChainAbiService;
         return onChainAbiService.totalOnChainProposals();
+    }
+}
+
+
+@Resolver(() => GovernancePulseContract)
+export class GovernancePulseContractResolver {
+    constructor(
+        private readonly pulseService: GovernancePulseService,
+    ){}
+    
+    @ResolveField()
+    async shard(@Parent() contract: GovernancePulseContract) {
+        return await this.pulseService.getContractShardId(contract.address);
+    }
+
+    @ResolveField(() => [PulsePollModel])
+    async polls(
+        @Parent() contract: GovernancePulseContract,
+        @Args('pollId', {type: ()=> Int, nullable: true}) pollId?: number,
+        @Args() pagination?: PaginationArgs,
+    ): Promise<PulsePollModel[]> {
+        const polls = await this.pulseService.getPolls(contract.address);
+
+        if(pollId !== undefined && pollId !== null) {
+            return polls.filter(poll => poll.pollId === pollId);
+        }
+
+       if(pagination) {
+            const start = Math.max(polls.length - pagination.offset - pagination.limit, 0);
+            const end = polls.length - pagination.offset;
+
+            if(start < 0 || end < 0) {
+                return [];
+            }
+
+            return polls.slice(start, end).reverse();
+        }
+        
+        return polls;
+    }
+        
+    @ResolveField()
+    async totalPolls(@Parent() contract: GovernancePulseContract): Promise<number> {
+        return await this.pulseService.getTotalPolls(contract.address);
     }
 }
