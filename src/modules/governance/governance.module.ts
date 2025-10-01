@@ -36,6 +36,10 @@ import { GovernanceOnchainProvidersSnapshotsMerkleService } from './services/gov
 import { GovernancePulseAbiService } from './services/governance.pulse.abi.service';
 import { GovernancePulseService } from './services/governance.pulse.service';
 import { PulsePollResolver } from './resolvers/pulse.poll.resolver';
+import { PulseComputeService } from './services/pulse.compute.service';
+import { ApiModule } from '@multiversx/sdk-nestjs-http';
+import { ApiConfigService } from 'src/helpers/api.config.service';
+import { PulseSetterService } from './services/pulse.setter.service';
 
 @Module({
     imports: [
@@ -48,6 +52,7 @@ import { PulsePollResolver } from './resolvers/pulse.poll.resolver';
         RemoteConfigModule,
         DynamicModuleUtils.getApiModule(),
         GovGithubModule,
+        ApiModule,
     ],
     providers: [
         GovernanceTokenSnapshotService,
@@ -79,6 +84,9 @@ import { PulsePollResolver } from './resolvers/pulse.poll.resolver';
         GovernancePulseAbiService,
         GovernancePulseService,
         PulsePollResolver,
+        PulseComputeService,
+        ApiConfigService,
+        PulseSetterService,
     ],
     exports: [
         GovernanceTokenSnapshotAbiService,
@@ -95,6 +103,9 @@ import { PulsePollResolver } from './resolvers/pulse.poll.resolver';
         GovernancePulseContractResolver,
         GovernancePulseAbiService,
         GovernancePulseService,
+        PulseComputeService,
+        ApiConfigService,
+        PulseSetterService,
     ],
 })
 export class GovernanceModule { }

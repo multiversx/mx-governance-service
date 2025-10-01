@@ -146,7 +146,7 @@ export class GovernancePulseAbiService  {
     }
 
     async getTotalPolls(scAddress: string) {
-           const smartContractQueryInput: SmartContractQueryInput = {
+        const smartContractQueryInput: SmartContractQueryInput = {
             contract: new Address(scAddress),
             function: 'getNextAvailablePollIndex',
             arguments: [],
@@ -158,5 +158,28 @@ export class GovernancePulseAbiService  {
         const response = this.controller.parseQueryResponse(responseRaw);
 
         return new BigNumber(response[0]).toNumber();
+    }
+
+    async getRootHash(scAddress: string) {
+        const smartContractQueryInput: SmartContractQueryInput = {
+            contract: new Address(scAddress),
+            function: 'getRootHash',
+            arguments: [],
+        }
+
+        const query = this.controller.createQuery(smartContractQueryInput);
+        const responseRaw = await this.controller.runQuery(query);
+
+        const response = this.controller.parseQueryResponse(responseRaw);
+        return this.decodeBytesArrayToHash(response[0])
+    }
+
+    private decodeBytesArrayToHash(arr: BigNumber[]): string {
+        const hex= arr.map(bn => {
+                const byte = bn.toNumber();        // 0..255 from BigNumber type
+                return byte.toString(16).padStart(2, "0"); // 1 byte = 2 hex characters
+            }).join("");
+        
+        return hex;
     }
 }

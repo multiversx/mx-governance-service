@@ -181,7 +181,12 @@ export class GovernancePulseContractResolver {
         
         return polls;
     }
-        
+
+    @ResolveField()
+    async rootHash(@Parent() contract: GovernancePulseContract): Promise<string> {
+        return await this.pulseService.getRootHash(contract.address);
+    }
+
     @ResolveField()
     async totalPolls(@Parent() contract: GovernancePulseContract): Promise<number> {
         return await this.pulseService.getTotalPolls(contract.address);

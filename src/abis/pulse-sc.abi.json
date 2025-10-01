@@ -140,6 +140,16 @@
             ]
         },
         {
+            "name": "getRootHash",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "array32<u8>"
+                }
+            ]
+        },
+        {
             "name": "getTotalVotes",
             "mutability": "readonly",
             "inputs": [
@@ -224,6 +234,11 @@
                 },
                 {
                     "name": "poll_index",
+                    "type": "u32",
+                    "indexed": true
+                },
+                {
+                    "name": "option_index",
                     "type": "u32",
                     "indexed": true
                 }

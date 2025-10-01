@@ -67,6 +67,9 @@ export class GovernancePulseContract {
     @Field(() => String)
     shard: string;
 
+    @Field()
+    rootHash: string;
+    
     @Field(() => [PulsePollModel])
     polls: PulsePollModel[];
     

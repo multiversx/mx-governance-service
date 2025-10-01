@@ -1,8 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { GovernancePulseAbiService } from "./governance.pulse.abi.service";
-import { EndPollArgs, NewPollArgs, PollResult, PollStatus, PulsePollModel, VotePollArgs } from "../models/pulse.poll.model";
-import { PaginationArgs } from "../models/pagination.model";
+import { EndPollArgs, NewPollArgs, PollResult, PollResults, PollStatus, PulsePollModel, VotePollArgs } from "../models/pulse.poll.model";
 import { MXProxyService } from "src/services/multiversx-communication/mx.proxy.service";
+import { GovernanceQuorumService } from "./governance.quorum.service";
+import { GovernanceSmoothingFunction, governanceSmoothingFunction } from "src/utils/governance";
+import BigNumber from "bignumber.js";
+import { PulseComputeService } from "./pulse.compute.service";
+import { ErrorLoggerAsync } from "@multiversx/sdk-nestjs-common";
+import { GetOrSetCache } from "src/helpers/decorators/caching.decorator";
+import { CacheTtlInfo } from "src/services/caching/cache.ttl.info";
 
 @Injectable()
 export class GovernancePulseService {
@@ -10,6 +16,8 @@ export class GovernancePulseService {
     constructor(
         private readonly pulseAbiService: GovernancePulseAbiService,
         private readonly mxProxyService: MXProxyService,
+        private readonly quorumService: GovernanceQuorumService,
+        private readonly pulseComputeService: PulseComputeService,
     ) {}
 
     votePoll(sender: string, args: VotePollArgs) {
@@ -23,6 +31,12 @@ export class GovernancePulseService {
         return this.pulseAbiService.endPoll(sender, args);
     }
 
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'pulse',
+        remoteTtl: CacheTtlInfo.Attributes.remoteTtl,
+        localTtl: CacheTtlInfo.Attributes.localTtl,
+    })
     async getContractShardId(scAddress: string) {
         return await this.mxProxyService.getAddressShardID(scAddress);
     }
@@ -40,7 +54,17 @@ export class GovernancePulseService {
         return Promise.all(promises);
     }
 
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'pulse',
+        remoteTtl: CacheTtlInfo.ContractInfo.remoteTtl,
+        localTtl: CacheTtlInfo.ContractInfo.localTtl,
+    })
     async getPoll(scAddress: string, pollId: number) {
+        return await this.getPollRaw(scAddress, pollId);
+    }
+
+    async getPollRaw(scAddress: string, pollId: number) {
         const pollInfoRaw = await this.pulseAbiService.getPoll(scAddress, pollId);
         return new PulsePollModel({
             contractAddress: scAddress,
@@ -50,15 +74,34 @@ export class GovernancePulseService {
             question: pollInfoRaw.question,
             status: pollInfoRaw.status === true ? PollStatus.ONGOING : PollStatus.ENDED,
             pollEndTime: pollInfoRaw.endTime,
-            pollResults: await this.getPollResults(scAddress, pollId),
         })
     }
 
-    async getPollVotesTotalCount(scAddress: string, pollId: number) {
-        return await this.pulseAbiService.getTotalVotes(scAddress, pollId);
+    // @ErrorLoggerAsync()
+    // @GetOrSetCache({
+    //     baseKey: 'pulse',
+    //     remoteTtl: CacheTtlInfo.ContractInfo.remoteTtl,
+    //     localTtl: CacheTtlInfo.ContractInfo.localTtl,
+    // })
+    // async getPollVotesTotalCount(scAddress: string, pollId: number) {
+    //     return await this.getPollVotesTotalCountRaw(scAddress, pollId);
+    // }
+
+    // async getPollVotesTotalCountRaw(scAddress: string, pollId: number) {
+    //     return await this.pulseAbiService.getTotalVotes(scAddress, pollId);
+    // }
+
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'pulse',
+        remoteTtl: CacheTtlInfo.ContractInfo.remoteTtl,
+        localTtl: CacheTtlInfo.ContractInfo.localTtl,
+    })
+    async getTotalPolls(scAddress: string) {
+        return await this.getTotalPollsRaw(scAddress);
     }
 
-    async getTotalPolls(scAddress: string) {
+    async getTotalPollsRaw(scAddress: string) {
         return await this.pulseAbiService.getTotalPolls(scAddress);
     }
 
@@ -82,7 +125,17 @@ export class GovernancePulseService {
         return poll.status === true ? PollStatus.ONGOING : PollStatus.ENDED;
     }
 
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'pulse',
+        remoteTtl: CacheTtlInfo.Attributes.remoteTtl,
+        localTtl: CacheTtlInfo.Attributes.localTtl,
+    })
     async getPollVotesCount(scAddress: string, pollId: number, optionId: number) {
+        return await this.getPollVotesCountRaw(scAddress, pollId, optionId);
+    }
+
+    async getPollVotesCountRaw(scAddress: string, pollId: number, optionId: number) {
         const count = await this.pulseAbiService.getPollVotesCount(scAddress, pollId, optionId);
         return count;
     }
@@ -104,25 +157,79 @@ export class GovernancePulseService {
     //     return new PollResult({ optionId, votingPower , nrVotes});
     // }
 
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'pulse',
+        remoteTtl: CacheTtlInfo.Attributes.remoteTtl,
+        localTtl: CacheTtlInfo.Attributes.localTtl,
+    })
     async getPollResults(scAddress: string, pollId: number) {
+        return await this.getPollResultsRaw(scAddress, pollId)
+    }
+
+    async getPollResultsRaw(scAddress: string, pollId: number) {
         const poll = await this.pulseAbiService.getPoll(scAddress, pollId);
         const options = poll.options;
         const numberOfOptions = options.length;
         const promises:  Promise<number>[] = [];
 
         for(let optionId = 0; optionId < numberOfOptions; optionId++) {
-            promises.push(this.getPollVotesCount(scAddress, pollId, optionId));
+            promises.push(this.getPollVotesCountRaw(scAddress, pollId, optionId));
         }
         const voteCountPerOption = await Promise.all(promises);
 
         const pollResults: PollResult[] = [];
+        let totalVotingPower = new BigNumber(0);
+        let totalVotesCount = 0;
         for(let optionId = 0; optionId < numberOfOptions; optionId++) {
             const votingPower = poll.voteScore[optionId];
+            totalVotingPower = totalVotingPower.plus(new BigNumber(votingPower));
+
             const nrVotes = voteCountPerOption[optionId];
+            totalVotesCount += nrVotes;
 
             pollResults.push(new PollResult({ optionId, votingPower: votingPower , nrVotes}));
         }
+    
+        return new PollResults({
+            pollResults,
+            totalVotingPower: totalVotingPower.toFixed(),
+            totalVotesCount
+        })
+    }
 
-        return pollResults;
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'pulse',
+        remoteTtl: CacheTtlInfo.Attributes.remoteTtl,
+        localTtl: CacheTtlInfo.Attributes.localTtl,
+    })
+    async getRootHash(scAddress: string) {
+        return await this.pulseAbiService.getRootHash(scAddress);
+    }
+
+    async getUserVotingPower(scAddress: string, userAddress: string) {
+        const rootHash = await this.getRootHash(scAddress);
+        
+        const userQuorum = await this.quorumService.userQuorum(scAddress, userAddress, rootHash);
+        return this.smoothingFunction(scAddress, userQuorum);
+    }
+
+    async hasUserVoted(scAddress: string, userAddress: string, pollId: number) {
+        const voteOptionId = await this.pulseComputeService.getUserVotePulse(scAddress, userAddress, pollId);
+        return voteOptionId >= 0 ? true : false;
+    }
+
+    async getUserVotingOption(scAddress: string, userAddress: string, pollId: number) {
+        return await this.pulseComputeService.getUserVotePulse(scAddress, userAddress, pollId);
+    }
+
+    smoothingFunction(scAddress: string, quorum: string): string {
+        switch (governanceSmoothingFunction(scAddress)) {
+            case GovernanceSmoothingFunction.CVADRATIC:
+                return new BigNumber(quorum).sqrt().integerValue().toFixed();
+            case GovernanceSmoothingFunction.LINEAR:
+                return new BigNumber(quorum).integerValue().toFixed();
+        }
     }
 }

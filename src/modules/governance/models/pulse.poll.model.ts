@@ -48,6 +48,22 @@ export class PollVotingModel {
 
 
 @ObjectType()
+export class PollResults {
+    @Field(() => [PollResult])
+    pollResults: PollResult[];
+
+    @Field(() => Int)
+    totalVotesCount: number
+
+    @Field()
+    totalVotingPower: string
+
+    constructor(init: Partial<PollResults>) {
+        Object.assign(this, init);
+    }
+}
+
+@ObjectType()
 export class PollResult {
     @Field(() => Int)
     optionId: number
@@ -92,10 +108,8 @@ export class PulsePollModel {
     status: PollStatus;
     @Field(() => Int)
     pollEndTime: number;
-    // @Field()
-    // rootHash: string;
-    @Field(() => [PollResult])
-    pollResults: PollResult[];
+    @Field()
+    pollResults?: PollResults;
     @Field()
     hasVoted?: boolean;
     @Field()

@@ -4,15 +4,12 @@ import { AuthUser } from "src/modules/auth/auth.user";
 import { UserAuthResult } from "src/modules/auth/user.auth.result";
 import { NativeAuthGuard } from "src/modules/auth/native.auth.guard";
 import { UseGuards } from "@nestjs/common";
-import { GovernancePulseAbiService } from "../services/governance.pulse.abi.service";
 import { GovernancePulseService } from "../services/governance.pulse.service";
 
 @Resolver(() => PulsePollModel)
 export class PulsePollResolver {
      constructor(
-            // private readonly pulseAbiService: GovernancePulseAbiService,
             private readonly pulseService: GovernancePulseService,
-            // private readonly governaneMerkle: GovernanceTokenSnapshotMerkleService,
         ) { }
 
     @ResolveField()
@@ -49,15 +46,9 @@ export class PulsePollResolver {
     async pollEndTime(@Parent() poll: PulsePollModel) {
         return poll.pollEndTime;
     }
-
-    // @ResolveField()
-    // async rootHash(@Parent() poll: PulsePollModel) {
-    //     return poll.rootHash;
-    // }
-
     @ResolveField()
     async pollResults(@Parent() poll: PulsePollModel) {
-        return poll.pollResults;
+        return await this.pulseService.getPollResults(poll.contractAddress, poll.pollId);
     }
 
     @UseGuards(NativeAuthGuard)
@@ -66,7 +57,7 @@ export class PulsePollResolver {
         @AuthUser() user: UserAuthResult,
         @Parent() poll: PulsePollModel
     ) {
-        return poll.hasVoted ?? false;
+        return await this.pulseService.hasUserVoted(poll.contractAddress, user.address, poll.pollId);
    }
 
     @UseGuards(NativeAuthGuard)
@@ -75,7 +66,7 @@ export class PulsePollResolver {
         @AuthUser() user: UserAuthResult,
         @Parent() poll: PulsePollModel
     ) {
-        return poll.userVotingOption;
+        return await this.pulseService.getUserVotingOption(poll.contractAddress, user.address, poll.pollId);
     }
 
     @UseGuards(NativeAuthGuard)
@@ -84,6 +75,7 @@ export class PulsePollResolver {
         @AuthUser() user: UserAuthResult,
         @Parent() poll: PulsePollModel
     ) {
-        return poll.userVotingPower;
+        console.log(user.address)
+        return await this.pulseService.getUserVotingPower(poll.contractAddress, user.address);
     }
 }
