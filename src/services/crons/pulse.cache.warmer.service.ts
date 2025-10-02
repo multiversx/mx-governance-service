@@ -19,7 +19,8 @@ export class PulseCacheWarmerService {
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     ) {}
 
-    @Cron('*/6 * * * * *')
+    // TODO: adjust if load is too high
+    @Cron('*/3 * * * * *')
     @Lock({ name: 'warmPulsePolls', verbose: true })
     async warmPulsePolls(): Promise<void> {
         const scAddresses = governanceContractsAddresses([
