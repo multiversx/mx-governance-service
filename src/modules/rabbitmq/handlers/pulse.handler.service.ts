@@ -1,3 +1,4 @@
+import { Address } from "@multiversx/sdk-core/out";
 import { Inject } from "@nestjs/common";
 import { RedisPubSub } from "graphql-redis-subscriptions";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
@@ -27,9 +28,9 @@ export class PulseHandlerService {
         for(const event of events) {
             this.logger.info('Found vote event raw: ', event)
             const scAddress = event.address;
-            const userAddress = Buffer.from(Buffer.from(event.topics[1], 'base64').toString('hex'), 'hex').toString();
+            const userAddress = Address.newFromHex(Buffer.from(event.topics[1], 'base64').toString('hex')).toBech32();
             const pollId = parseInt(Buffer.from(event.topics[2], 'base64').toString('hex'), 16);
-            const optionId = parseInt(Buffer.from(event.topics[3], 'base64').toString('hex'), 16);
+            const optionId = event.topics[3] !== '' ? parseInt(Buffer.from(event.topics[3], 'base64').toString('hex'), 16) : 0;
 
             this.logger.info('Event decoded: ', {scAddress, userAddress, pollId, optionId})
 
