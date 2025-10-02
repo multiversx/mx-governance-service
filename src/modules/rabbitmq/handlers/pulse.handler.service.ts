@@ -29,7 +29,7 @@ export class PulseHandlerService {
             this.logger.info('Found vote event raw: ', event)
             const scAddress = event.address;
             const userAddress = Address.newFromHex(Buffer.from(event.topics[1], 'base64').toString('hex')).toBech32();
-            const pollId = parseInt(Buffer.from(event.topics[2], 'base64').toString('hex'), 16);
+            const pollId = event.topics[2] !== '' ? parseInt(Buffer.from(event.topics[2], 'base64').toString('hex'), 16) : 0;
             const optionId = event.topics[3] !== '' ? parseInt(Buffer.from(event.topics[3], 'base64').toString('hex'), 16) : 0;
 
             this.logger.info('Event decoded: ', {scAddress, userAddress, pollId, optionId})
