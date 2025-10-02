@@ -44,7 +44,7 @@ export class PulseSetterService extends GenericSetterService {
 
     async getUserVotePulse(scAddress: string, userAddress: string, pollId: number, value: number) {
         return await this.setData(
-            this.getCacheKey('getUserVotePulse', scAddress, pollId),
+            this.getCacheKey('getUserVotePulse', scAddress, userAddress, pollId),
             value,
             CacheTtlInfo.ContractState.remoteTtl,
             CacheTtlInfo.ContractState.localTtl,

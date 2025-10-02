@@ -24,7 +24,7 @@ export class PulseHandlerService {
         events: any,
     ): Promise<void> {
         
-        const userVoteCacheKeys = []
+        const promises = []
         for(const event of events) {
             this.logger.info('Found vote event raw: ', event)
             const scAddress = event.address;
@@ -34,11 +34,11 @@ export class PulseHandlerService {
 
             this.logger.info('Event decoded: ', {scAddress, userAddress, pollId, optionId})
 
-            userVoteCacheKeys.push(
-                await this.pulseSetterService.getUserVotePulse(scAddress, userAddress, pollId, optionId),
+            promises.push(
+                this.pulseSetterService.getUserVotePulse(scAddress, userAddress, pollId, optionId),
             );
         }
-        
+        const userVoteCacheKeys = await Promise.all(promises);
         await this.deleteCacheKeys(userVoteCacheKeys);
         
         // const delegateUserVotingPowers = await this.governanceOnChainAbi.delegateUserVotingPowersRaw(onChainScAddress, topics.proposalId);
