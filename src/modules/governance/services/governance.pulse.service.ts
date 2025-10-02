@@ -25,8 +25,8 @@ export class GovernancePulseService {
     async votePoll(sender: string, args: VotePollArgs) {
         // const hasUserVoted = await this.hasUserVoted(args.contractAddress, sender, args.pollId);
         const userVotingPower = await this.getUserVotingPower(args.contractAddress, sender);
-        if(new BigNumber(userVotingPower).lte(new BigNumber(0))) {
-            throw new BadRequestException("Not enough voting power !");
+        if(!(new BigNumber(userVotingPower).gt(new BigNumber(0)))) {
+            throw new BadRequestException("No voting power !");
         }
         args.votingPower = userVotingPower;
         
@@ -93,7 +93,7 @@ export class GovernancePulseService {
             initiator: pollInfoRaw.initiator,
             options: pollInfoRaw.options,
             question: pollInfoRaw.question,
-            status: pollInfoRaw.status === true ? PollStatus.ONGOING : PollStatus.ENDED,
+            status: pollInfoRaw.status === true && pollInfoRaw.endTime ? PollStatus.ONGOING : PollStatus.ENDED,
             pollEndTime: pollInfoRaw.endTime,
         })
     }
