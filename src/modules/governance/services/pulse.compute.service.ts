@@ -42,7 +42,7 @@ export class PulseComputeService {
                 const txArgsBase64 = tx.data;
                 const txArgs = Buffer.from(txArgsBase64, 'base64').toString().split("@");
             
-                const pollId = !txArgs[1] ? 0 :  parseInt(txArgs[1], 16);
+                const pollId = !txArgs[1] || txArgs[1] === '' ? 0 :  parseInt(txArgs[1], 16);
                 if(pollId === searchedPollId) {
                     const optionId = parseInt(txArgs[2], 16);
                     return optionId
