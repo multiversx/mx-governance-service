@@ -9,6 +9,7 @@ import { PulseComputeService } from "./pulse.compute.service";
 import { ErrorLoggerAsync } from "@multiversx/sdk-nestjs-common";
 import { GetOrSetCache } from "src/helpers/decorators/caching.decorator";
 import { CacheTtlInfo } from "src/services/caching/cache.ttl.info";
+import { GovernanceTokenSnapshotMerkleService } from "./governance.token.snapshot.merkle.service";
 
 @Injectable()
 export class GovernancePulseService {
@@ -18,11 +19,24 @@ export class GovernancePulseService {
         private readonly mxProxyService: MXProxyService,
         private readonly quorumService: GovernanceQuorumService,
         private readonly pulseComputeService: PulseComputeService,
+        private readonly merkleTreeService: GovernanceTokenSnapshotMerkleService,
     ) {}
 
-    votePoll(sender: string, args: VotePollArgs) {
+    async votePoll(sender: string, args: VotePollArgs) {
+        const proof = await this.getProof(args.contractAddress, sender);
+        args.proof = proof;
         return this.pulseAbiService.votePoll(sender, args);
     }
+
+    private async getProof(scAddress: string, userAddress: string) {
+        const rootHash = await this.getRootHash(scAddress);
+        const merkleTree = await this.merkleTreeService.getMerkleTree(rootHash);
+        const addressLeaf = merkleTree.getUserLeaf(userAddress);
+        const proofBuffer = merkleTree.getProofBuffer(addressLeaf);
+
+        return proofBuffer;
+    }
+
     newPoll(sender: string, args: NewPollArgs) {
         return this.pulseAbiService.newPoll(sender, args);
     }

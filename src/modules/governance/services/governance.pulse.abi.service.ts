@@ -70,7 +70,7 @@ export class GovernancePulseAbiService  {
             contract: new Address(args.contractAddress),
             function: 'votePoll',
             gasLimit: BigInt(10_000_000), // TODO adjust gas limit
-            arguments: [new U32Value(args.pollId), new U32Value(args.optionId), new BigUIntValue(args.votingPower), new BytesValue(Buffer.from(args.proof))],
+            arguments: [new U32Value(args.pollId), new U32Value(args.optionId), new BigUIntValue(args.votingPower), new BytesValue(args.proof)],
         };
         const tx = this.transactionFactory.createTransactionForExecute(new Address(sender), contractExecuteInput);
 

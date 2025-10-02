@@ -11,8 +11,11 @@ export class VotePollArgs {
     optionId: number;
     @Field()
     votingPower: string;
-    @Field()
-    proof: string;
+    proof?: Buffer;
+
+    constructor(init: Partial<VotePollArgs>) {
+        Object.assign(this, init);
+    }
 }
 
 @ArgsType()
@@ -39,13 +42,6 @@ export class NewPollArgs {
     @Field(() => Int)
     duration!: number; // in seconds
 }
-
-@ObjectType()
-export class PollVotingModel {
-    @Field(() => Int)
-    optionId: number
-}
-
 
 @ObjectType()
 export class PollResults {

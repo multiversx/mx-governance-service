@@ -240,7 +240,7 @@ type Query {
   vote(contractAddress: String!, proposalId: Float!, vote: Float!): TransactionModel!
   createPoll(contractAddress: String!, question: String!, options: [String!]!, duration: Int!): TransactionModel!
   endPoll(contractAddress: String!, pollId: Int!): TransactionModel!
-  votePoll(contractAddress: String!, pollId: Float!, optionId: Float!, votingPower: String!, proof: String!): TransactionModel!
+  votePoll(contractAddress: String!, pollId: Float!, optionId: Float!, votingPower: String!): TransactionModel!
   governanceContracts(identifiers: [String!], contracts: [String!], type: String): [GovernanceTypes!]!
   maintenance: Boolean!
   githubProposals: [GithubProposal!]!
