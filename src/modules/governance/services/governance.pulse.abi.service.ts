@@ -5,7 +5,7 @@ import { ContextGetterService } from "src/services/context/context.getter.servic
 import { GovernanceType } from "src/utils/governance";
 import { GovernanceComputeService } from "./governance.compute.service";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
-import { mxConfig } from "src/config";
+import { gasConfig, mxConfig } from "src/config";
 import { EndPollArgs, NewPollArgs, PollInfoRaw, VotePollArgs } from "../models/pulse.poll.model";
 import pulseScAbi from '../../../abis/pulse-sc.abi.json';
 import BigNumber from "bignumber.js";
@@ -69,7 +69,7 @@ export class GovernancePulseAbiService  {
         const contractExecuteInput = {
             contract: new Address(args.contractAddress),
             function: 'vote_poll',
-            gasLimit: BigInt(10_000_000), // TODO adjust gas limit
+            gasLimit: BigInt(gasConfig.governance.vote.tokenSnapshot),
             arguments: [new U32Value(args.pollId), new U32Value(args.optionId), new BigUIntValue(args.votingPower), new BytesValue(args.proof)],
         };
         const tx = this.transactionFactory.createTransactionForExecute(new Address(sender), contractExecuteInput);
