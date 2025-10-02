@@ -15,6 +15,7 @@ import { GovernanceHandlerService } from './handlers/governance.handler.service'
 import { governanceConfig, scAddress } from 'src/config';
 import { Address } from '@multiversx/sdk-core/out';
 import { GovernanceOnChainHandlerService } from './handlers/governance.onchain.handler.service';
+import { PulseHandlerService } from './handlers/pulse.handler.service';
 
 @Injectable()
 export class RabbitMqConsumer {
@@ -25,6 +26,7 @@ export class RabbitMqConsumer {
         private readonly energyHandler: EnergyHandler,
         private readonly governanceHandler: GovernanceHandlerService,
         private readonly onChainGovernanceHandler: GovernanceOnChainHandlerService,
+        private readonly pulseHandler: PulseHandlerService,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     ) {}
 
@@ -37,6 +39,15 @@ export class RabbitMqConsumer {
         if (!rawEvents.events) {
             return;
         }
+        const pulseScAddresses: string[] = governanceConfig.pulse.linear;
+
+        console.log(pulseScAddresses)
+
+        const pulseEvents = rawEvents.events.filter((event: any) => pulseScAddresses.includes(event.address));
+        if(pulseEvents.length > 0) {
+            await this.pulseHandler.handlePulseEvents(pulseEvents);
+        }
+        
         const events: RawEvent[] = rawEvents?.events
             ?.filter((rawEvent: {
                 address: string;

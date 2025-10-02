@@ -18,12 +18,12 @@ export class PulseComputeService {
     ) {
     }
 
-    // @ErrorLoggerAsync()
-    // @GetOrSetCache({
-    //     baseKey: 'pulse',
-    //     remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-    //     localTtl: CacheTtlInfo.ContractState.localTtl,
-    // })
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'pulse',
+        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
+        localTtl: CacheTtlInfo.ContractState.localTtl,
+    })
     async getUserVotePulse(scAddress: string, userAddress: string, pollId: number): Promise<number> {
         const optionId = await this.getUserVotePulseRaw(scAddress, userAddress, pollId);
     

@@ -10,6 +10,7 @@ import { EnergyModule } from '../energy/energy.module';
 import { GovernanceHandlerService } from './handlers/governance.handler.service';
 import { GovernanceModule } from '../governance/governance.module';
 import { GovernanceOnChainHandlerService } from './handlers/governance.onchain.handler.service';
+import { PulseHandlerService } from './handlers/pulse.handler.service';
 
 @Module({
     imports: [
@@ -25,6 +26,7 @@ import { GovernanceOnChainHandlerService } from './handlers/governance.onchain.h
         EnergyHandler,
         GovernanceHandlerService,
         GovernanceOnChainHandlerService,
+        PulseHandlerService,
     ],
 })
 export class RabbitMqModule {

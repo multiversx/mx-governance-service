@@ -41,4 +41,13 @@ export class PulseSetterService extends GenericSetterService {
             CacheTtlInfo.ContractState.localTtl,
         );
     }
+
+    async getUserVotePulse(scAddress: string, userAddress: string, pollId: number, value: number) {
+        return await this.setData(
+            this.getCacheKey('getUserVotePulse', scAddress, pollId),
+            value,
+            CacheTtlInfo.ContractState.remoteTtl,
+            CacheTtlInfo.ContractState.localTtl,
+        );
+    }
 }
