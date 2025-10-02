@@ -26,7 +26,6 @@ export class GovernanceCacheWarmerService {
             const addresses = governanceContractsAddresses([
                 GovernanceType.ENERGY,
                 GovernanceType.TOKEN_SNAPSHOT,
-                GovernanceType.ONCHAIN,
             ]);
             for (const address of addresses) {
                 const proposals = await this.governanceAbiFactory.useAbi(address).proposalsRaw(address);
