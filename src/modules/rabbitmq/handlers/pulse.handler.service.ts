@@ -26,10 +26,10 @@ export class PulseHandlerService {
         const userVoteCacheKeys = []
         for(const event of events) {
             this.logger.info('Found vote event raw: ', event)
-            const scAddress = Buffer.from(event.address, 'hex').toString();
-            const userAddress = Buffer.from(event.topics[1], 'hex').toString();
-            const pollId = parseInt(event.topics[2], 16);
-            const optionId = parseInt(event.topics[3], 16);
+            const scAddress = event.address;
+            const userAddress = Buffer.from(Buffer.from(event.topics[1], 'base64').toString('hex'), 'hex').toString();
+            const pollId = parseInt(Buffer.from(event.topics[2], 'base64').toString('hex'), 16);
+            const optionId = parseInt(Buffer.from(event.topics[3], 'base64').toString('hex'), 16);
 
             this.logger.info('Event decoded: ', {scAddress, userAddress, pollId, optionId})
 
