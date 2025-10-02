@@ -75,7 +75,6 @@ export class PulsePollResolver {
         @AuthUser() user: UserAuthResult,
         @Parent() poll: PulsePollModel
     ) {
-        console.log(user.address)
         return await this.pulseService.getUserVotingPower(poll.contractAddress, user.address);
     }
 }

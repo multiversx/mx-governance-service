@@ -40,9 +40,7 @@ export class RabbitMqConsumer {
             return;
         }
         const pulseScAddresses: string[] = governanceConfig.pulse.linear;
-
-        console.log(pulseScAddresses)
-
+        
         const pulseEvents = rawEvents.events.filter((event: any) => pulseScAddresses.includes(event.address));
         if(pulseEvents.length > 0) {
             await this.pulseHandler.handlePulseEvents(pulseEvents);
