@@ -18,26 +18,36 @@ export class PulseComputeService {
     ) {
     }
 
-    @ErrorLoggerAsync()
-    @GetOrSetCache({
-        baseKey: 'pulse',
-        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl,
-    })
+    // @ErrorLoggerAsync()
+    // @GetOrSetCache({
+    //     baseKey: 'pulse',
+    //     remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
+    //     localTtl: CacheTtlInfo.ContractState.localTtl,
+    // })
     async getUserVotePulse(scAddress: string, userAddress: string, pollId: number): Promise<number> {
-        const optionId = await this.getUserVotePulseRaw(scAddress, userAddress);
-
+        const optionId = await this.getUserVotePulseRaw(scAddress, userAddress, pollId);
+    
         return optionId;
     }
 
-    private async getUserVotePulseRaw(scAddress: string, userAddress: string) {
-        const url = `${this.apiConfigService.getApiUrl()}/accounts/${userAddress}/transactions?status=success&function=votePoll&receiver=${scAddress}`;
+    private async getUserVotePulseRaw(scAddress: string, userAddress: string, searchedPollId: number) {
+        const url = `${this.apiConfigService.getApiUrl()}/accounts/${userAddress}/transactions?status=success&function=vote_poll&receiver=${scAddress}`;
         const { data } = await this.apiService.get(url);
-        console.log(data)
+        if(data.length == 0) {
+            return -1;
+        }
+    
+        for(const tx of data) {
+            const txArgsBase64 = tx.data;
+            const txArgs = Buffer.from(txArgsBase64, 'base64').toString().split("@");
+        
+            const pollId = parseInt(txArgs[1], 16);
+            if(pollId === searchedPollId) {
+                const optionId = parseInt(txArgs[2], 16);
+                return optionId
+            }
+        }
 
-        // TODO: parse option from data and return -1 in case didn't vote
-        const optionId = -1;
-
-        return optionId;
+        return -1;
     }
 }
