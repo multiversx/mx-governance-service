@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { GovernancePulseAbiService } from "./governance.pulse.abi.service";
 import { EndPollArgs, NewPollArgs, PollResult, PollResults, PollStatus, PulsePollModel, VotePollArgs } from "../models/pulse.poll.model";
 import { MXProxyService } from "src/services/multiversx-communication/mx.proxy.service";
@@ -23,8 +23,16 @@ export class GovernancePulseService {
     ) {}
 
     async votePoll(sender: string, args: VotePollArgs) {
+        // const hasUserVoted = await this.hasUserVoted(args.contractAddress, sender, args.pollId);
+        const userVotingPower = await this.getUserVotingPower(args.contractAddress, sender);
+        if(new BigNumber(userVotingPower).lte(new BigNumber(0))) {
+            throw new BadRequestException("Not enough voting power !");
+        }
+        args.votingPower = userVotingPower;
+        
         const proof = await this.getProof(args.contractAddress, sender);
         args.proof = proof;
+
         return this.pulseAbiService.votePoll(sender, args);
     }
 
@@ -33,7 +41,6 @@ export class GovernancePulseService {
         const merkleTree = await this.merkleTreeService.getMerkleTree(rootHash);
         const addressLeaf = merkleTree.getUserLeaf(userAddress);
         const proofBuffer = merkleTree.getProofBuffer(addressLeaf);
-
         return proofBuffer;
     }
 

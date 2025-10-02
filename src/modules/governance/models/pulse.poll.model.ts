@@ -9,8 +9,7 @@ export class VotePollArgs {
     pollId: number;
     @Field()
     optionId: number;
-    @Field()
-    votingPower: string;
+    votingPower?: string;
     proof?: Buffer;
 
     constructor(init: Partial<VotePollArgs>) {

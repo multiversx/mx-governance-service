@@ -12,12 +12,14 @@ import { DelegateGovernanceService } from '../services/delegate-governance.servi
 import { GovernanceComputeService } from '../services/governance.compute.service';
 import { EndPollArgs, NewPollArgs, VotePollArgs } from '../models/pulse.poll.model';
 import { GovernancePulseAbiService } from '../services/governance.pulse.abi.service';
+import { GovernancePulseService } from '../services/governance.pulse.service';
+import BigNumber from 'bignumber.js';
 
 @Resolver()
 export class GovernanceTransactionService {
     constructor(
         private readonly governanceAbiFactory: GovernanceAbiFactory,
-        private readonly pulseAbiService: GovernancePulseAbiService, 
+        private readonly pulseService: GovernancePulseService,
     ) {
     }
 
@@ -81,7 +83,7 @@ export class GovernanceTransactionService {
         if(!governanceConfig.pulse.linear.includes(args.contractAddress)) {
             throw new BadRequestException("Open poll is supported only by pulse contract !")
         }
-        return this.pulseAbiService.newPoll(user.address, args);
+        return this.pulseService.newPoll(user.address, args);
     }
 
     @UseGuards(NativeAuthGuard)
@@ -94,19 +96,19 @@ export class GovernanceTransactionService {
             throw new BadRequestException("End poll is supported only by pulse contract !")
         }
 
-        return this.pulseAbiService.endPoll(user.address, args)
+        return this.pulseService.endPoll(user.address, args)
     }
 
     @UseGuards(NativeAuthGuard)
     @Query(() => TransactionModel)
-    votePoll(
+    async votePoll(
         @Args() args: VotePollArgs,
         @AuthUser() user: UserAuthResult,
-    ): TransactionModel {
+    ): Promise<TransactionModel> {
         if(!governanceConfig.pulse.linear.includes(args.contractAddress)) {
             throw new BadRequestException("Vote poll is supported only by pulse contract !")
         }
 
-        return this.pulseAbiService.votePoll(user.address, args)
+        return await this.pulseService.votePoll(user.address, args)
     }
 }
