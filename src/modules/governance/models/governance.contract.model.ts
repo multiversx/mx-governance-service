@@ -76,6 +76,9 @@ export class GovernancePulseContract {
     @Field(() => Int)
     totalPolls: number;
 
+    @Field()
+    userVotingPower?: string;
+
     constructor(init: Partial<GovernancePulseContract>) {
         Object.assign(this, init);
     }

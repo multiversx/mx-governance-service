@@ -125,7 +125,6 @@ type PulsePollModel {
   pollResults: PollResults!
   hasVoted: Boolean!
   userVotingOption: Float!
-  userVotingPower: String!
 }
 
 type DelegateUserVotingPower {
@@ -301,6 +300,7 @@ type GovernancePulseContract {
   rootHash: String!
   polls(pollId: Int, offset: Int! = 0, limit: Int! = 200): [PulsePollModel!]!
   totalPolls: Int!
+  userVotingPower: String!
 }
 
 type Mutation {

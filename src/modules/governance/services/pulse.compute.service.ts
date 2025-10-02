@@ -31,23 +31,28 @@ export class PulseComputeService {
     }
 
     private async getUserVotePulseRaw(scAddress: string, userAddress: string, searchedPollId: number) {
-        const url = `${this.apiConfigService.getApiUrl()}/accounts/${userAddress}/transactions?status=success&function=vote_poll&receiver=${scAddress}`;
-        const { data } = await this.apiService.get(url);
-        if(data.length == 0) {
+        try{
+            const url = `${this.apiConfigService.getApiUrl()}/accounts/${userAddress}/transactions?status=success&function=vote_poll&receiver=${scAddress}`;
+            const { data } = await this.apiService.get(url);
+            if(data.length == 0) {
+                return -1;
+            }
+        
+            for(const tx of data) {
+                const txArgsBase64 = tx.data;
+                const txArgs = Buffer.from(txArgsBase64, 'base64').toString().split("@");
+            
+                const pollId = !txArgs[1] ? 0 :  parseInt(txArgs[1], 16);
+                if(pollId === searchedPollId) {
+                    const optionId = parseInt(txArgs[2], 16);
+                    return optionId
+                }
+            }
+
+            return -1;
+        } catch(err) {
+            console.error(err);
             return -1;
         }
-    
-        for(const tx of data) {
-            const txArgsBase64 = tx.data;
-            const txArgs = Buffer.from(txArgsBase64, 'base64').toString().split("@");
-        
-            const pollId = parseInt(txArgs[1], 16);
-            if(pollId === searchedPollId) {
-                const optionId = parseInt(txArgs[2], 16);
-                return optionId
-            }
-        }
-
-        return -1;
     }
 }

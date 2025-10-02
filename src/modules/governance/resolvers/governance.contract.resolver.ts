@@ -10,6 +10,10 @@ import { GovernanceOnChainAbiService } from '../services/governance.onchain.abi.
 import { PulsePollModel } from '../models/pulse.poll.model';
 import { GovernanceTokenSnapshotService } from '../services/governance.service';
 import { GovernancePulseService } from '../services/governance.pulse.service';
+import { NativeAuthGuard } from 'src/modules/auth/native.auth.guard';
+import { AuthUser } from 'src/modules/auth/auth.user';
+import { UserAuthResult } from 'src/modules/auth/user.auth.result';
+import { UseGuards } from '@nestjs/common';
 
 @Resolver(() => GovernanceTokenSnapshotContract)
 export class GovernanceTokenSnapshotContractResolver {
@@ -190,5 +194,14 @@ export class GovernancePulseContractResolver {
     @ResolveField()
     async totalPolls(@Parent() contract: GovernancePulseContract): Promise<number> {
         return await this.pulseService.getTotalPolls(contract.address);
+    }
+
+    @UseGuards(NativeAuthGuard)
+    @ResolveField()
+    async userVotingPower(
+        @AuthUser() user: UserAuthResult,
+        @Parent() contract: GovernancePulseContract
+    ) {
+        return await this.pulseService.getUserVotingPower(contract.address, user.address);
     }
 }

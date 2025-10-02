@@ -109,8 +109,6 @@ export class PulsePollModel {
     hasVoted?: boolean;
     @Field()
     userVotingOption?: number;
-    @Field()
-    userVotingPower?: string;
     
     constructor(init: Partial<PulsePollModel>) {
         Object.assign(this, init);
