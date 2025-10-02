@@ -22,7 +22,7 @@ export class PulseComputeService {
     @GetOrSetCache({
         baseKey: 'pulse',
         remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl,
+        localTtl: CacheTtlInfo.ContractState.remoteTtl,
     })
     async getUserVotePulse(scAddress: string, userAddress: string, pollId: number): Promise<number> {
         const optionId = await this.getUserVotePulseRaw(scAddress, userAddress, pollId);

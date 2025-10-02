@@ -56,7 +56,7 @@ export class GovernancePulseService {
     @GetOrSetCache({
         baseKey: 'pulse',
         remoteTtl: CacheTtlInfo.Attributes.remoteTtl,
-        localTtl: CacheTtlInfo.Attributes.localTtl,
+        localTtl: CacheTtlInfo.Attributes.remoteTtl,
     })
     async getContractShardId(scAddress: string) {
         return await this.mxProxyService.getAddressShardID(scAddress);
@@ -79,7 +79,7 @@ export class GovernancePulseService {
     @GetOrSetCache({
         baseKey: 'pulse',
         remoteTtl: CacheTtlInfo.ContractInfo.remoteTtl,
-        localTtl: CacheTtlInfo.ContractInfo.localTtl,
+        localTtl: CacheTtlInfo.ContractInfo.remoteTtl,
     })
     async getPoll(scAddress: string, pollId: number) {
         return await this.getPollRaw(scAddress, pollId);
@@ -116,7 +116,7 @@ export class GovernancePulseService {
     @GetOrSetCache({
         baseKey: 'pulse',
         remoteTtl: CacheTtlInfo.ContractInfo.remoteTtl,
-        localTtl: CacheTtlInfo.ContractInfo.localTtl,
+        localTtl: CacheTtlInfo.ContractInfo.remoteTtl,
     })
     async getTotalPolls(scAddress: string) {
         return await this.getTotalPollsRaw(scAddress);
@@ -150,7 +150,7 @@ export class GovernancePulseService {
     @GetOrSetCache({
         baseKey: 'pulse',
         remoteTtl: CacheTtlInfo.Attributes.remoteTtl,
-        localTtl: CacheTtlInfo.Attributes.localTtl,
+        localTtl: CacheTtlInfo.Attributes.remoteTtl,
     })
     async getPollVotesCount(scAddress: string, pollId: number, optionId: number) {
         return await this.getPollVotesCountRaw(scAddress, pollId, optionId);
@@ -182,7 +182,7 @@ export class GovernancePulseService {
     @GetOrSetCache({
         baseKey: 'pulse',
         remoteTtl: CacheTtlInfo.Attributes.remoteTtl,
-        localTtl: CacheTtlInfo.Attributes.localTtl,
+        localTtl: CacheTtlInfo.Attributes.remoteTtl,
     })
     async getPollResults(scAddress: string, pollId: number) {
         return await this.getPollResultsRaw(scAddress, pollId)
@@ -223,7 +223,7 @@ export class GovernancePulseService {
     @GetOrSetCache({
         baseKey: 'pulse',
         remoteTtl: CacheTtlInfo.Attributes.remoteTtl,
-        localTtl: CacheTtlInfo.Attributes.localTtl,
+        localTtl: CacheTtlInfo.Attributes.remoteTtl,
     })
     async getRootHash(scAddress: string) {
         return await this.pulseAbiService.getRootHash(scAddress);
