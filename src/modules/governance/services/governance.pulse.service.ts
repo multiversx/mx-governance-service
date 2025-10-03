@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { GovernancePulseAbiService } from "./governance.pulse.abi.service";
-import { EndPollArgs, NewPollArgs, PollResult, PollResults, PollStatus, ProposalInfoRaw, PulseIdeaModel, PulsePollModel, VotePollArgs } from '../models/pulse.poll.model';
+import { EndPollArgs, NewPollArgs, PollResult, PollResults, PollStatus, IdeaInfoRaw, PulseIdeaModel, PulsePollModel, VotePollArgs } from '../models/pulse.poll.model';
 import { MXProxyService } from "src/services/multiversx-communication/mx.proxy.service";
 import { GovernanceQuorumService } from "./governance.quorum.service";
 import { GovernanceSmoothingFunction, governanceSmoothingFunction } from "src/utils/governance";

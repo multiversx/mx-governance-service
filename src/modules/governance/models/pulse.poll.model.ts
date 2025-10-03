@@ -87,13 +87,13 @@ export class PollInfoRaw {
     }
 }
 
-export class ProposalInfoRaw {
+export class IdeaInfoRaw {
     initiator: string;
     description: string;
     voteScore: string[];
     proposeTime: number;
 
-    constructor(init: Partial<ProposalInfoRaw>) {
+    constructor(init: Partial<IdeaInfoRaw>) {
         Object.assign(this, init);
     }
 }

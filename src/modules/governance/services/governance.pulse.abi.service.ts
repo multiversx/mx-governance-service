@@ -6,7 +6,7 @@ import { GovernanceType } from "src/utils/governance";
 import { GovernanceComputeService } from "./governance.compute.service";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { gasConfig, mxConfig } from "src/config";
-import { EndPollArgs, NewPollArgs, PollInfoRaw, ProposalInfoRaw, VotePollArgs } from '../models/pulse.poll.model';
+import { EndPollArgs, NewPollArgs, PollInfoRaw, IdeaInfoRaw, VotePollArgs } from '../models/pulse.poll.model';
 import pulseScAbi from '../../../abis/pulse-sc.abi.json';
 import BigNumber from "bignumber.js";
 
@@ -112,14 +112,14 @@ export class GovernancePulseAbiService  {
         const responseRaw = await this.controller.runQuery(query);
         const response = this.controller.parseQueryResponse(responseRaw)[0];
 
-        const proposalInfoRaw = new ProposalInfoRaw({
+        const ideaInfoRaw = new IdeaInfoRaw({
             initiator: new Address(response.initiator).toBech32(),
             description: Buffer.from(response.description).toString(),
             voteScore: response.vote_score.map(vote_score => Buffer.from(vote_score).toString()),
             proposeTime: parseInt(new BigNumber(response.proposal_time).toString())
         })
 
-        return proposalInfoRaw;
+        return ideaInfoRaw;
 
     }
 

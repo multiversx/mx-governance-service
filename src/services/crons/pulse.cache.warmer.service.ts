@@ -31,8 +31,8 @@ export class PulseCacheWarmerService {
     }
 
     @Cron('*/10 * * * * *')
-    @Lock({ name: 'warmPulseProposals', verbose: true })
-    async warmPulseProposals(): Promise<void> {
+    @Lock({ name: 'warmPulseIdeas', verbose: true })
+    async warmPulseIdeas(): Promise<void> {
         const scAddresses = governanceContractsAddresses([
             GovernanceType.PULSE,
         ])
