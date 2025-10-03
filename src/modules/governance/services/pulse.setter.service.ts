@@ -4,7 +4,7 @@ import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { GenericSetterService } from "src/services/generics/generic.setter.service";
 import { CacheTtlInfo } from "src/services/caching/cache.ttl.info";
-import { PollResult, PollResults, PulsePollModel } from "../models/pulse.poll.model";
+import { PollResult, PollResults, PulseIdeaModel, PulsePollModel } from '../models/pulse.poll.model';
 
 export class PulseSetterService extends GenericSetterService {
     constructor(
@@ -18,6 +18,24 @@ export class PulseSetterService extends GenericSetterService {
     async getTotalPolls(scAddress: string, value: number) {
         return await this.setData(
             this.getCacheKey('getTotalPolls', scAddress),
+            value,
+            CacheTtlInfo.ContractState.remoteTtl,
+            CacheTtlInfo.ContractState.localTtl,
+        );
+    }
+
+    async getTotalIdeas(scAddress: string, value: number) {
+        return await this.setData(
+            this.getCacheKey('getTotalIdeas', scAddress),
+            value,
+            CacheTtlInfo.ContractState.remoteTtl,
+            CacheTtlInfo.ContractState.localTtl,
+        );
+    }
+
+    async getIdea(scAddress: string, ideaID: number, value: PulseIdeaModel) {
+        return await this.setData(
+            this.getCacheKey('getIdea', scAddress, ideaID),
             value,
             CacheTtlInfo.ContractState.remoteTtl,
             CacheTtlInfo.ContractState.localTtl,

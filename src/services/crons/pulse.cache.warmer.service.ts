@@ -30,6 +30,16 @@ export class PulseCacheWarmerService {
         await this.refreshPollsInfo(scAddresses, totalPolls);
     }
 
+    @Cron('*/10 * * * * *')
+    @Lock({ name: 'warmPulseProposals', verbose: true })
+    async warmPulseProposals(): Promise<void> {
+        const scAddresses = governanceContractsAddresses([
+            GovernanceType.PULSE,
+        ])
+        const totalIdeas = await this.refreshIdeasNumber(scAddresses);
+        await this.refreshIdeasInfo(scAddresses, totalIdeas);
+    }
+
     private async refreshPollsNumber(scAddresses: string[], ) {
         const cacheKeyPromises= [];
         const totalPolls: number[] = []
@@ -66,6 +76,41 @@ export class PulseCacheWarmerService {
 
         const cacheKeys = await Promise.all(cacheKeysPromises);
         
+        await this.deleteCacheKeys(cacheKeys);
+    }
+
+    private async refreshIdeasNumber(scAddresses: string[], ) {
+        const cacheKeyPromises= [];
+        const totalPolls: number[] = []
+        for(const scAddress of scAddresses) {
+            const totalIdeasForContract = await this.pulseService.getTotalIdeasRaw(scAddress);
+            cacheKeyPromises.push(this.pulseSetter.getTotalIdeas(scAddress, totalIdeasForContract));
+            totalPolls.push(totalIdeasForContract);
+        }
+
+        const cacheKeys = await Promise.all(cacheKeyPromises);
+        await this.deleteCacheKeys(cacheKeys);
+
+        return totalPolls;
+    }
+
+    private async refreshIdeasInfo(scAddresses: string[], totalPolls: number[]) {
+        const cacheKeysPromises = [];
+        for(let scIndex = 0; scIndex < scAddresses.length; scIndex++) {
+            const scAddress = scAddresses[scIndex];
+            const totalPollsForContract = totalPolls[scIndex];
+
+            for(let ideaId = 0; ideaId < totalPollsForContract; ideaId++) {
+                const idea = await this.pulseService.getIdeaRaw(scAddress, ideaId);
+
+                cacheKeysPromises.push(
+                    this.pulseSetter.getIdea(scAddress, ideaId, idea)
+                );
+            }
+        }
+
+        const cacheKeys = await Promise.all(cacheKeysPromises);
+
         await this.deleteCacheKeys(cacheKeys);
     }
 

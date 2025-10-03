@@ -87,6 +87,17 @@ export class PollInfoRaw {
     }
 }
 
+export class ProposalInfoRaw {
+    initiator: string;
+    description: string;
+    voteScore: string[];
+    proposeTime: number;
+
+    constructor(init: Partial<ProposalInfoRaw>) {
+        Object.assign(this, init);
+    }
+}
+
 @ObjectType()
 export class PulsePollModel {
     @Field()
@@ -111,6 +122,30 @@ export class PulsePollModel {
     userVotingOption?: number;
     
     constructor(init: Partial<PulsePollModel>) {
+        Object.assign(this, init);
+    }
+}
+
+@ObjectType()
+export class PulseIdeaModel {
+    @Field()
+    contractAddress: string;
+    @Field()
+    proposalId: number;
+    @Field()
+    initiator: string;
+    @Field(() => String)
+    description: string;
+    @Field(() => Int)
+    proposalTime: number;
+    @Field(() => Int)
+    totalVotesCount: number
+    @Field()
+    totalVotingPower: string
+    @Field()
+    hasVoted?: boolean;
+
+    constructor(init: Partial<PulseIdeaModel>) {
         Object.assign(this, init);
     }
 }

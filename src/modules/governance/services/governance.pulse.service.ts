@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { GovernancePulseAbiService } from "./governance.pulse.abi.service";
-import { EndPollArgs, NewPollArgs, PollResult, PollResults, PollStatus, PulsePollModel, VotePollArgs } from "../models/pulse.poll.model";
+import { EndPollArgs, NewPollArgs, PollResult, PollResults, PollStatus, ProposalInfoRaw, PulseIdeaModel, PulsePollModel, VotePollArgs } from '../models/pulse.poll.model';
 import { MXProxyService } from "src/services/multiversx-communication/mx.proxy.service";
 import { GovernanceQuorumService } from "./governance.quorum.service";
 import { GovernanceSmoothingFunction, governanceSmoothingFunction } from "src/utils/governance";
@@ -98,6 +98,27 @@ export class GovernancePulseService {
         })
     }
 
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'pulse',
+        remoteTtl: CacheTtlInfo.ContractInfo.remoteTtl,
+        localTtl: CacheTtlInfo.ContractInfo.remoteTtl,
+    })
+    async getIdea(scAddress: string, ideaId: number) {
+        return await this.getIdeaRaw(scAddress, ideaId);
+    }
+
+    async getIdeaRaw(scAddress: string, ideaId: number) {
+        const ideaInfoRaw = await this.pulseAbiService.getIdea(scAddress, ideaId);
+        return new PulseIdeaModel({
+            contractAddress: scAddress,
+            proposalId: ideaId,
+            initiator: ideaInfoRaw.initiator,
+            description: ideaInfoRaw.description,
+            proposalTime: ideaInfoRaw.proposeTime,
+        })
+    }
+
     // @ErrorLoggerAsync()
     // @GetOrSetCache({
     //     baseKey: 'pulse',
@@ -124,6 +145,10 @@ export class GovernancePulseService {
 
     async getTotalPollsRaw(scAddress: string) {
         return await this.pulseAbiService.getTotalPolls(scAddress);
+    }
+
+    async getTotalIdeasRaw(scAddress: string) {
+        return await this.pulseAbiService.getTotalIdeas(scAddress);
     }
 
     async getInitiator(scAddress: string, pollId: number) {
