@@ -65,6 +65,12 @@ export class GovernancePulseService {
         }
         args.votingPower = userVotingPower;
 
+        const ideas = await this.getIdeas(args.contractAddress);
+        const ideasByUser = ideas.filter(i => i.initiator === sender);
+        if (ideasByUser.length > 10) {
+            throw new BadRequestException("Too many ideas created by address !");
+        }
+
         const proof = await this.getProof(args.contractAddress, sender);
         args.proof = proof;
 
