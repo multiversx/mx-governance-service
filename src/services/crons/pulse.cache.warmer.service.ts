@@ -81,30 +81,34 @@ export class PulseCacheWarmerService {
 
     private async refreshIdeasNumber(scAddresses: string[], ) {
         const cacheKeyPromises= [];
-        const totalPolls: number[] = []
+        const totalIdeas: number[] = []
         for(const scAddress of scAddresses) {
             const totalIdeasForContract = await this.pulseService.getTotalIdeasRaw(scAddress);
             cacheKeyPromises.push(this.pulseSetter.getTotalIdeas(scAddress, totalIdeasForContract));
-            totalPolls.push(totalIdeasForContract);
+            totalIdeas.push(totalIdeasForContract);
         }
 
         const cacheKeys = await Promise.all(cacheKeyPromises);
         await this.deleteCacheKeys(cacheKeys);
 
-        return totalPolls;
+        return totalIdeas;
     }
 
-    private async refreshIdeasInfo(scAddresses: string[], totalPolls: number[]) {
+    private async refreshIdeasInfo(scAddresses: string[], totalIdeas: number[]) {
         const cacheKeysPromises = [];
         for(let scIndex = 0; scIndex < scAddresses.length; scIndex++) {
             const scAddress = scAddresses[scIndex];
-            const totalPollsForContract = totalPolls[scIndex];
+            const totalIdeasForContract = totalIdeas[scIndex];
 
-            for(let ideaId = 0; ideaId < totalPollsForContract; ideaId++) {
-                const idea = await this.pulseService.getIdeaRaw(scAddress, ideaId);
+            for(let ideaId = 0; ideaId < totalIdeasForContract; ideaId++) {
+                const [idea, votesCount] = await Promise.all([ 
+                    this.pulseService.getIdeaRaw(scAddress, ideaId),
+                    this.pulseService.getIdeaVotesTotalCountRaw(scAddress, ideaId)
+                ])
 
                 cacheKeysPromises.push(
-                    this.pulseSetter.getIdea(scAddress, ideaId, idea)
+                    this.pulseSetter.getIdea(scAddress, ideaId, idea),
+                    this.pulseSetter.getIdeaVotesTotalCount(scAddress, ideaId, votesCount),
                 );
             }
         }

@@ -1,7 +1,7 @@
 import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import { GovernanceProposalModel } from './governance.proposal.model';
 import { EsdtToken } from '../../tokens/models/esdtToken.model';
-import { PulsePollModel } from './pulse.poll.model';
+import { PulseIdeaModel, PulsePollModel } from './pulse.poll.model';
 
 @ObjectType()
 export class GovernanceTokenSnapshotContract {
@@ -72,6 +72,12 @@ export class GovernancePulseContract {
     
     @Field(() => [PulsePollModel])
     polls: PulsePollModel[];
+
+    @Field(() => [PulseIdeaModel])
+    ideas: PulseIdeaModel[];
+
+    @Field(() => Int)
+    totalIdeas: number;
     
     @Field(() => Int)
     totalPolls: number;

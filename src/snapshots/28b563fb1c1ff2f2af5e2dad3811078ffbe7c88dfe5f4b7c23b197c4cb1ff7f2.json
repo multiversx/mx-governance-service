@@ -1,5 +1,12 @@
 [
     {
+        "address": "erd1kdl46yctawygtwg2k462307dmz2v55c605737dp3zkxh04sct7asqylhyv",
+        "balance": "5000000000000000000",
+        "STAKE": {
+            "balance": "5000000000000000000"
+        }
+    },
+    {
         "address": "erd1kc6gj678apkl02k8e3wzye2g65uyqcfrnpza7ths8en7w0hs6z4qx2fdu7",
         "balance": "1070734098100000000",
         "STAKE": {

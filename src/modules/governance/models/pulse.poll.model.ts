@@ -119,8 +119,8 @@ export class PollInfoRaw {
 export class IdeaInfoRaw {
     initiator: string;
     description: string;
-    voteScore: string[];
-    proposeTime: number;
+    voteScore: string;
+    ideaStartTime: number;
 
     constructor(init: Partial<IdeaInfoRaw>) {
         Object.assign(this, init);
@@ -160,17 +160,17 @@ export class PulseIdeaModel {
     @Field()
     contractAddress: string;
     @Field()
-    proposalId: number;
+    ideaId: number;
     @Field()
     initiator: string;
     @Field(() => String)
     description: string;
     @Field(() => Int)
-    proposalTime: number;
-    @Field(() => Int)
-    totalVotesCount: number
+    ideaStartTime: number;
     @Field()
     totalVotingPower: string
+    @Field(() => Int)
+    totalVotesCount?: number
     @Field()
     hasVoted?: boolean;
 

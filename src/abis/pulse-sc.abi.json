@@ -73,6 +73,29 @@
             "outputs": []
         },
         {
+            "name": "newProposal",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "description",
+                    "type": "bytes"
+                },
+                {
+                    "name": "voting_power",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "proof",
+                    "type": "List<array32<u8>>"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
             "name": "vote_poll",
             "mutability": "mutable",
             "inputs": [
@@ -82,6 +105,25 @@
                 },
                 {
                     "name": "option_index",
+                    "type": "u32"
+                },
+                {
+                    "name": "voting_power",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "proof",
+                    "type": "List<array32<u8>>"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "vote_up_proposal",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proposal_index",
                     "type": "u32"
                 },
                 {
@@ -150,11 +192,51 @@
             ]
         },
         {
-            "name": "getTotalVotes",
+            "name": "getProposal",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "index",
+                    "type": "u32"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "Proposal"
+                }
+            ]
+        },
+        {
+            "name": "getNextAvailableProposalIndex",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "getTotalPollVotes",
             "mutability": "readonly",
             "inputs": [
                 {
                     "name": "poll_index",
+                    "type": "u32"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "getProposalVoteUps",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "proposal_index",
                     "type": "u32"
                 }
             ],
@@ -225,7 +307,7 @@
             ]
         },
         {
-            "identifier": "vote_cast",
+            "identifier": "poll_vote_cast",
             "inputs": [
                 {
                     "name": "voter",
@@ -270,6 +352,36 @@
             ]
         },
         {
+            "identifier": "new_proposal",
+            "inputs": [
+                {
+                    "name": "proposal_index",
+                    "type": "u32",
+                    "indexed": true
+                },
+                {
+                    "name": "description",
+                    "type": "bytes",
+                    "indexed": true
+                }
+            ]
+        },
+        {
+            "identifier": "proposal_vote_up_cast",
+            "inputs": [
+                {
+                    "name": "voter",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "proposal_index",
+                    "type": "u32",
+                    "indexed": true
+                }
+            ]
+        },
+        {
             "identifier": "pauseContract",
             "inputs": []
         },
@@ -307,6 +419,27 @@
                 {
                     "name": "status",
                     "type": "bool"
+                }
+            ]
+        },
+        "Proposal": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "initiator",
+                    "type": "Address"
+                },
+                {
+                    "name": "description",
+                    "type": "bytes"
+                },
+                {
+                    "name": "vote_score",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "propose_time",
+                    "type": "u64"
                 }
             ]
         }

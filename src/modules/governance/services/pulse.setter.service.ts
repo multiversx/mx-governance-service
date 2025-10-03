@@ -68,4 +68,22 @@ export class PulseSetterService extends GenericSetterService {
             CacheTtlInfo.ContractState.localTtl,
         );
     }
+
+    async hasUserVotedIdea(scAddress: string, userAddress: string, ideaId: number, value: boolean) {
+        return await this.setData(
+            this.getCacheKey('hasUserVotedIdea', scAddress, userAddress, ideaId),
+            value,
+            CacheTtlInfo.ContractState.remoteTtl,
+            CacheTtlInfo.ContractState.localTtl,
+        );
+    }
+
+    async getIdeaVotesTotalCount(scAddress: string, ideaId: number, value: number) {
+        return await this.setData(
+            this.getCacheKey('getIdeaVotesTotalCount', scAddress, ideaId),
+            value,
+            CacheTtlInfo.ContractState.remoteTtl,
+            CacheTtlInfo.ContractState.localTtl,
+        );
+    }
 }

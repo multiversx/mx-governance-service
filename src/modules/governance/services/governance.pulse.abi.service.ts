@@ -137,8 +137,8 @@ export class GovernancePulseAbiService  {
         const ideaInfoRaw = new IdeaInfoRaw({
             initiator: new Address(response.initiator).toBech32(),
             description: Buffer.from(response.description).toString(),
-            voteScore: response.vote_score.map(vote_score => Buffer.from(vote_score).toString()),
-            proposeTime: parseInt(new BigNumber(response.proposal_time).toString())
+            voteScore: response.vote_score.toString(),
+            ideaStartTime: parseInt(new BigNumber(response.propose_time).toString())
         })
 
         return ideaInfoRaw;
@@ -186,6 +186,21 @@ export class GovernancePulseAbiService  {
         const responseRaw = await this.controller.runQuery(query);
 
         const response = this.controller.parseQueryResponse(responseRaw);
+        return new BigNumber(response[0]).toNumber();
+    }
+
+    async getIdeaVotesCount(scAddress: string, ideaId: number) {
+        const smartContractQueryInput: SmartContractQueryInput = {
+            contract: new Address(scAddress),
+            function: 'getProposalVoteUps',
+            arguments: [new U32Value(ideaId)],
+        }
+        
+        const query = this.controller.createQuery(smartContractQueryInput);
+        const responseRaw = await this.controller.runQuery(query);
+
+        const response = this.controller.parseQueryResponse(responseRaw);
+        
         return new BigNumber(response[0]).toNumber();
     }
 

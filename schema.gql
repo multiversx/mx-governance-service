@@ -127,6 +127,17 @@ type PulsePollModel {
   userVotingOption: Float!
 }
 
+type PulseIdeaModel {
+  contractAddress: String!
+  ideaId: Float!
+  initiator: String!
+  description: String!
+  ideaStartTime: Int!
+  totalVotingPower: String!
+  totalVotesCount: Int!
+  hasVoted: Boolean!
+}
+
 type DelegateUserVotingPower {
   providerName: String!
   scAddress: String!
@@ -240,6 +251,8 @@ type Query {
   createPoll(contractAddress: String!, question: String!, options: [String!]!, duration: Int!): TransactionModel!
   endPoll(contractAddress: String!, pollId: Int!): TransactionModel!
   votePoll(contractAddress: String!, pollId: Float!, optionId: Float!): TransactionModel!
+  createIdea(contractAddress: String!, description: String!): TransactionModel!
+  voteUpIdea(contractAddress: String!, ideaId: Float!): TransactionModel!
   governanceContracts(identifiers: [String!], contracts: [String!], type: String): [GovernanceTypes!]!
   maintenance: Boolean!
   githubProposals: [GithubProposal!]!
@@ -299,6 +312,8 @@ type GovernancePulseContract {
   shard: String!
   rootHash: String!
   polls(pollId: Int, offset: Int! = 0, limit: Int! = 200): [PulsePollModel!]!
+  ideas(ideaId: Int, offset: Int! = 0, limit: Int! = 200): [PulseIdeaModel!]!
+  totalIdeas: Int!
   totalPolls: Int!
   userVotingPower: String!
 }

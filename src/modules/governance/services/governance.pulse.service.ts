@@ -14,6 +14,7 @@ import { GovernanceTokenSnapshotMerkleService } from "./governance.token.snapsho
 @Injectable()
 export class GovernancePulseService {
     static POLLS_THRESHOLD = 100; // early exit in case of a bug in vm query to not go into infinite loop
+    static IDEAS_THRESHOLD = 100; // early exit in case of a bug in vm query to not go into infinite loop
     constructor(
         private readonly pulseAbiService: GovernancePulseAbiService,
         private readonly mxProxyService: MXProxyService,
@@ -125,6 +126,19 @@ export class GovernancePulseService {
         })
     }
 
+    async getIdeas(scAddress: string) {
+        return await this.getIdeasRaw(scAddress);
+    }
+
+    async getIdeasRaw(scAddress: string) {
+        const totalIdeas = await this.getTotalIdeas(scAddress);
+        const promises: Promise<PulseIdeaModel>[] = [];
+        for(let i = 0; i < totalIdeas && i < GovernancePulseService.POLLS_THRESHOLD; i++) {
+            promises.push(this.getIdea(scAddress, i));
+        }
+        return Promise.all(promises);
+    }
+
     @ErrorLoggerAsync()
     @GetOrSetCache({
         baseKey: 'pulse',
@@ -139,10 +153,11 @@ export class GovernancePulseService {
         const ideaInfoRaw = await this.pulseAbiService.getIdea(scAddress, ideaId);
         return new PulseIdeaModel({
             contractAddress: scAddress,
-            proposalId: ideaId,
+            ideaId: ideaId,
             initiator: ideaInfoRaw.initiator,
             description: ideaInfoRaw.description,
-            proposalTime: ideaInfoRaw.proposeTime,
+            ideaStartTime: ideaInfoRaw.ideaStartTime,
+            totalVotingPower: ideaInfoRaw.voteScore,
         })
     }
 
@@ -164,6 +179,20 @@ export class GovernancePulseService {
     @GetOrSetCache({
         baseKey: 'pulse',
         remoteTtl: CacheTtlInfo.ContractInfo.remoteTtl,
+        localTtl: CacheTtlInfo.ContractInfo.localTtl,
+    })
+    async getIdeaVotesTotalCount(scAddress: string, ideaId: number) {
+        return await this.getIdeaVotesTotalCountRaw(scAddress, ideaId);
+    }
+
+    async getIdeaVotesTotalCountRaw(scAddress: string, ideaId: number) {
+        return await this.pulseAbiService.getIdeaVotesCount(scAddress, ideaId);
+    }
+
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'pulse',
+        remoteTtl: CacheTtlInfo.ContractInfo.remoteTtl,
         localTtl: CacheTtlInfo.ContractInfo.remoteTtl,
     })
     async getTotalPolls(scAddress: string) {
@@ -172,6 +201,10 @@ export class GovernancePulseService {
 
     async getTotalPollsRaw(scAddress: string) {
         return await this.pulseAbiService.getTotalPolls(scAddress);
+    }
+
+    async getTotalIdeas(scAddress: string) {
+        return await this.getTotalIdeasRaw(scAddress);
     }
 
     async getTotalIdeasRaw(scAddress: string) {
@@ -229,6 +262,8 @@ export class GovernancePulseService {
 
     //     return new PollResult({ optionId, votingPower , nrVotes});
     // }
+
+
 
     @ErrorLoggerAsync()
     @GetOrSetCache({
@@ -291,6 +326,10 @@ export class GovernancePulseService {
     async hasUserVoted(scAddress: string, userAddress: string, pollId: number) {
         const voteOptionId = await this.pulseComputeService.getUserVotePulse(scAddress, userAddress, pollId);
         return voteOptionId >= 0 ? true : false;
+    }
+
+    async hasUserVotedIdea(scAddress: string, userAddress: string, ideaId: number) {
+        return await this.pulseComputeService.hasUserVotedIdea(scAddress, userAddress, ideaId);
     }
 
     async getUserVotingOption(scAddress: string, userAddress: string, pollId: number) {

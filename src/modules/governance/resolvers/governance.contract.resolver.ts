@@ -7,7 +7,7 @@ import { GovernanceServiceFactory } from '../services/governance.factory';
 import { GovernanceEnergyAbiService } from '../services/governance.abi.service';
 import { PaginationArgs } from '../models/pagination.model';
 import { GovernanceOnChainAbiService } from '../services/governance.onchain.abi.service';
-import { PulsePollModel } from '../models/pulse.poll.model';
+import { PulseIdeaModel, PulsePollModel } from '../models/pulse.poll.model';
 import { GovernanceTokenSnapshotService } from '../services/governance.service';
 import { GovernancePulseService } from '../services/governance.pulse.service';
 import { NativeAuthGuard } from 'src/modules/auth/native.auth.guard';
@@ -186,6 +186,32 @@ export class GovernancePulseContractResolver {
         return polls;
     }
 
+    @ResolveField(() => [PulseIdeaModel])
+    async ideas(
+        @Parent() contract: GovernancePulseContract,
+        @Args('ideaId', {type: ()=> Int, nullable: true}) ideaId?: number,
+        @Args() pagination?: PaginationArgs,
+    ): Promise<PulseIdeaModel[]> {
+        const ideas = await this.pulseService.getIdeas(contract.address);
+
+        if(ideaId !== undefined && ideaId !== null) {
+            return ideas.filter(idea => idea.ideaId === ideaId);
+        }
+
+       if(pagination) {
+            const start = Math.max(ideas.length - pagination.offset - pagination.limit, 0);
+            const end = ideas.length - pagination.offset;
+
+            if(start < 0 || end < 0) {
+                return [];
+            }
+
+            return ideas.slice(start, end).reverse();
+        }
+        
+        return ideas;
+    }
+
     @ResolveField()
     async rootHash(@Parent() contract: GovernancePulseContract): Promise<string> {
         return await this.pulseService.getRootHash(contract.address);
@@ -194,6 +220,11 @@ export class GovernancePulseContractResolver {
     @ResolveField()
     async totalPolls(@Parent() contract: GovernancePulseContract): Promise<number> {
         return await this.pulseService.getTotalPolls(contract.address);
+    }
+
+    @ResolveField()
+    async totalIdeas(@Parent() contract: GovernancePulseContract): Promise<number> {
+        return await this.pulseService.getTotalIdeas(contract.address);
     }
 
     @UseGuards(NativeAuthGuard)

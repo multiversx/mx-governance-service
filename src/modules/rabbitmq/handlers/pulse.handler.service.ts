@@ -16,26 +16,47 @@ export class PulseHandlerService {
     ) {}
 
     async handlePulseEvents(pulseEvents: any) {
-        const voteEvents = pulseEvents.filter(event => event.identifier === 'vote_poll');
-        await this.handlePulseVoteEvents(voteEvents);
+        const pollVoteEvents = pulseEvents.filter(event => event.identifier === 'vote_poll');
+        await this.handlePulseVotePollEvents(pollVoteEvents);
 
-        const newProposalEvent = pulseEvents.filter(event => event.identifier === 'new_proposal');
-        await this.handleNewProposalEvent(newProposalEvent);
+        const ideaVoteEvents = pulseEvents.filter(event => event.identifier === 'vote_up_proposal');
+        await this.handlePulseVoteIdeaEvents(ideaVoteEvents);
     }
 
-    async handlePulseVoteEvents(
+    async handlePulseVoteIdeaEvents(
         events: any,
     ): Promise<void> {
         
         const promises = []
         for(const event of events) {
-            this.logger.info('Found vote event raw: ', event)
+            this.logger.info('Found vote idea event raw: ', event)
+            const scAddress = event.address;
+            const userAddress = Address.newFromHex(Buffer.from(event.topics[1], 'base64').toString('hex')).toBech32();
+            const ideaId = event.topics[2] !== '' ? parseInt(Buffer.from(event.topics[2], 'base64').toString('hex'), 16) : 0;
+
+            this.logger.info('Event vote idea decoded: ', {scAddress, userAddress, ideaId})
+
+            promises.push(
+                this.pulseSetterService.hasUserVotedIdea(scAddress, userAddress, ideaId, true),
+            );
+        }
+        const userVoteCacheKeys = await Promise.all(promises);
+        await this.deleteCacheKeys(userVoteCacheKeys);
+    }
+
+    async handlePulseVotePollEvents(
+        events: any,
+    ): Promise<void> {
+        
+        const promises = []
+        for(const event of events) {
+            this.logger.info('Found vote poll event raw: ', event)
             const scAddress = event.address;
             const userAddress = Address.newFromHex(Buffer.from(event.topics[1], 'base64').toString('hex')).toBech32();
             const pollId = event.topics[2] !== '' ? parseInt(Buffer.from(event.topics[2], 'base64').toString('hex'), 16) : 0;
             const optionId = event.topics[3] !== '' ? parseInt(Buffer.from(event.topics[3], 'base64').toString('hex'), 16) : 0;
 
-            this.logger.info('Event decoded: ', {scAddress, userAddress, pollId, optionId})
+            this.logger.info('Event vote poll decoded: ', {scAddress, userAddress, pollId, optionId})
 
             promises.push(
                 this.pulseSetterService.getUserVotePulse(scAddress, userAddress, pollId, optionId),
@@ -43,14 +64,6 @@ export class PulseHandlerService {
         }
         const userVoteCacheKeys = await Promise.all(promises);
         await this.deleteCacheKeys(userVoteCacheKeys);
-        
-        // const delegateUserVotingPowers = await this.governanceOnChainAbi.delegateUserVotingPowersRaw(onChainScAddress, topics.proposalId);
-        // const delegateUserVotingPowersCacheKeys = [];
-        // delegateUserVotingPowersCacheKeys.push(
-        //     await this.governanceSetter.delegateUserVotingPowers(topics.voter, topics.proposalId, delegateUserVotingPowers)
-        // );
-        // await this.deleteCacheKeys(delegateUserVotingPowersCacheKeys);
-
     }
 
     async handleNewProposalEvent(
