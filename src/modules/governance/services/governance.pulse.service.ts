@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { GovernancePulseAbiService } from "./governance.pulse.abi.service";
-import { EndPollArgs, NewPollArgs, PollResult, PollResults, PollStatus, PulsePollModel, VotePollArgs } from "../models/pulse.poll.model";
+import { EndPollArgs, NewIdeaArgs, NewPollArgs, PollResult, PollResults, PollStatus, PulsePollModel, VotePollArgs, VoteUpIdeaArgs } from "../models/pulse.poll.model";
 import { MXProxyService } from "src/services/multiversx-communication/mx.proxy.service";
 import { GovernanceQuorumService } from "./governance.quorum.service";
 import { GovernanceSmoothingFunction, governanceSmoothingFunction } from "src/utils/governance";
@@ -21,6 +21,19 @@ export class GovernancePulseService {
         private readonly pulseComputeService: PulseComputeService,
         private readonly merkleTreeService: GovernanceTokenSnapshotMerkleService,
     ) {}
+
+    async voteUpIdea(sender: string, args: VoteUpIdeaArgs) {
+        const userVotingPower = await this.getUserVotingPower(args.contractAddress, sender);
+        if(!(new BigNumber(userVotingPower).gt(new BigNumber(0)))) {
+            throw new BadRequestException("No voting power !");
+        }
+        args.votingPower = userVotingPower;
+        
+        const proof = await this.getProof(args.contractAddress, sender);
+        args.proof = proof;
+
+        return this.pulseAbiService.voteUpIdea(sender, args);
+    }
 
     async votePoll(sender: string, args: VotePollArgs) {
         // const hasUserVoted = await this.hasUserVoted(args.contractAddress, sender, args.pollId);
@@ -43,6 +56,20 @@ export class GovernancePulseService {
         const proofBuffer = merkleTree.getProofBuffer(addressLeaf);
         return proofBuffer;
     }
+
+    async newIdea(sender: string, args: NewIdeaArgs) {
+        const userVotingPower = await this.getUserVotingPower(args.contractAddress, sender);
+        if(!(new BigNumber(userVotingPower).gt(new BigNumber(0)))) {
+            throw new BadRequestException("No voting power !");
+        }
+        args.votingPower = userVotingPower;
+        
+        const proof = await this.getProof(args.contractAddress, sender);
+        args.proof = proof;
+
+        return this.pulseAbiService.newIdea(sender, args);
+    }
+
 
     newPoll(sender: string, args: NewPollArgs) {
         return this.pulseAbiService.newPoll(sender, args);

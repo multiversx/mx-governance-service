@@ -10,7 +10,7 @@ import { GovernanceOnChainAbiService } from '../services/governance.onchain.abi.
 import { governanceConfig } from 'src/config';
 import { DelegateGovernanceService } from '../services/delegate-governance.service';
 import { GovernanceComputeService } from '../services/governance.compute.service';
-import { EndPollArgs, NewPollArgs, VotePollArgs } from '../models/pulse.poll.model';
+import { EndPollArgs, NewIdeaArgs, NewPollArgs, VotePollArgs, VoteUpIdeaArgs } from '../models/pulse.poll.model';
 import { GovernancePulseAbiService } from '../services/governance.pulse.abi.service';
 import { GovernancePulseService } from '../services/governance.pulse.service';
 import BigNumber from 'bignumber.js';
@@ -110,5 +110,30 @@ export class GovernanceTransactionService {
         }
 
         return await this.pulseService.votePoll(user.address, args)
+    }
+
+    @UseGuards(NativeAuthGuard)
+    @Query(() => TransactionModel)
+    async createIdea(
+        @Args() args: NewIdeaArgs,
+        @AuthUser() user: UserAuthResult,
+    ): Promise<TransactionModel> {
+        if(!governanceConfig.pulse.linear.includes(args.contractAddress)) {
+            throw new BadRequestException("Create ideas is supported only by pulse contract !")
+        }
+        return await this.pulseService.newIdea(user.address, args);
+    }
+
+    @UseGuards(NativeAuthGuard)
+    @Query(() => TransactionModel)
+    async voteUpIdea(
+        @Args() args: VoteUpIdeaArgs,
+        @AuthUser() user: UserAuthResult,
+    ): Promise<TransactionModel> {
+        if(!governanceConfig.pulse.linear.includes(args.contractAddress)) {
+            throw new BadRequestException("Vote poll is supported only by pulse contract !")
+        }
+
+        return await this.pulseService.voteUpIdea(user.address, args)
     }
 }

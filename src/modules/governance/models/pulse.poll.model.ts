@@ -18,6 +18,21 @@ export class VotePollArgs {
 }
 
 @ArgsType()
+export class VoteUpIdeaArgs {
+    @Field()
+    contractAddress: string;
+    @Field()
+    ideaId: number;
+    votingPower?: string;
+    proof?: Buffer;
+
+    constructor(init: Partial<VotePollArgs>) {
+        Object.assign(this, init);
+    }
+}
+
+
+@ArgsType()
 export class EndPollArgs {
     @Field()
     contractAddress: string;
@@ -40,6 +55,20 @@ export class NewPollArgs {
     options!: string[];
     @Field(() => Int)
     duration!: number; // in seconds
+}
+
+@ArgsType()
+export class NewIdeaArgs {
+    @Field()
+    contractAddress: string;
+    @Field()
+    description: string;
+    votingPower?: string;
+    proof?: Buffer;
+
+    constructor(init: Partial<NewIdeaArgs>) {
+        Object.assign(this, init);
+    }
 }
 
 @ObjectType()

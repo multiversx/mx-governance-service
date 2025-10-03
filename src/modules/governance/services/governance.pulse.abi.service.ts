@@ -6,7 +6,7 @@ import { GovernanceType } from "src/utils/governance";
 import { GovernanceComputeService } from "./governance.compute.service";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { gasConfig, mxConfig } from "src/config";
-import { EndPollArgs, NewPollArgs, PollInfoRaw, VotePollArgs } from "../models/pulse.poll.model";
+import { EndPollArgs, NewIdeaArgs, NewPollArgs, PollInfoRaw, VotePollArgs, VoteUpIdeaArgs } from "../models/pulse.poll.model";
 import pulseScAbi from '../../../abis/pulse-sc.abi.json';
 import BigNumber from "bignumber.js";
 
@@ -17,9 +17,6 @@ export class GovernancePulseAbiService  {
     private transactionFactory: SmartContractTransactionsFactory;
 
     constructor(
-        private readonly apiConfigService: ApiConfigService,
-        private readonly contextGetter: ContextGetterService,
-        private readonly governanceComputeService: GovernanceComputeService,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     ) {
         const abi = Abi.create(pulseScAbi);
@@ -53,6 +50,18 @@ export class GovernancePulseAbiService  {
         return tx.toPlainObject();
     }
 
+    newIdea(sender: string, args: NewIdeaArgs){ 
+        const contractExecuteInput = {
+            contract: new Address(args.contractAddress),
+            function: 'newProposal',
+            gasLimit: BigInt(gasConfig.governance.vote.tokenSnapshot),
+            arguments: [new StringValue(args.description), new BigUIntValue(args.votingPower), new BytesValue(args.proof)],
+        };
+        const tx = this.transactionFactory.createTransactionForExecute(new Address(sender), contractExecuteInput);
+
+        return tx.toPlainObject();
+    }
+
     endPoll(sender: string, args: EndPollArgs){ 
         const contractExecuteInput = {
             contract: new Address(args.contractAddress),
@@ -76,6 +85,19 @@ export class GovernancePulseAbiService  {
 
         return tx.toPlainObject();
     }
+
+    voteUpIdea(sender: string, args: VoteUpIdeaArgs){ 
+        const contractExecuteInput = {
+            contract: new Address(args.contractAddress),
+            function: 'vote_up_proposal',
+            gasLimit: BigInt(gasConfig.governance.vote.tokenSnapshot),
+            arguments: [new U32Value(args.ideaId), new BigUIntValue(args.votingPower), new BytesValue(args.proof)],
+        };
+        const tx = this.transactionFactory.createTransactionForExecute(new Address(sender), contractExecuteInput);
+
+        return tx.toPlainObject();
+    }
+    
     
     async getPoll(contractAddress: string, pollId: number) {
         const contractQueryInput = {
@@ -119,7 +141,7 @@ export class GovernancePulseAbiService  {
     async getTotalVotes(scAddress: string, pollId: number) {
         const smartContractQueryInput: SmartContractQueryInput = {
             contract: new Address(scAddress),
-            function: 'getTotalVotes',
+            function: 'getTotalPollVotes',
             arguments: [new U32Value(pollId)],
         }
 
