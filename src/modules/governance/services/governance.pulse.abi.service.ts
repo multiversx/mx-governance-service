@@ -17,6 +17,7 @@ export class GovernancePulseAbiService  {
     private transactionFactory: SmartContractTransactionsFactory;
 
     constructor(
+        private readonly apiConfigService: ApiConfigService,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     ) {
         const abi = Abi.create(pulseScAbi);
@@ -28,11 +29,11 @@ export class GovernancePulseAbiService  {
     private getEntrypointByChainId(chainID: string) {
         switch(chainID) {
             case "T":
-                return new TestnetEntrypoint();
+                return new TestnetEntrypoint(this.apiConfigService.getApiUrl());
             case "D":
-                return new DevnetEntrypoint();
+                return new DevnetEntrypoint(this.apiConfigService.getApiUrl());
             case "1":
-                return new MainnetEntrypoint();
+                return new MainnetEntrypoint(this.apiConfigService.getApiUrl());
         }
     }
 
@@ -118,7 +119,7 @@ export class GovernancePulseAbiService  {
           endTime: parseInt(new BigNumber(response.end_time).toString()),
           status: response.status
         })
-
+        console.log(pollInfoRaw)
         return pollInfoRaw;
     
     }
@@ -205,6 +206,7 @@ export class GovernancePulseAbiService  {
     }
 
     async getTotalPolls(scAddress: string) {
+        try{
         const smartContractQueryInput: SmartContractQueryInput = {
             contract: new Address(scAddress),
             function: 'getNextAvailablePollIndex',
@@ -217,6 +219,9 @@ export class GovernancePulseAbiService  {
         const response = this.controller.parseQueryResponse(responseRaw);
 
         return new BigNumber(response[0]).toNumber();
+        }catch(err){
+            console.dir(err, {depth: null})
+        }
     }
 
     async getTotalIdeas(scAddress: string) {
