@@ -18,6 +18,9 @@ export class PulseHandlerService {
     async handlePulseEvents(pulseEvents: any) {
         const voteEvents = pulseEvents.filter(event => event.identifier === 'vote_poll');
         await this.handlePulseVoteEvents(voteEvents);
+
+        const newProposalEvent = pulseEvents.filter(event => event.identifier === 'new_proposal');
+        await this.handleNewProposalEvent(newProposalEvent);
     }
 
     async handlePulseVoteEvents(
@@ -48,6 +51,12 @@ export class PulseHandlerService {
         // );
         // await this.deleteCacheKeys(delegateUserVotingPowersCacheKeys);
 
+    }
+
+    async handleNewProposalEvent(
+        _event: any,
+    ): Promise<void> {
+        await this.deleteCacheKeys(['getTotalIdeas']);
     }
 
      private async deleteCacheKeys(invalidatedKeys: string[]) {

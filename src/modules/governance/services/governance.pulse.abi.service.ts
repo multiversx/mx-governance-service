@@ -6,7 +6,7 @@ import { GovernanceType } from "src/utils/governance";
 import { GovernanceComputeService } from "./governance.compute.service";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { gasConfig, mxConfig } from "src/config";
-import { EndPollArgs, NewIdeaArgs, NewPollArgs, PollInfoRaw, VotePollArgs, VoteUpIdeaArgs } from "../models/pulse.poll.model";
+import { EndPollArgs, NewIdeaArgs, NewPollArgs, PollInfoRaw, IdeaInfoRaw, VotePollArgs, VoteUpIdeaArgs } from '../models/pulse.poll.model';
 import pulseScAbi from '../../../abis/pulse-sc.abi.json';
 import BigNumber from "bignumber.js";
 
@@ -50,7 +50,7 @@ export class GovernancePulseAbiService  {
         return tx.toPlainObject();
     }
 
-    newIdea(sender: string, args: NewIdeaArgs){ 
+    newIdea(sender: string, args: NewIdeaArgs){
         const contractExecuteInput = {
             contract: new Address(args.contractAddress),
             function: 'newProposal',
@@ -86,7 +86,7 @@ export class GovernancePulseAbiService  {
         return tx.toPlainObject();
     }
 
-    voteUpIdea(sender: string, args: VoteUpIdeaArgs){ 
+    voteUpIdea(sender: string, args: VoteUpIdeaArgs){
         const contractExecuteInput = {
             contract: new Address(args.contractAddress),
             function: 'vote_up_proposal',
@@ -97,8 +97,8 @@ export class GovernancePulseAbiService  {
 
         return tx.toPlainObject();
     }
-    
-    
+
+
     async getPoll(contractAddress: string, pollId: number) {
         const contractQueryInput = {
             contract: new Address(contractAddress),
@@ -121,6 +121,28 @@ export class GovernancePulseAbiService  {
 
         return pollInfoRaw;
     
+    }
+
+    async getIdea(contractAddress: string, pollId: number) {
+        const contractQueryInput = {
+            contract: new Address(contractAddress),
+            function: "getProposal",
+            arguments: [new U32Value(pollId)],
+        };
+
+        const query =  this.controller.createQuery(contractQueryInput);
+        const responseRaw = await this.controller.runQuery(query);
+        const response = this.controller.parseQueryResponse(responseRaw)[0];
+
+        const ideaInfoRaw = new IdeaInfoRaw({
+            initiator: new Address(response.initiator).toBech32(),
+            description: Buffer.from(response.description).toString(),
+            voteScore: response.vote_score.map(vote_score => Buffer.from(vote_score).toString()),
+            proposeTime: parseInt(new BigNumber(response.proposal_time).toString())
+        })
+
+        return ideaInfoRaw;
+
     }
 
       async confirmVotingPower(scAddress: string, userVotingPower: string, proof: Buffer) {
@@ -171,6 +193,21 @@ export class GovernancePulseAbiService  {
         const smartContractQueryInput: SmartContractQueryInput = {
             contract: new Address(scAddress),
             function: 'getNextAvailablePollIndex',
+            arguments: [],
+        }
+
+        const query = this.controller.createQuery(smartContractQueryInput);
+        const responseRaw = await this.controller.runQuery(query);
+
+        const response = this.controller.parseQueryResponse(responseRaw);
+
+        return new BigNumber(response[0]).toNumber();
+    }
+
+    async getTotalIdeas(scAddress: string) {
+        const smartContractQueryInput: SmartContractQueryInput = {
+            contract: new Address(scAddress),
+            function: 'getNextAvailableProposalIndex',
             arguments: [],
         }
 
