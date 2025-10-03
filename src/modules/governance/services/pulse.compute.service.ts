@@ -37,7 +37,7 @@ export class PulseComputeService {
             if(data.length == 0) {
                 return false;
             }
-            console.log(data)
+
             for(const tx of data) {
                 const txArgsBase64 = tx.data;
                 const txArgs = Buffer.from(txArgsBase64, 'base64').toString().split("@");
