@@ -14,7 +14,7 @@ import { GovernanceTokenSnapshotMerkleService } from "./governance.token.snapsho
 @Injectable()
 export class GovernancePulseService {
     static POLLS_THRESHOLD = 100; // early exit in case of a bug in vm query to not go into infinite loop
-    static IDEAS_THRESHOLD = 100; // early exit in case of a bug in vm query to not go into infinite loop
+    static IDEAS_THRESHOLD = 300; // early exit in case of a bug in vm query to not go into infinite loop
     constructor(
         private readonly pulseAbiService: GovernancePulseAbiService,
         private readonly mxProxyService: MXProxyService,
@@ -156,7 +156,10 @@ export class GovernancePulseService {
     }
 
     async getIdeaRaw(scAddress: string, ideaId: number) {
-        const ideaInfoRaw = await this.pulseAbiService.getIdea(scAddress, ideaId);
+       const [ideaInfoRaw, totalVotesCount] = await Promise.all([
+            this.pulseAbiService.getIdea(scAddress, ideaId),
+            this.pulseAbiService.getIdeaVotesCount(scAddress, ideaId),
+        ]);
         return new PulseIdeaModel({
             contractAddress: scAddress,
             ideaId: ideaId,
@@ -164,6 +167,7 @@ export class GovernancePulseService {
             description: ideaInfoRaw.description,
             ideaStartTime: ideaInfoRaw.ideaStartTime,
             totalVotingPower: ideaInfoRaw.voteScore,
+            totalVotesCount,
         })
     }
 
@@ -181,17 +185,8 @@ export class GovernancePulseService {
     //     return await this.pulseAbiService.getTotalVotes(scAddress, pollId);
     // }
 
-    @ErrorLoggerAsync()
-    @GetOrSetCache({
-        baseKey: 'pulse',
-        remoteTtl: CacheTtlInfo.ContractInfo.remoteTtl,
-        localTtl: CacheTtlInfo.ContractInfo.localTtl,
-    })
-    async getIdeaVotesTotalCount(scAddress: string, ideaId: number) {
-        return await this.getIdeaVotesTotalCountRaw(scAddress, ideaId);
-    }
 
-    async getIdeaVotesTotalCountRaw(scAddress: string, ideaId: number) {
+    async getIdeaVotesTotalCount(scAddress: string, ideaId: number) {
         return await this.pulseAbiService.getIdeaVotesCount(scAddress, ideaId);
     }
 

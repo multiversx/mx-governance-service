@@ -170,7 +170,7 @@ export class PulseIdeaModel {
     @Field()
     totalVotingPower: string
     @Field(() => Int)
-    totalVotesCount?: number
+    totalVotesCount: number
     @Field()
     hasVoted?: boolean;
 

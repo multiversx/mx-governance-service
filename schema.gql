@@ -312,10 +312,21 @@ type GovernancePulseContract {
   shard: String!
   rootHash: String!
   polls(pollId: Int, offset: Int! = 0, limit: Int! = 200): [PulsePollModel!]!
-  ideas(ideaId: Int, offset: Int! = 0, limit: Int! = 200): [PulseIdeaModel!]!
+  ideas(ideaId: Int, offset: Int! = 0, limit: Int! = 200, sortBy: SortType, order: OrderType): [PulseIdeaModel!]!
   totalIdeas: Int!
   totalPolls: Int!
   userVotingPower: String!
+}
+
+enum SortType {
+  VOTING_POWER
+  VOTES_NUMBER
+  START_TIME
+}
+
+enum OrderType {
+  ASCENDING
+  DESCENDING
 }
 
 type Mutation {

@@ -20,7 +20,7 @@ export class PulseCacheWarmerService {
     ) {}
 
     // TODO: adjust if load is too high
-    @Cron('*/3 * * * * *')
+    @Cron('*/6 * * * * *')
     @Lock({ name: 'warmPulsePolls', verbose: true })
     async warmPulsePolls(): Promise<void> {
         const scAddresses = governanceContractsAddresses([
@@ -101,14 +101,10 @@ export class PulseCacheWarmerService {
             const totalIdeasForContract = totalIdeas[scIndex];
 
             for(let ideaId = 0; ideaId < totalIdeasForContract; ideaId++) {
-                const [idea, votesCount] = await Promise.all([ 
-                    this.pulseService.getIdeaRaw(scAddress, ideaId),
-                    this.pulseService.getIdeaVotesTotalCountRaw(scAddress, ideaId)
-                ])
+                const idea = await this.pulseService.getIdeaRaw(scAddress, ideaId);
 
                 cacheKeysPromises.push(
                     this.pulseSetter.getIdea(scAddress, ideaId, idea),
-                    this.pulseSetter.getIdeaVotesTotalCount(scAddress, ideaId, votesCount),
                 );
             }
         }

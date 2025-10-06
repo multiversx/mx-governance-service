@@ -48,7 +48,7 @@ export class PulseIdeaResolver {
     async totalVotesCount(
         @Parent() idea: PulseIdeaModel
     ) {
-        return await this.pulseService.getIdeaVotesTotalCount(idea.contractAddress, idea.ideaId);
+        return idea.totalVotesCount;
    }
 
     @UseGuards(NativeAuthGuard)

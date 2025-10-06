@@ -14,6 +14,8 @@ import { NativeAuthGuard } from 'src/modules/auth/native.auth.guard';
 import { AuthUser } from 'src/modules/auth/auth.user';
 import { UserAuthResult } from 'src/modules/auth/user.auth.result';
 import { UseGuards } from '@nestjs/common';
+import { OrderType, SortArgs, SortType } from '../models/sort.model';
+import BigNumber from 'bignumber.js';
 
 @Resolver(() => GovernanceTokenSnapshotContract)
 export class GovernanceTokenSnapshotContractResolver {
@@ -189,27 +191,70 @@ export class GovernancePulseContractResolver {
     @ResolveField(() => [PulseIdeaModel])
     async ideas(
         @Parent() contract: GovernancePulseContract,
-        @Args('ideaId', {type: ()=> Int, nullable: true}) ideaId?: number,
+        @Args('ideaId', {type: () => Int, nullable: true}) ideaId?: number,
         @Args() pagination?: PaginationArgs,
+        @Args() sortArgs?: SortArgs,
     ): Promise<PulseIdeaModel[]> {
         const ideas = await this.pulseService.getIdeas(contract.address);
-
+        
         if(ideaId !== undefined && ideaId !== null) {
             return ideas.filter(idea => idea.ideaId === ideaId);
         }
 
+
+        let sortedIdeas = ideas;
+        
+        if (sortArgs) {
+            sortedIdeas = [...sortedIdeas];
+            const { sortBy: field, order } = sortArgs;
+
+            sortedIdeas.sort((a, b) => {
+            let compareValue = new BigNumber(0);
+                console.log(field)
+            switch (field) {
+                case SortType.VOTING_POWER: {
+                    const aPower = new BigNumber(a.totalVotingPower ?? '0');
+                    const bPower = new BigNumber(b.totalVotingPower ?? '0');
+                    compareValue = aPower.minus(bPower);
+                    break;
+                }
+
+                case SortType.VOTES_NUMBER: {
+                    const aVotes = new BigNumber(a.totalVotesCount ?? 0);
+                    const bVotes = new BigNumber(b.totalVotesCount ?? 0);
+                    compareValue = aVotes.minus(bVotes);
+                    break;
+                }
+
+                case SortType.START_TIME: {
+                    const aTime = new BigNumber(new Date(a.ideaStartTime).getTime());
+                    const bTime = new BigNumber(new Date(b.ideaStartTime).getTime());
+                    compareValue = aTime.minus(bTime);
+                    break;
+                }
+
+                default:
+                    compareValue = new BigNumber(0);
+                }
+
+            const sign = compareValue.isZero() ? 0 : compareValue.isNegative() ? -1 : 1;
+
+            return order === OrderType.DESCENDING ? -sign : sign;
+        });
+        }
+
        if(pagination) {
-            const start = Math.max(ideas.length - pagination.offset - pagination.limit, 0);
-            const end = ideas.length - pagination.offset;
+            const start = Math.max(sortedIdeas.length - pagination.offset - pagination.limit, 0);
+            const end = sortedIdeas.length - pagination.offset;
 
             if(start < 0 || end < 0) {
                 return [];
             }
 
-            return ideas.slice(start, end).reverse();
+            return sortedIdeas.slice(start, end);
         }
         
-        return ideas;
+        return sortedIdeas;
     }
 
     @ResolveField()

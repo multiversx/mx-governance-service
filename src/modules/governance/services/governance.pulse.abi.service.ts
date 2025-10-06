@@ -119,7 +119,7 @@ export class GovernancePulseAbiService  {
           endTime: parseInt(new BigNumber(response.end_time).toString()),
           status: response.status
         })
-        console.log(pollInfoRaw)
+        
         return pollInfoRaw;
     
     }
@@ -206,7 +206,6 @@ export class GovernancePulseAbiService  {
     }
 
     async getTotalPolls(scAddress: string) {
-        try{
         const smartContractQueryInput: SmartContractQueryInput = {
             contract: new Address(scAddress),
             function: 'getNextAvailablePollIndex',
@@ -219,9 +218,6 @@ export class GovernancePulseAbiService  {
         const response = this.controller.parseQueryResponse(responseRaw);
 
         return new BigNumber(response[0]).toNumber();
-        }catch(err){
-            console.dir(err, {depth: null})
-        }
     }
 
     async getTotalIdeas(scAddress: string) {
