@@ -210,7 +210,6 @@ export class GovernancePulseContractResolver {
 
             sortedIdeas.sort((a, b) => {
             let compareValue = new BigNumber(0);
-                console.log(field)
             switch (field) {
                 case SortType.VOTING_POWER: {
                     const aPower = new BigNumber(a.totalVotingPower ?? '0');
