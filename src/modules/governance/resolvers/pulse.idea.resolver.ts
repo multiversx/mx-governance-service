@@ -1,5 +1,5 @@
 import { Resolver, ResolveField, Parent } from "@nestjs/graphql";
-import { PulseIdeaModel } from "../models/pulse.poll.model";
+import { PulseIdeaModel, PulsePollModel } from "../models/pulse.poll.model";
 import { AuthUser } from "src/modules/auth/auth.user";
 import { UserAuthResult } from "src/modules/auth/user.auth.result";
 import { NativeAuthGuard } from "src/modules/auth/native.auth.guard";
@@ -59,4 +59,13 @@ export class PulseIdeaResolver {
     ) {
         return await this.pulseService.hasUserVotedIdea(idea.contractAddress, user.address, idea.ideaId);
    }
+
+    @UseGuards(NativeAuthGuard)
+    @ResolveField()
+    async userVotingPower(
+        @AuthUser() user: UserAuthResult,
+        @Parent() idea: PulsePollModel,
+    ) {
+        return await this.pulseService.getUserVotingPower(idea.contractAddress, user.address);
+    }
 }

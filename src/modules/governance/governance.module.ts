@@ -41,6 +41,7 @@ import { ApiModule } from '@multiversx/sdk-nestjs-http';
 import { ApiConfigService } from 'src/helpers/api.config.service';
 import { PulseSetterService } from './services/pulse.setter.service';
 import { PulseIdeaResolver } from './resolvers/pulse.idea.resolver';
+import { PulseAggregationResolver } from './resolvers/pulse.aggregation.resolver';
 
 @Module({
     imports: [
@@ -88,7 +89,8 @@ import { PulseIdeaResolver } from './resolvers/pulse.idea.resolver';
         PulseComputeService,
         ApiConfigService,
         PulseSetterService,
-        PulseIdeaResolver
+        PulseIdeaResolver,
+        PulseAggregationResolver
     ],
     exports: [
         GovernanceTokenSnapshotAbiService,

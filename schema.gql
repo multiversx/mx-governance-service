@@ -125,6 +125,7 @@ type PulsePollModel {
   pollResults: PollResults!
   hasVoted: Boolean!
   userVotingOption: Float!
+  userVotingPower: String!
 }
 
 type PulseIdeaModel {
@@ -136,6 +137,7 @@ type PulseIdeaModel {
   totalVotingPower: String!
   totalVotesCount: Int!
   hasVoted: Boolean!
+  userVotingPower: String!
 }
 
 type DelegateUserVotingPower {
@@ -243,6 +245,24 @@ type TransactionModel {
   guardianSignature: String
 }
 
+type GovernancePulseAggregation {
+  polls(pollId: Int): [PulsePollModel!]!
+  ideas(ideaId: Int, offset: Int! = 0, limit: Int! = 200, sortBy: SortType, order: OrderType): [PulseIdeaModel!]!
+  totalIdeas: Int!
+  totalPolls: Int!
+}
+
+enum SortType {
+  VOTING_POWER
+  VOTES_NUMBER
+  START_TIME
+}
+
+enum OrderType {
+  ASCENDING
+  DESCENDING
+}
+
 type Query {
   allVotes(contractAddress: String!, proposalId: Float!, vote: Float!): [TransactionModel!]!
   createProposal(contractAddress: String!, commitHash: String!, startVoteEpoch: Int!, endVoteEpoch: Int!, nativeTokenAmount: String!): TransactionModel!
@@ -254,6 +274,7 @@ type Query {
   createIdea(contractAddress: String!, description: String!): TransactionModel!
   voteUpIdea(contractAddress: String!, ideaId: Float!): TransactionModel!
   governanceContracts(identifiers: [String!], contracts: [String!], type: String): [GovernanceTypes!]!
+  pulseAggregation: GovernancePulseAggregation!
   maintenance: Boolean!
   githubProposals: [GithubProposal!]!
   githubOAuthToken(code: String!): String!
@@ -316,17 +337,6 @@ type GovernancePulseContract {
   totalIdeas: Int!
   totalPolls: Int!
   userVotingPower: String!
-}
-
-enum SortType {
-  VOTING_POWER
-  VOTES_NUMBER
-  START_TIME
-}
-
-enum OrderType {
-  ASCENDING
-  DESCENDING
 }
 
 type Mutation {

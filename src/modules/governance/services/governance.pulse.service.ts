@@ -10,6 +10,7 @@ import { ErrorLoggerAsync } from "@multiversx/sdk-nestjs-common";
 import { GetOrSetCache } from "src/helpers/decorators/caching.decorator";
 import { CacheTtlInfo } from "src/services/caching/cache.ttl.info";
 import { GovernanceTokenSnapshotMerkleService } from "./governance.token.snapshot.merkle.service";
+import moment from "moment";
 
 @Injectable()
 export class GovernancePulseService {
@@ -121,13 +122,14 @@ export class GovernancePulseService {
 
     async getPollRaw(scAddress: string, pollId: number) {
         const pollInfoRaw = await this.pulseAbiService.getPoll(scAddress, pollId);
+        const currTime = moment().unix();
         return new PulsePollModel({
             contractAddress: scAddress,
             pollId,
             initiator: pollInfoRaw.initiator,
             options: pollInfoRaw.options,
             question: pollInfoRaw.question,
-            status: pollInfoRaw.status === true && pollInfoRaw.endTime ? PollStatus.ONGOING : PollStatus.ENDED,
+            status: pollInfoRaw.status === true && currTime < pollInfoRaw.endTime ? PollStatus.ONGOING : PollStatus.ENDED,
             pollEndTime: pollInfoRaw.endTime,
         })
     }
@@ -229,7 +231,8 @@ export class GovernancePulseService {
 
     async getStatus(scAddress: string, pollId: number) {
         const poll = await this.pulseAbiService.getPoll(scAddress, pollId);
-        return poll.status === true ? PollStatus.ONGOING : PollStatus.ENDED;
+        const currTime = moment().unix();
+        return poll.status === true && currTime < poll.endTime ? PollStatus.ONGOING : PollStatus.ENDED;
     }
 
     @ErrorLoggerAsync()

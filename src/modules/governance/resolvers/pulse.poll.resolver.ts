@@ -68,4 +68,13 @@ export class PulsePollResolver {
     ) {
         return await this.pulseService.getUserVotingOption(poll.contractAddress, user.address, poll.pollId);
     }
+
+    @UseGuards(NativeAuthGuard)
+    @ResolveField()
+    async userVotingPower(
+        @AuthUser() user: UserAuthResult,
+        @Parent() poll: PulsePollModel,
+    ) {
+        return await this.pulseService.getUserVotingPower(poll.contractAddress, user.address);
+    }
 }

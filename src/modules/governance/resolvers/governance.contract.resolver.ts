@@ -226,8 +226,8 @@ export class GovernancePulseContractResolver {
                 }
 
                 case SortType.START_TIME: {
-                    const aTime = new BigNumber(new Date(a.ideaStartTime).getTime());
-                    const bTime = new BigNumber(new Date(b.ideaStartTime).getTime());
+                    const aTime = new BigNumber(a.ideaStartTime ?? 0);
+                    const bTime = new BigNumber(b.ideaStartTime ?? 0);
                     compareValue = aTime.minus(bTime);
                     break;
                 }
