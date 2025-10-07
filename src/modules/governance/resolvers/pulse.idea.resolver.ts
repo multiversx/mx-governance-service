@@ -68,4 +68,9 @@ export class PulseIdeaResolver {
     ) {
         return await this.pulseService.getUserVotingPower(idea.contractAddress, user.address);
     }
+
+    @ResolveField()
+    async index(@Parent() idea: PulseIdeaModel) {
+        return await this.pulseService.getIndexForIdea(idea.contractAddress, idea.ideaId);
+    }
 }

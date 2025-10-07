@@ -77,4 +77,9 @@ export class PulsePollResolver {
     ) {
         return await this.pulseService.getUserVotingPower(poll.contractAddress, user.address);
     }
+
+    @ResolveField()
+    async index(@Parent() poll: PulsePollModel) {
+        return await this.pulseService.getIndexForPoll(poll.contractAddress, poll.pollId);
+    }
 }

@@ -126,6 +126,7 @@ type PulsePollModel {
   hasVoted: Boolean!
   userVotingOption: Float!
   userVotingPower: String!
+  index: Float!
 }
 
 type PulseIdeaModel {
@@ -138,6 +139,7 @@ type PulseIdeaModel {
   totalVotesCount: Int!
   hasVoted: Boolean!
   userVotingPower: String!
+  index: Int!
 }
 
 type DelegateUserVotingPower {
@@ -246,10 +248,11 @@ type TransactionModel {
 }
 
 type GovernancePulseAggregation {
-  polls(pollId: Int): [PulsePollModel!]!
-  ideas(ideaId: Int, offset: Int! = 0, limit: Int! = 200, sortBy: SortType, order: OrderType): [PulseIdeaModel!]!
+  polls(pollId: Int, contractAddress: String): [PulsePollModel!]!
+  ideas(ideaId: Int, contractAddress: String, offset: Int! = 0, limit: Int! = 200, sortBy: SortType, order: OrderType): [PulseIdeaModel!]!
   totalIdeas: Int!
   totalPolls: Int!
+  latestContract: String!
 }
 
 enum SortType {

@@ -11,6 +11,7 @@ import { GetOrSetCache } from "src/helpers/decorators/caching.decorator";
 import { CacheTtlInfo } from "src/services/caching/cache.ttl.info";
 import { GovernanceTokenSnapshotMerkleService } from "./governance.token.snapshot.merkle.service";
 import moment from "moment";
+import { governanceConfig } from "src/config";
 
 @Injectable()
 export class GovernancePulseService {
@@ -338,6 +339,27 @@ export class GovernancePulseService {
 
     async getUserVotingOption(scAddress: string, userAddress: string, pollId: number) {
         return await this.pulseComputeService.getUserVotePulse(scAddress, userAddress, pollId);
+    }
+
+    async getIndexForPoll(scAddress: string, pollId: number) {
+        const scAddresses: string[] = governanceConfig.pulse.linear;
+        const scIndex = scAddresses.indexOf(scAddress);
+        let index = 0;
+        for(let i = 0; i < scIndex; i++) {
+            index += await this.getTotalPolls(scAddresses[i]);
+        }
+        return index + pollId;
+    }
+
+
+    async getIndexForIdea(scAddress: string, ideaId: number) {
+        const scAddresses: string[] = governanceConfig.pulse.linear;
+        const scIndex = scAddresses.indexOf(scAddress);
+        let index = 0;
+        for(let i = 0; i < scIndex; i++) {
+            index += await this.getTotalIdeas(scAddresses[i]);
+        }
+        return index + ideaId;
     }
 
     smoothingFunction(scAddress: string, quorum: string): string {

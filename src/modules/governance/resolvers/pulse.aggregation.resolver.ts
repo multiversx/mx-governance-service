@@ -16,6 +16,7 @@ export class PulseAggregationResolver {
     @ResolveField(() => [PulsePollModel])
     async polls(
         @Args('pollId', {type: () => Int, nullable: true}) pollId?: number,
+        @Args('contractAddress', { type: () => String, nullable: true }) contractAddress?: string,
     ) {
         const scAddresses: string[] = governanceConfig.pulse.linear;
         const promises = [];
@@ -25,8 +26,8 @@ export class PulseAggregationResolver {
 
         const allPolls = (await Promise.all(promises)).flat();
 
-        if(pollId !== undefined && pollId !== null) {
-            return allPolls.filter(idea => idea.ideaId === pollId);
+        if(pollId !== undefined && pollId !== null && contractAddress !== null && contractAddress !== undefined) {
+            return allPolls.filter(idea => idea.pollId === pollId && idea.contractAddress === contractAddress);
         }
 
         return allPolls;
@@ -35,6 +36,7 @@ export class PulseAggregationResolver {
     @ResolveField(() => [PulseIdeaModel])
     async ideas(
         @Args('ideaId', {type: () => Int, nullable: true}) ideaId?: number,
+        @Args('contractAddress', { type: () => String, nullable: true }) contractAddress?: string,
         @Args() pagination?: PaginationArgs,
         @Args() sortArgs?: SortArgs,
     ) {
@@ -46,8 +48,8 @@ export class PulseAggregationResolver {
 
         const allIdeas = (await Promise.all(promises)).flat();
 
-        if(ideaId !== undefined && ideaId !== null) {
-            return allIdeas.filter(idea => idea.ideaId === ideaId);
+        if(ideaId !== undefined && ideaId !== null && contractAddress !== undefined && contractAddress !== null) {
+            return allIdeas.filter(idea => idea.ideaId === ideaId && idea.contractAddress === contractAddress);
         }
   
         const sortedIdeas = this.applySortForIdeas(allIdeas, sortArgs);
