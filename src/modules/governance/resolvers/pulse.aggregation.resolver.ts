@@ -38,7 +38,6 @@ export class PulseAggregationResolver {
         @Args() pagination?: PaginationArgs,
         @Args() sortArgs?: SortArgs,
     ) {
-        console.log('aici')
         const scAddresses: string[] = governanceConfig.pulse.linear;
         const promises = [];
         for(const scAddress of scAddresses) {
@@ -81,7 +80,17 @@ export class PulseAggregationResolver {
         return totalIdeas;
     }
 
-    applySortForIdeas(ideas: any[], sortArgs?: SortArgs) {
+    @ResolveField()
+    async latestContract() {
+        const scAddresses: string[] = governanceConfig.pulse.linear;
+        if(scAddresses.length > 0) {
+            return scAddresses[scAddresses.length - 1];
+        }
+
+        return 'NO CONTRACTS AVAILABLE';
+    }
+
+    private applySortForIdeas(ideas: any[], sortArgs?: SortArgs) {
         if (sortArgs) {
             const sortedIdeas = [...ideas];
             const { sortBy: field, order } = sortArgs;
@@ -125,7 +134,7 @@ export class PulseAggregationResolver {
         return ideas;
     }
 
-    getPaginated(array: any[], pagination?: PaginationArgs) {
+    private getPaginated(array: any[], pagination?: PaginationArgs) {
         if(pagination) {
             const start = Math.max(array.length - pagination.offset - pagination.limit, 0);
             const end = array.length - pagination.offset;

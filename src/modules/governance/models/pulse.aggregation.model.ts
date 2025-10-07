@@ -15,6 +15,9 @@ export class GovernancePulseAggregation {
     @Field(() => Int)
     totalPolls: number;
 
+    @Field()
+    latestContract: string;
+
     constructor(init: Partial<GovernancePulseAggregation>) {
         Object.assign(this, init);
     }
