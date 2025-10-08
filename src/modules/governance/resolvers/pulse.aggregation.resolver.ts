@@ -6,6 +6,10 @@ import { PulseIdeaModel, PulsePollModel } from "../models/pulse.poll.model";
 import { PaginationArgs } from "../models/pagination.model";
 import { OrderType, SortArgs, SortType } from "../models/sort.model";
 import BigNumber from "bignumber.js";
+import { BadRequestException, UseGuards } from "@nestjs/common";
+import { AuthUser } from "src/modules/auth/auth.user";
+import { UserAuthResult } from "src/modules/auth/user.auth.result";
+import { NativeAuthGuard } from "src/modules/auth/native.auth.guard";
 
 @Resolver(() => GovernancePulseAggregation)
 export class PulseAggregationResolver {
@@ -89,7 +93,23 @@ export class PulseAggregationResolver {
             return scAddresses[scAddresses.length - 1];
         }
 
-        return 'NO CONTRACTS AVAILABLE';
+        throw new BadRequestException('NO CONTRACTS AVAILABLE');
+    }
+
+    @UseGuards(NativeAuthGuard)
+    @ResolveField()
+    async latestVotingPower(
+        @AuthUser() user: UserAuthResult,
+    ) {
+        const scAddresses: string[] = governanceConfig.pulse.linear;
+        if(scAddresses.length > 0) {
+            const latstContract = scAddresses[scAddresses.length -1];
+            const latestVotingPower = await this.pulseService.getUserVotingPower(latstContract, user.address);
+            
+            return latestVotingPower;
+        }
+
+        throw new BadRequestException('NO CONTRACTS AVAILABLE');
     }
 
     private applySortForIdeas(ideas: any[], sortArgs?: SortArgs) {

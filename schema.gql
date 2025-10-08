@@ -253,6 +253,7 @@ type GovernancePulseAggregation {
   totalIdeas: Int!
   totalPolls: Int!
   latestContract: String!
+  latestVotingPower: String!
 }
 
 enum SortType {

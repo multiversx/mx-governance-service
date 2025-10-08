@@ -207,6 +207,12 @@ export class GovernancePulseService {
         return await this.pulseAbiService.getTotalPolls(scAddress);
     }
 
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'pulse',
+        remoteTtl: CacheTtlInfo.ContractInfo.remoteTtl,
+        localTtl: CacheTtlInfo.ContractInfo.localTtl,
+    })
     async getTotalIdeas(scAddress: string) {
         return await this.getTotalIdeasRaw(scAddress);
     }
