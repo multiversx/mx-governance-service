@@ -30,7 +30,7 @@ export class PulseCacheWarmerService {
         await this.refreshPollsInfo(scAddresses, totalPolls);
     }
 
-    @Cron('*/10 * * * * *')
+    @Cron('*/6 * * * * *')
     @Lock({ name: 'warmPulseIdeas', verbose: true })
     async warmPulseIdeas(): Promise<void> {
         const scAddresses = governanceContractsAddresses([
