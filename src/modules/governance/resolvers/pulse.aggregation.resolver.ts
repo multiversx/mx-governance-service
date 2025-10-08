@@ -103,8 +103,8 @@ export class PulseAggregationResolver {
     ) {
         const scAddresses: string[] = governanceConfig.pulse.linear;
         if(scAddresses.length > 0) {
-            const latstContract = scAddresses[scAddresses.length -1];
-            const latestVotingPower = await this.pulseService.getUserVotingPower(latstContract, user.address);
+            const latestContract = scAddresses[scAddresses.length -1];
+            const latestVotingPower = await this.pulseService.getUserVotingPower(latestContract, user.address);
             
             return latestVotingPower;
         }
