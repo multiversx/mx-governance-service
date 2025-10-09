@@ -142,7 +142,7 @@ export class GovernancePulseService {
     async getIdeasRaw(scAddress: string) {
         const totalIdeas = await this.getTotalIdeas(scAddress);
         const promises: Promise<PulseIdeaModel>[] = [];
-        for(let i = 0; i < totalIdeas && i < GovernancePulseService.POLLS_THRESHOLD; i++) {
+        for(let i = 0; i < totalIdeas && i < GovernancePulseService.IDEAS_THRESHOLD; i++) {
             promises.push(this.getIdea(scAddress, i));
         }
         return Promise.all(promises);
