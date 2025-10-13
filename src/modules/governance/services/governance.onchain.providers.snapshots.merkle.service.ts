@@ -25,7 +25,8 @@ export class GovernanceOnchainProvidersSnapshotsMerkleService {
         
         this.snapshotsPath = path.join(
             process.cwd(),
-            network !== '' ? `${githubConfig.repository}/${network}` : githubConfig.repository,
+            // network !== '' ? `${githubConfig.repository}` : githubConfig.repository,
+            githubConfig.repository,
             'snapshots'
         )
     }
