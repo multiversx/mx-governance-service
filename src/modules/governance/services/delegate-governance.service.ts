@@ -57,7 +57,7 @@ export class DelegateGovernanceService {
         const provider = DelegateGovernanceService.getDelegateStakingProvider(voteScAddress);
         const contractExecuteInput: ContractExecuteInput = {
             contract: new Address(provider.voteScAddress),
-            gasLimit: BigInt(gasConfig.governance.vote.onChainDelegate) + BigInt(450_000_000),
+            gasLimit: BigInt(gasConfig.governance.vote.onChainDelegate),
             function: provider.voteFunctionName,
             arguments: [new BigUIntValue(proposalId)],
         }
@@ -94,7 +94,7 @@ export class DelegateGovernanceService {
             if(userVotingPower === '0') {
                 return new BigNumber(DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL);
             }
-            return userVotingPower;
+            return new BigNumber(userVotingPower);
             // const proofBuffer = await this.getProofForProvider(userAddress, provider.voteScAddress, proposalId);
             // const isUserVotigPowerCorrect = await this.confirmVotingPower(provider, proposalId, userVotingPower, proofBuffer);
             // return isUserVotigPowerCorrect ? new BigNumber(userVotingPower) : new BigNumber(DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL);
@@ -105,6 +105,11 @@ export class DelegateGovernanceService {
         return userVotingPower;
     }
 
+    @GetOrSetCache({
+            baseKey: 'governance',
+            remoteTtl: CacheTtlInfo.GithubProposals.remoteTtl,
+            localTtl: CacheTtlInfo.GithubProposals.localTtl,
+    })
     private async viewUserVotingPower(provider: DelegateStakingProvider, userAddress: string) {
         const smartContractQueryInput: SmartContractQueryInput = {
             contract: new Address(provider.voteScAddress),

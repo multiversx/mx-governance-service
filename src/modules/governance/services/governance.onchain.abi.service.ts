@@ -386,11 +386,6 @@ W
     }
 
     @ErrorLoggerAsync()
-    @GetOrSetCache({
-        baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl,
-    })
     async delegateUserVotingPowers(address: string, proposalId: number): Promise<DelegateUserVotingPower[]> {
         return await this.delegateUserVotingPowersRaw(address, proposalId);
     }
