@@ -18,10 +18,10 @@ export class GovernanceOnchainProvidersSnapshotsMerkleService {
     ) {
         GovernanceOnchainProvidersSnapshotsMerkleService.merkleTrees = [];
         const env = process.env.NODE_ENV;
-        let network = '';
-        if(env === 'devnet' || env === 'testnet') {
-            network = env;
-        }
+        // let network = '';
+        // if(env === 'devnet' || env === 'testnet') {
+        //     network = env;
+        // }
         
         this.snapshotsPath = path.join(
             process.cwd(),
@@ -93,7 +93,10 @@ export class GovernanceOnchainProvidersSnapshotsMerkleService {
         //     throw new Error("Computed root hash doesn't match the provided root hash.");
         // }
         const key = GovernanceOnchainProvidersSnapshotsMerkleService.getMerkleTreeKeyForProvider(providerAddress, proposalId);
-        GovernanceOnchainProvidersSnapshotsMerkleService.merkleTrees[key] = newMT;
+        if(newMT) {
+            GovernanceOnchainProvidersSnapshotsMerkleService.merkleTrees[key] = newMT;
+        }
+        
         return newMT;
     }
 }
