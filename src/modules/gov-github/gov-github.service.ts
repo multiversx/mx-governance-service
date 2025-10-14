@@ -74,6 +74,7 @@ export class GovGithubService {
             );
             const forkOwner = forkRes.data.owner.login;
             const forkRepo = forkRes.data.name;
+            await this.syncFork(accessToken, forkOwner, forkRepo, baseBranch);
             await new Promise((resolve) => setTimeout(resolve, 10000));
             const refRes = await this.httpService.axiosRef.get(
                 `${apiBase}/repos/${forkOwner}/${forkRepo}/git/ref/heads/${baseBranch}`,
@@ -154,8 +155,29 @@ export class GovGithubService {
             const status: number =
                 typeof error.response?.status === 'number' ? error.response.status : 500;
             // log
-            console.error('GitHub proposal creation error:', message);
+            console.log('GitHub proposal creation error:', message);
             throw new HttpException(message, status);
+        }
+    }
+
+    async syncFork(accessToken: string, forkOwner: string, forkRepo: string, branch: string): Promise<void> {
+        const apiBase = 'https://api.github.com';
+        const headers = {
+            Authorization: `token ${accessToken}`,
+            Accept: 'application/vnd.github+json',
+        };
+
+        try {
+            const res = await this.httpService.axiosRef.post(
+            `${apiBase}/repos/${forkOwner}/${forkRepo}/merge-upstream`,
+            { branch },
+            { headers },
+            );
+            console.log('Fork sync result:', res.data);
+        } catch (err) {
+            const error = err as { response?: { data?: any; status?: number } };
+            console.error('Failed to sync fork:', error.response?.data || error);
+            throw new HttpException(error.response?.data || 'Failed to sync fork', error.response?.status || 500);
         }
     }
 }
