@@ -71,3 +71,15 @@ It depends on the following optional external systems:
 It uses the following optional internal systems:
 
 -   mongo database: used to store configs and addresses
+
+# Generating root hashes, merkle tree-proofs and their corresponding voting powers from snapshots
+
+Place the snapshot file, which will serve as the basis for generating root hashes, merkle-tree proofs, and voting powers, into the `/src/snapshots` directory of the cloned project. This file should be renamed `utk-snapshot.json`. The `gen-merkle-tree.ts` script, located at `src/utils/merkle-tree/gen-merkle-tree.ts`, allows for configuration of the number of merkle-tree proofs to be generated. This can be adjusted by modifying the `max_proofs_to_generate` constant on line 5. 
+
+Once the snapshot is in place and any desired configurations are made, execute the script by running 
+```bash
+$ npx ts-node src/utils/merkle-tree/gen-merkle-tree.ts
+```
+from the project's root directory. 
+
+This will initiate the generation process for the root hash, merkle-proofs, and individual voting powers.
