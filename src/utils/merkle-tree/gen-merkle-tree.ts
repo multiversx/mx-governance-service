@@ -15,14 +15,11 @@ function loadUtkSnapshotData(): AddressVotingPower[] {
         const snapshotData = JSON.parse(data);
 
         console.log(` Loaded utk_snapshot.json`);
-        console.log(` Total holders: ${snapshotData.total_holders}`);
-        console.log(` Total voting power: ${snapshotData.total_voting_power}`);
-        console.log(` Timestamp: ${snapshotData.timestamp}`);
-        console.log(` Holders in data: ${snapshotData.holders.length}`);
+        console.log(` Holders in data: ${snapshotData.length}`);
         console.log('');
 
         // Convert to AddressVotingPower format
-        return snapshotData.holders.map((holder: any) => ({
+        return snapshotData.map((holder: any) => ({
             address: holder.address,
             balance: holder.balance
         }));
