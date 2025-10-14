@@ -92,8 +92,8 @@ export class GovernanceOnchainProvidersSnapshotsMerkleService {
         // if (newMT.getRootHash() !== `0x${rootHash}`) {
         //     throw new Error("Computed root hash doesn't match the provided root hash.");
         // }
-        const key = GovernanceOnchainProvidersSnapshotsMerkleService.getMerkleTreeKeyForProvider(providerAddress, proposalId);
         if(newMT) {
+            const key = GovernanceOnchainProvidersSnapshotsMerkleService.getMerkleTreeKeyForProvider(providerAddress, proposalId);
             GovernanceOnchainProvidersSnapshotsMerkleService.merkleTrees[key] = newMT;
         }
         
