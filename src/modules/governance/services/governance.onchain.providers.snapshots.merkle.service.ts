@@ -6,6 +6,7 @@ import { MerkleTreeUtils } from '../../../utils/merkle-tree/markle-tree.utils';
 import { promises } from 'fs';
 import { githubConfig } from 'src/config';
 import path from 'path';
+import * as fs from 'fs/promises';
 import { GithubService } from './github.service';
 
 @Injectable()
@@ -68,17 +69,30 @@ export class GovernanceOnchainProvidersSnapshotsMerkleService {
         address: string,
     ): Promise<string> {
         try{
-        const merkleTree = await this.getMerkleTreeForProvider(
-            providerAddress,
-            proposalId,
-        );
-        return merkleTree.getLeaves().find(leaf => leaf.address === address)?.balance ?? '0';
-        } catch (error) {
-            //TODO: remove for development, add for production, should not happen on mainnet
-            // this.logger.error(`Error getting address balance for ${address} in provider ${providerAddress} and proposal ${proposalId}: ${error.message}`);
-            return '-1';
-        }
+            if(!this.fileExists(`${this.snapshotsPath}/${providerAddress}/${proposalId}.json`)) {
+                return '-1';
+            }
+            
+            const merkleTree = await this.getMerkleTreeForProvider(
+                providerAddress,
+                proposalId,
+            );
+            return merkleTree.getLeaves().find(leaf => leaf.address === address)?.balance ?? '0';
+            } catch (error) {
+                //TODO: remove for development, add for production, should not happen on mainnet
+                // this.logger.error(`Error getting address balance for ${address} in provider ${providerAddress} and proposal ${proposalId}: ${error.message}`);
+                return '-1';
+            }
     }
+
+    private async fileExists(filePath: string) {
+        try {
+          await fs.access(filePath);
+          return true;
+        } catch {
+          return false;
+        }
+      }
 
     private async createMerkleTreeForProvider(
         providerAddress: string,

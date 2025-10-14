@@ -149,6 +149,7 @@ type DelegateUserVotingPower {
   userVotingPower: String!
   isEnabled: Boolean!
   hasVoted: Boolean!
+  userVoteType: Float!
 }
 
 type FileContent {
