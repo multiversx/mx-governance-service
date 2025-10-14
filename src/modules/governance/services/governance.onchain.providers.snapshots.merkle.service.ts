@@ -72,7 +72,7 @@ export class GovernanceOnchainProvidersSnapshotsMerkleService {
             if(!(await this.fileExists(`${this.snapshotsPath}/${providerAddress}/${proposalId}.json`))) {
                 return '-1';
             }
-
+            console.log('got here')
             const merkleTree = await this.getMerkleTreeForProvider(
                 providerAddress,
                 proposalId,
