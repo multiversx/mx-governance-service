@@ -74,7 +74,7 @@ export class GovGithubService {
             );
             const forkOwner = forkRes.data.owner.login;
             const forkRepo = forkRes.data.name;
-            await new Promise((resolve) => setTimeout(resolve, 5000));
+            await new Promise((resolve) => setTimeout(resolve, 10000));
             const refRes = await this.httpService.axiosRef.get(
                 `${apiBase}/repos/${forkOwner}/${forkRepo}/git/ref/heads/${baseBranch}`,
                 { headers },
