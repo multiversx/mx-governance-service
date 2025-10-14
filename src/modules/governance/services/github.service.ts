@@ -9,7 +9,8 @@ import { githubConfig, governanceConfig } from 'src/config';
 import { DescriptionV3, GovernanceProposalStatus } from '../models/governance.proposal.model';
 import { GovernanceOnChainAbiService } from './governance.onchain.abi.service';
 import { ChainInfo, FileContent, GithubProposal } from '../models/github.proposal.model';
-
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { Lock } from "@multiversx/sdk-nestjs-common";
 @Injectable()
 export class GithubService implements OnModuleInit {
   private git: SimpleGit;
@@ -301,5 +302,11 @@ export class GithubService implements OnModuleInit {
     } catch {
       return false;
     }
+  }
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Lock({ name: 'fetchGithubBranchUpdates', verbose: true })
+  async warmGithubProposals(): Promise<void> {
+    await this.cloneOrUpdate();
   }
 }
