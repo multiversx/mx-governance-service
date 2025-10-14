@@ -70,7 +70,7 @@ export class DelegateGovernanceService {
             }
             // const rootHash = await this.providersMerkleTreeService.getRootHashForProvider(provider.voteScAddress, proposalId.toString());
             const proofBuffer = await this.getProofForProvider(sender, provider.voteScAddress, proposalId);
-            contractExecuteInput.arguments.push(new U64Value(toVoteType(vote)), new BigUIntValue(balance), new BytesValue(proofBuffer));
+            contractExecuteInput.arguments.push(new StringValue(vote), new BigUIntValue(balance), new BytesValue(proofBuffer));
         } else {
             contractExecuteInput.arguments.push(new StringValue(vote));
         }
