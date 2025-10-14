@@ -76,7 +76,7 @@ export class GovernanceOnchainProvidersSnapshotsMerkleService {
         } catch (error) {
             //TODO: remove for development, add for production, should not happen on mainnet
             // this.logger.error(`Error getting address balance for ${address} in provider ${providerAddress} and proposal ${proposalId}: ${error.message}`);
-            return '0';
+            return '-1';
         }
     }
 

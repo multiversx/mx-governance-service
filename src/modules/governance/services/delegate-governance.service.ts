@@ -64,7 +64,10 @@ export class DelegateGovernanceService {
 
         const isLiquidStaking = provider.voteScAddress !== provider.stakeScAddress;
         if(isLiquidStaking) {
-            const balance = await this.providersMerkleTreeService.getAddressBalance(provider.voteScAddress, proposalId.toString(), sender);
+            let balance = await this.providersMerkleTreeService.getAddressBalance(provider.voteScAddress, proposalId.toString(), sender);
+            if(balance === '-1') {
+                balance = DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL;
+            }
             // const rootHash = await this.providersMerkleTreeService.getRootHashForProvider(provider.voteScAddress, proposalId.toString());
             const proofBuffer = await this.getProofForProvider(sender, provider.voteScAddress, proposalId);
             contractExecuteInput.arguments.push(new U64Value(toVoteType(vote)), new BigUIntValue(balance), new BytesValue(proofBuffer));
@@ -90,10 +93,6 @@ export class DelegateGovernanceService {
 
         if(isLiquidStaking) {
             const userVotingPower = await this.providersMerkleTreeService.getAddressBalance(provider.voteScAddress, proposalId.toString(), userAddress);
-            // TODO: maybe we should remove this check
-            if(userVotingPower === '0') {
-                return new BigNumber(DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL);
-            }
             return new BigNumber(userVotingPower);
             // const proofBuffer = await this.getProofForProvider(userAddress, provider.voteScAddress, proposalId);
             // const isUserVotigPowerCorrect = await this.confirmVotingPower(provider, proposalId, userVotingPower, proofBuffer);

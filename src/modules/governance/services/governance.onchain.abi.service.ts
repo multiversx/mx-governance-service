@@ -409,8 +409,8 @@ W
                             providerName: provider.providerName,
                             scAddress: provider.voteScAddress,
                             lsTokenId: provider.lsTokenId,
-                            userVotingPower,
-                            isEnabled: provider.isEnabled,
+                            userVotingPower: userVotingPower === '-1' ? DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL : userVotingPower,
+                            isEnabled: userVotingPower === '-1' ? false : provider.isEnabled,
                             hasVoted,
                         });
                     } catch (error) {
