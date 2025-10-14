@@ -1,5 +1,5 @@
 export class GithubConfig {
-    user: string;
+    owner: string;
     repository: string;
     branch: string;
 

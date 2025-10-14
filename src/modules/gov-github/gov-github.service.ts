@@ -1,6 +1,7 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import { githubConfig } from 'src/config';
 
 @Injectable()
 export class GovGithubService {
@@ -53,9 +54,12 @@ export class GovGithubService {
         user: string;
     }): Promise<{ url: string }> {
         const { title, description, proposal, accessToken, user } = dto;
-        const owner = this.configService.get<string>('GITHUB_OWNER');
-        const repo = this.configService.get<string>('GITHUB_REPO');
-        const baseBranch = this.configService.get<string>('GITHUB_BASE_BRANCH');
+        // const owner = this.configService.get<string>('GITHUB_OWNER');
+        const owner = githubConfig.owner;
+        // const repo = this.configService.get<string>('GITHUB_REPO');
+        const repo = githubConfig.repository;
+        const baseBranch = githubConfig.branch;
+        // const baseBranch = this.configService.get<string>('GITHUB_BASE_BRANCH');
         const apiBase = 'https://api.github.com';
         const headers = {
             Authorization: `token ${accessToken}`,
@@ -95,9 +99,10 @@ export class GovGithubService {
                 { headers },
             );
             const baseTreeSha = commitRes.data.tree.sha;
-            const folder = process.env.NODE_ENV === 'devnet' || process.env.NODE_ENV === 'testnet'
-                ? `${process.env.NODE_ENV}/proposals`
-                : 'proposals';
+            // const folder = process.env.NODE_ENV === 'devnet' || process.env.NODE_ENV === 'testnet'
+                // ? `${process.env.NODE_ENV}/proposals`
+                // : 'proposals';
+            const folder = 'proposals';
             const filePath = `${folder}/${branchName}.md`;
             const treeRes = await this.httpService.axiosRef.post(
                 `${apiBase}/repos/${forkOwner}/${forkRepo}/git/trees`,

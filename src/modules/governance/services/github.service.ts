@@ -23,7 +23,7 @@ export class GithubService implements OnModuleInit {
     @Inject(forwardRef(() => GovernanceOnChainAbiService))
     private readonly governanceOnChainAbiService: GovernanceOnChainAbiService,
   ) {
-    this.repoSlug = `${githubConfig.user}/${githubConfig.repository}`;
+    this.repoSlug = `${githubConfig.owner}/${githubConfig.repository}`;
     this.repoPath = GithubService.getRepoPath(this.repoSlug);
     this.networkPath = GithubService.getNetworkPath(this.repoPath);
     console.log(`Repo path: ${this.repoPath}`);
@@ -38,21 +38,21 @@ export class GithubService implements OnModuleInit {
   }
 
   static getNetworkPath(baseRepoPath: string) {
-    const env = process.env.NODE_ENV;
-    if (env === 'devnet') {
-        return path.join(baseRepoPath, 'devnet');
-      } else if (env === 'testnet') {
-        return path.join(baseRepoPath, 'testnet');
-      } else {
-        // mainnet or default
-        return baseRepoPath;
-      }
+    return baseRepoPath;
+    // const env = process.env.NODE_ENV;
+    // if (env === 'devnet') {
+    //     return path.join(baseRepoPath, 'devnet');
+    //   } else if (env === 'testnet') {
+    //     return path.join(baseRepoPath, 'testnet');
+    //   } else {
+    //     // mainnet or default
+    //     return baseRepoPath;
+    //   }
   }
 
   async cloneAndCheckout(repoSlug: string, branch: string): Promise<void> {
     const token = this.config.get<string>('GITHUB_TOKEN');
     if (!token) throw new Error('GITHUB_TOKEN must be set in .env');
-
     try {
       // Check if repo exists locally
       await fs.access(this.repoPath);
@@ -92,9 +92,9 @@ export class GithubService implements OnModuleInit {
     // Determine the proposals folder based on env
     const env = process.env.NODE_ENV;
     let proposalsFolder = 'proposals';
-    if (env === 'devnet' || env === 'testnet') {
-      proposalsFolder = path.join(env, 'proposals');
-    }
+    // if (env === 'devnet' || env === 'testnet') {
+    //   proposalsFolder = path.join(env, 'proposals');
+    // }
 
     const commits = await this.git.log();
     const seenFiles = new Set<string>();
@@ -102,6 +102,7 @@ export class GithubService implements OnModuleInit {
 
     // Fetch open PRs first
     const openPRs = await this.getOpenPullRequests();
+
     for (const pr of openPRs) {
       try {
         const prFilesUrl = pr.url + '/files';
@@ -261,7 +262,6 @@ export class GithubService implements OnModuleInit {
 
   async cloneOrUpdate() {
     const branch = githubConfig.branch;
-
     if (this.repoSlug) {
       console.log(`Cloning repo ${this.repoSlug} on branch ${branch} on start...`);
       try {
@@ -277,9 +277,10 @@ export class GithubService implements OnModuleInit {
 
   async getOpenPullRequests(): Promise<any[]> {
     const token = this.config.get<string>('GITHUB_TOKEN');
-    const owner = githubConfig.user;
+    const owner = githubConfig.owner;
     const repo = githubConfig.repository;
-    const url = `https://api.github.com/repos/${owner}/${repo}/pulls?state=open`;
+    const baseBranch = githubConfig.branch;
+    const url = `https://api.github.com/repos/${owner}/${repo}/pulls?state=open&base=${baseBranch}`;
 
     const response = await fetch(url, {
       headers: {

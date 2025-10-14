@@ -97,8 +97,8 @@
         }
     ],
     "github": {
-        "user": "multiversx",
+        "owner": "multiversx",
         "repository": "multiversx-improvement-documents",
-        "branch": "main"
+        "branch": "development"
     }
 }
