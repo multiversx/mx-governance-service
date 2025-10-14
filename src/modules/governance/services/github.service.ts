@@ -304,10 +304,9 @@ export class GithubService implements OnModuleInit {
     }
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron("*/15 * * * * *")
   @Lock({ name: 'fetchGithubBranchUpdates', verbose: true })
   async fetchGithubBranchUpdates(): Promise<void> {
-    console.log(process.cwd());
     await this.cloneOrUpdate();
   }
 }

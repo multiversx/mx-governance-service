@@ -18,8 +18,8 @@ export class GithubProposalCacheWarmerService {
     @Cron(CronExpression.EVERY_30_SECONDS)
     @Lock({ name: 'warmGithubProposals', verbose: true })
     async warmGithubProposals(): Promise<void> {
-        console.log(process.cwd());
-        await this.githubService.cloneOrUpdate();
+        // console.log(process.cwd());
+        // await this.githubService.cloneOrUpdate();
         const githubProposals = await this.githubService.getGithubProposalsRaw();
         const cacheKey = CacheTtlInfo.GithubProposals.cacheKey;
         await this.cacheService.set(
