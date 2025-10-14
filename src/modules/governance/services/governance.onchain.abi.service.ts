@@ -402,7 +402,7 @@ W
                         const userVotingPower = resolvedPromises[idx].toString();
                         let hasVoted = false;
                         if(provider.isEnabled) {
-                            hasVoted = await this.governanceComputeService.getUserVoteOnChain(provider.voteScAddress, address, proposalId) !== VoteType.NotVoted;
+                            hasVoted = await this.governanceComputeService.getUserVoteOnChain(provider.stakeScAddress, address, proposalId) !== VoteType.NotVoted;
                         }
 
                         return new DelegateUserVotingPower({

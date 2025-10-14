@@ -46,9 +46,9 @@ export class DelegateGovernanceService {
         return providers.filter(provider => provider.isEnabled);
     }
 
-    static getDelegateStakingProvider(voteScAddress: string): DelegateStakingProvider {
+    static getDelegateStakingProvider(providerAddress: string): DelegateStakingProvider {
         const providers: DelegateStakingProvider[] = delegateStakingProviders.map((provider: DelegateStakingProvider) => new DelegateStakingProvider(provider));
-        const targetProvider = providers.find(provider => provider.voteScAddress === voteScAddress);
+        const targetProvider = providers.find(provider => provider.voteScAddress === providerAddress || provider.stakeScAddress === providerAddress);
 
         return targetProvider;
     }
