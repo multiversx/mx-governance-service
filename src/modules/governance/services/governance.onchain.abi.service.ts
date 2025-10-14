@@ -400,9 +400,9 @@ W
                 async (provider, idx) => {
                     try {
                         const userVotingPower = resolvedPromises[idx].toString();
-                        let hasVoted = false;
+                        let userVoteType = VoteType.NotVoted;
                         if(provider.isEnabled) {
-                            hasVoted = await this.governanceComputeService.getUserVoteOnChain(provider.stakeScAddress, address, proposalId) !== VoteType.NotVoted;
+                            userVoteType = await this.governanceComputeService.getUserVoteOnChain(provider.stakeScAddress, address, proposalId);
                         }
 
                         return new DelegateUserVotingPower({
@@ -411,7 +411,8 @@ W
                             lsTokenId: provider.lsTokenId,
                             userVotingPower: userVotingPower === '-1' ? DelegateGovernanceService.VOTE_POWER_FOR_NOT_IMPL : userVotingPower,
                             isEnabled: userVotingPower === '-1' ? false : provider.isEnabled,
-                            hasVoted,
+                            hasVoted: userVoteType !== VoteType.NotVoted,
+                            userVoteType,
                         });
                     } catch (error) {
                         this.logger.error(`Failed to get voting power for address: ${address} and provider: ${provider.providerName}`, error);

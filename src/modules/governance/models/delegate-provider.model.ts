@@ -1,4 +1,5 @@
 import { Field, ObjectType } from "@nestjs/graphql";
+import { VoteType } from "./governance.proposal.model";
 
 @ObjectType()
 export class DelegateUserVotingPower {
@@ -14,6 +15,8 @@ export class DelegateUserVotingPower {
     isEnabled: boolean;
     @Field()
     hasVoted: boolean;
+    @Field()
+    userVoteType?: VoteType;
 
     constructor(init?: Partial<DelegateUserVotingPower>) {
         Object.assign(this, init);
