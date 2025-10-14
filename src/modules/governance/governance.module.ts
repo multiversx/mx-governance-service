@@ -42,9 +42,11 @@ import { ApiConfigService } from 'src/helpers/api.config.service';
 import { PulseSetterService } from './services/pulse.setter.service';
 import { PulseIdeaResolver } from './resolvers/pulse.idea.resolver';
 import { PulseAggregationResolver } from './resolvers/pulse.aggregation.resolver';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
     imports: [
+        ScheduleModule.forRoot(),
         CommonAppModule,
         MXCommunicationModule,
         ContextModule,
