@@ -61,12 +61,12 @@
         },
         {
             "providerName": "xoxno",
-            "voteScAddress": "",
-            "stakeScAddress": "",
+            "voteScAddress": "erd1qqqqqqqqqqqqqpgqrhysvaph268e0n27sa6ll67dluhwxdu9ah0suakcq2",
+            "stakeScAddress": "erd1qqqqqqqqqqqqqpgqc2d2z4atpxpk7xgucfkc7nrrp5ynscjrah0scsqc35",
             "lsTokenId": "",
             "voteFunctionName": "delegate_vote",
             "viewUserVotingPowerName": "",
-            "isEnabled": false
+            "isEnabled": true
         },
         {
             "providerName": "hatom",
