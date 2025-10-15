@@ -206,11 +206,11 @@ export class GovernanceOnChainService extends GovernanceTokenSnapshotService {
     }
 
     @ErrorLoggerAsync()
-    @GetOrSetCache({
-        baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl,
-    })
+    // @GetOrSetCache({
+    //     baseKey: 'governance',
+    //     remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
+    //     localTtl: CacheTtlInfo.ContractState.localTtl,
+    // })
     async userVotingPower(contractAddress: string, proposalId: number, userAddress: string): Promise<string> {
         const onChainAbiService = this.governanceAbiFactory.useAbi(contractAddress) as GovernanceOnChainAbiService;
         const userVotingPower = await onChainAbiService.userVotingPower(userAddress, proposalId);
