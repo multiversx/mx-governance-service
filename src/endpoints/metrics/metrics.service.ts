@@ -95,13 +95,11 @@ export class MetricsService {
     ): Promise<number> {
         const elasticQueryAdapter: ElasticQuery = new ElasticQuery();
         elasticQueryAdapter.condition.must = [
-            QueryType.Nested('events', [
-                QueryType.Match('events.address', address),
-                QueryType.Match('events.identifier', eventIdentifier),
-            ]),
+                QueryType.Match('address', address),
+                QueryType.Match('identifier', eventIdentifier),
         ];
 
-        return await this.elasticService.getCount('logs', elasticQueryAdapter);
+        return await this.elasticService.getCount('events', elasticQueryAdapter);
     }
 
     async computeUniqueUsers(address: string): Promise<number> {
