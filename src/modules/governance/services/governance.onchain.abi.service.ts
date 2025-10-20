@@ -344,8 +344,8 @@ W
     @ErrorLoggerAsync()
     @GetOrSetCache({
         baseKey: 'governance',
-        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
-        localTtl: CacheTtlInfo.ContractState.localTtl,
+        remoteTtl: CacheTtlInfo.DynamicInfo.remoteTtl,
+        localTtl: CacheTtlInfo.DynamicInfo.localTtl,
     })
     async userVotingPowerDirect(address: string, proposalId: number) {
         try{
