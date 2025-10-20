@@ -51,7 +51,7 @@
     ],
     "delegateStakingProviders": [
         {
-            "providerName": "legacy-delegation",
+            "providerName": "Legacy-Delegation",
             "voteScAddress": "erd1qqqqqqqqqqqqqpgq97wezxw6l7lgg7k9rxvycrz66vn92ksh2tssxwf7ep",
             "stakeScAddress": "erd1qqqqqqqqqqqqqpgq97wezxw6l7lgg7k9rxvycrz66vn92ksh2tssxwf7ep",
             "lsTokenId": "",
@@ -60,7 +60,7 @@
             "isEnabled": true
         },
         {
-            "providerName": "xoxno",
+            "providerName": "XOXNO",
             "voteScAddress": "",
             "stakeScAddress": "",
             "lsTokenId": "",
@@ -69,7 +69,7 @@
             "isEnabled": false
         },
         {
-            "providerName": "hatom",
+            "providerName": "Hatom",
             "voteScAddress": "",
             "stakeScAddress": "",
             "lsTokenId": "",
@@ -78,16 +78,7 @@
             "isEnabled": false
         },
         {
-            "providerName": "liquid-staking",
-            "voteScAddress": "erd1qqqqqqqqqqqqqpgqlavy2909f0pa9yf66es5cwh53m0wue28u7hs79g2m2",
-            "stakeScAddress": "erd1qqqqqqqqqqqqqpgq845jaruj408at074rzxc0gez5c9dyag0u7hsgulv55",
-            "lsTokenId": "",
-            "voteFunctionName": "delegate_vote",
-            "viewUserVotingPowerName": "",
-            "isEnabled": true
-        },
-        {
-            "providerName": "salsa",
+            "providerName": "Salsa",
             "voteScAddress": "",
             "stakeScAddress": "",
             "lsTokenId": "",

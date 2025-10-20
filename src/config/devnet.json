@@ -51,7 +51,7 @@
     ],
     "delegateStakingProviders": [
         {
-            "providerName": "legacy-delegation",
+            "providerName": "Legacy-Delegation",
             "voteScAddress": "erd1qqqqqqqqqqqqqpgq97wezxw6l7lgg7k9rxvycrz66vn92ksh2tssxwf7ep",
             "stakeScAddress": "erd1qqqqqqqqqqqqqpgq97wezxw6l7lgg7k9rxvycrz66vn92ksh2tssxwf7ep",
             "lsTokenId": "",
@@ -60,7 +60,7 @@
             "isEnabled": true
         },
         {
-            "providerName": "xoxno",
+            "providerName": "XOXNO",
             "voteScAddress": "erd1qqqqqqqqqqqqqpgqrhysvaph268e0n27sa6ll67dluhwxdu9ah0suakcq2",
             "stakeScAddress": "erd1qqqqqqqqqqqqqpgqc2d2z4atpxpk7xgucfkc7nrrp5ynscjrah0scsqc35",
             "lsTokenId": "",
@@ -69,16 +69,16 @@
             "isEnabled": true
         },
         {
-            "providerName": "hatom",
-            "voteScAddress": "",
-            "stakeScAddress": "",
+            "providerName": "Hatom",
+            "voteScAddress": "erd1qqqqqqqqqqqqqpgqfl95wf2yflmv74j7jkxzp6kwgp5phv33cd6s37py62",
+            "stakeScAddress": "erd1qqqqqqqqqqqqqpgq88rlyk9ud86v22x6v4ftvw4rw2qcjagzv5ys82vgrt",
             "lsTokenId": "",
             "voteFunctionName": "delegate_vote",
             "viewUserVotingPowerName": "",
-            "isEnabled": false
+            "isEnabled": true
         },
         {
-            "providerName": "liquid-staking",
+            "providerName": "liquid-staking-test",
             "voteScAddress": "erd1qqqqqqqqqqqqqpgqlavy2909f0pa9yf66es5cwh53m0wue28u7hs79g2m2",
             "stakeScAddress": "erd1qqqqqqqqqqqqqpgq845jaruj408at074rzxc0gez5c9dyag0u7hsgulv55",
             "lsTokenId": "",
@@ -87,7 +87,7 @@
             "isEnabled": true
         },
         {
-            "providerName": "salsa",
+            "providerName": "Salsa",
             "voteScAddress": "",
             "stakeScAddress": "",
             "lsTokenId": "",
