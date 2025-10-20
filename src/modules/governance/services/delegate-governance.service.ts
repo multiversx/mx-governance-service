@@ -106,8 +106,8 @@ export class DelegateGovernanceService {
 
     @GetOrSetCache({
             baseKey: 'governance',
-            remoteTtl: CacheTtlInfo.GithubProposals.remoteTtl,
-            localTtl: CacheTtlInfo.GithubProposals.localTtl,
+            remoteTtl: CacheTtlInfo.DynamicInfo.remoteTtl,
+            localTtl: CacheTtlInfo.DynamicInfo.localTtl,
     })
     private async viewUserVotingPower(provider: DelegateStakingProvider, userAddress: string) {
         const smartContractQueryInput: SmartContractQueryInput = {

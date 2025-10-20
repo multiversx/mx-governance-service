@@ -58,4 +58,9 @@ export class CacheTtlInfo {
         Constants.oneMinute() * 3, 
         `governance:github:proposals`
     );
+
+    static DynamicInfo: CacheTtlInfo = new CacheTtlInfo(
+        Constants.oneMinute() * 3,
+        Constants.oneMinute() * 3, 
+    );
 }
