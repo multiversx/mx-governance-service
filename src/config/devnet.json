@@ -70,8 +70,8 @@
         },
         {
             "providerName": "Hatom",
-            "voteScAddress": "erd1qqqqqqqqqqqqqpgqfl95wf2yflmv74j7jkxzp6kwgp5phv33cd6s37py62",
-            "stakeScAddress": "erd1qqqqqqqqqqqqqpgq88rlyk9ud86v22x6v4ftvw4rw2qcjagzv5ys82vgrt",
+            "voteScAddress": "erd1qqqqqqqqqqqqqpgq4kaxff4j4tzvda2p4gw4thwx2d4ykknptzpsgd2nfp",
+            "stakeScAddress": "erd1qqqqqqqqqqqqqpgqykhhmjh3wv25zk75222dvep4wcs04gx4cd6sjtx7hs",
             "lsTokenId": "",
             "voteFunctionName": "delegate_vote",
             "viewUserVotingPowerName": "",
