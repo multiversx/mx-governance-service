@@ -138,32 +138,51 @@ export class GithubService implements OnModuleInit {
         continue;
       }
     }
+    for (const commit of commits.all) {
+      // check if commit has a parent
+      const parentsRaw = await this.git.raw(['rev-list', '--parents', '-n', '1', commit.hash]);
+      const parentHashes = parentsRaw.trim().split(' ').slice(1);
 
-    const filesRaw = await this.git.raw(['ls-tree', '-r', '--name-only', 'HEAD', 'proposals']);
-    const allProposalFiles = filesRaw.split('\n').filter(f => f.endsWith('.md'));
-    for (const file of allProposalFiles) {
-      try {
-        // the commit where file was added
-        const addedCommit = (await this.git.raw([
-          'log',
-          '--diff-filter=A',
-          '-1',
-          '--format=%H',
-          '--',
-          file
-        ])).trim();
+      if (parentHashes.length === 0) {
+        // commit with no parent, we skip it
+        continue;
+      }
 
-        const fileContentRaw = await this.git.show([`${addedCommit}:${file}`]);
-        const fileContent = this.parseFileContent(fileContentRaw);
+      const diffOutput = await this.git.diff([
+        '--diff-filter=A',
+        '--name-only',
+        `${commit.hash}~1`,
+        commit.hash,
+      ]);
+      const addedMdFiles = diffOutput
+        .split('\n')
+        .map((f) => f.trim())
+        .filter((f) =>
+          f.endsWith('.md') &&
+          f.startsWith(proposalsFolder + '/') &&
+          !seenFiles.has(f) &&
+          !f.toLowerCase().includes('readme')
+        );
 
-        results.push({
-          commitHash: addedCommit,
-          fileName: file,
-          fileContent,
-          prMerged: true,
-        });
-      } catch (err) {
-        console.error(`Error processing file ${file}: ${err.message}`);
+      for (const file of addedMdFiles) {
+        try {
+          const filePath = `${this.repoPath}/${file}`
+          const exists = await this.fileExists(filePath);
+          if(!exists) {
+            continue;
+          }
+          const fileContentRaw = await this.git.show([`${commit.hash}:${file}`]);
+          const fileContent = this.parseFileContent(fileContentRaw);
+          results.push({
+            commitHash: commit.hash,
+            fileName: file,
+            fileContent,
+            prMerged: true,
+          });
+          seenFiles.add(file);
+        } catch (err) {
+          console.error(`Error reading file ${file} în ${commit.hash}: ${err.message}`);
+        }
       }
     }
 
