@@ -32,7 +32,7 @@ import { PaginationArgs } from '../models/pagination.model';
 
 @Injectable()
 export class GovernanceOnChainAbiService extends GenericAbiService {
-    static PROPOSAL_NONCE_THRESHOLD = 100; // early exit in case of a bug in vm query to not go into infinite loop
+    static PROPOSAL_NONCE_THRESHOLD = 200; // early exit in case of a bug in vm query to not go into infinite loop
 
     protected type = GovernanceType.ONCHAIN;
     private governanceController: GovernanceController;
