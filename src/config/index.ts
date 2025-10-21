@@ -2,6 +2,7 @@ import { GithubConfig } from 'src/modules/governance/models/github.config.model'
 import { envload } from './env_load';
 envload();
 import config from 'config';
+import { FAQItem } from 'src/modules/governance/models/faq.model';
 
 /**
  * Wallet object configuration.
@@ -31,3 +32,5 @@ export const delegateStakingProviders = config.get('delegateStakingProviders');
 export const githubConfig: GithubConfig = config.get('github');
 
 export const systemContracts = config.get('systemContracts');
+
+export const onChainFAQ: { onChainId: number, faq: FAQItem[] }[]= config.get('onChainFAQ');

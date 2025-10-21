@@ -9,7 +9,7 @@ import { EsdtTokenPaymentModel } from '../../tokens/models/esdt.token.payment.mo
 import { EsdtTokenPayment } from '@multiversx/sdk-exchange';
 import { GovernanceType, toGovernanceProposalStatus, } from '../../../utils/governance';
 import { TransactionModel } from '../../../models/transaction.model';
-import { gasConfig, mxConfig, scAddress } from '../../../config';
+import { gasConfig, mxConfig, onChainFAQ, scAddress } from '../../../config';
 import BigNumber from 'bignumber.js';
 import { Address, ApiNetworkProvider, DevnetEntrypoint, GovernanceConfig, GovernanceController, GovernanceTransactionsFactory, NetworkEntrypoint, Transaction, TransactionsFactoryConfig, U64Value, Vote } from '@multiversx/sdk-core/out';
 import { GovernanceDescriptionService } from './governance.description.service';
@@ -479,7 +479,8 @@ W
             const startVoteTimestamp = await this.contextGetter.getFirstBlockTimestampByEpochAndShard(proposalInfo.startVoteEpoch, shardId);
             const endVoteTimestamp = await this.contextGetter.getFirstBlockTimestampByEpochAndShard(proposalInfo.endVoteEpoch + 1, shardId);
             const totalQuorum = await this.getTotalQuorum();
-           
+            const proposalFaq = onChainFAQ.find(faq => faq.onChainId === proposalInfo.nonce);
+            
             return new GovernanceProposalModel({
                 contractAddress: scAddress,
                 proposalId: proposalInfo.nonce,
@@ -501,6 +502,7 @@ W
                 status,
                 startVoteTimestamp,
                 endVoteTimestamp,
+                faq: proposalFaq ? proposalFaq.faq : undefined,
             });
     }
 

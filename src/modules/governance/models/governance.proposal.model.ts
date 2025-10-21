@@ -5,6 +5,7 @@ import { ProposalVotes } from './governance.proposal.votes.model';
 import { GovernanceDescriptionUnion } from './governance.union';
 import { DelegateUserVotingPower } from './delegate-provider.model';
 import { FileContent } from './github.proposal.model';
+import { FAQItem } from './faq.model';
 
 export enum GovernanceProposalStatus {
     None = 'None',
@@ -170,6 +171,8 @@ export class GovernanceProposalModel {
     endVoteTimestamp?: number;
     @Field(() => Int)
     proposalIndex?: number;
+    @Field(() => [FAQItem], { nullable: true })
+    faq?: FAQItem[];
     
     constructor(init: Partial<GovernanceProposalModel>) {
         Object.assign(this, init);

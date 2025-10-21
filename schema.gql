@@ -175,6 +175,15 @@ type GithubProposal {
   prUrl: String
 }
 
+"""FAQ item"""
+type FAQItem {
+  """Question"""
+  question: String!
+
+  """Answear"""
+  answer: String!
+}
+
 type GovernanceProposalModel {
   contractAddress: String!
   proposalId: Float!
@@ -200,6 +209,7 @@ type GovernanceProposalModel {
   startVoteTimestamp: Int!
   endVoteTimestamp: Int!
   proposalIndex: Int!
+  faq: [FAQItem!]
 }
 
 union GovernanceDescriptionVersions = DescriptionV0 | DescriptionV1 | DescriptionV2 | DescriptionV3

@@ -100,5 +100,29 @@
         "owner": "multiversx",
         "repository": "multiversx-improvement-documents",
         "branch": "development"
-    }
+    },
+    "onChainFAQ": [
+         {
+            "onChainId": 101,
+            "faq": [ 
+                {
+                 "question": "question 1",
+                 "answer": "answer 1"
+                },
+                {
+                 "question": "question 2",
+                 "answer": "answer 2"
+                }
+            ]
+        },
+        {
+            "onChainId": 100,
+            "faq": [ 
+                {
+                 "question": "question 1",
+                 "answer": "answer 1"
+                }
+            ]
+        }
+    ]
 }
