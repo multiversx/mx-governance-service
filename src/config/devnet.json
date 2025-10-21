@@ -102,25 +102,148 @@
         "branch": "development"
     },
     "onChainFAQ": [
-         {
-            "onChainId": 101,
-            "faq": [ 
+        {
+            "onChainId": 104,
+            "faq": [
                 {
-                 "question": "question 1",
-                 "answer": "answer 1"
+                "question": "What is voting power?",
+                "answer": "Voting Power mostly represents the total staked EGLD (via various providers) the user has."
                 },
                 {
-                 "question": "question 2",
-                 "answer": "answer 2"
+                "question": "What counts for voting power?",
+                "answer": "Direct staking/delegation, legacy delegation and liquid staking."
+                },
+                {
+                "question": "Who validates the voting power?",
+                "answer": "We use the on-chain governance module, and therefore, users' stake and voting power is directly validated at protocol level. Each vote represents a transaction and the Governance System Smart Contract will handle all the necessary checks directly at the protocol's level."
+                },
+                {
+                "question": "Which Liquid Staking providers are supported?",
+                "answer": "Any liquid staking provider can integrate support. Currently, Hatom, Xoxno and Salsa have provided snapshots for their user's voting power."
+                },
+                {
+                "question": "How Liquid Staking providers distribute the voting power?",
+                "answer": "The distribution of the voting power among the users is totally up to them. If a Liquid Staking provider, for example, has 1000 staked EGLD, it can distribute the 1000 voting power to their users based on their own choice. They can choose to distribute it only to the users that have their liquid EGLD token (for example SEGLD, XEGLD), or include collateral tokens (such as HSEGLD) as well."
+                },
+                {
+                "question": "How many times can I vote?",
+                "answer": "One vote per user per provider per proposal. This means that if a user has multiple providers (let's say legacy delegation and liquid staking) he can vote for each of the providers. However, multiple votes per provider are not allowed (for example: staking more EGLD after already voting with the existing staked EGLD won't count)."
+                }
+            ]
+        },
+        {
+            "onChainId": 103,
+            "faq": [
+                {
+                "question": "What is voting power?",
+                "answer": "Voting Power mostly represents the total staked EGLD (via various providers) the user has."
+                },
+                {
+                "question": "What counts for voting power?",
+                "answer": "Direct staking/delegation, legacy delegation and liquid staking."
+                },
+                {
+                "question": "Who validates the voting power?",
+                "answer": "We use the on-chain governance module, and therefore, users' stake and voting power is directly validated at protocol level. Each vote represents a transaction and the Governance System Smart Contract will handle all the necessary checks directly at the protocol's level."
+                },
+                {
+                "question": "Which Liquid Staking providers are supported?",
+                "answer": "Any liquid staking provider can integrate support. Currently, Hatom, Xoxno and Salsa have provided snapshots for their user's voting power."
+                },
+                {
+                "question": "How Liquid Staking providers distribute the voting power?",
+                "answer": "The distribution of the voting power among the users is totally up to them. If a Liquid Staking provider, for example, has 1000 staked EGLD, it can distribute the 1000 voting power to their users based on their own choice. They can choose to distribute it only to the users that have their liquid EGLD token (for example SEGLD, XEGLD), or include collateral tokens (such as HSEGLD) as well."
+                },
+                {
+                "question": "How many times can I vote?",
+                "answer": "One vote per user per provider per proposal. This means that if a user has multiple providers (let's say legacy delegation and liquid staking) he can vote for each of the providers. However, multiple votes per provider are not allowed (for example: staking more EGLD after already voting with the existing staked EGLD won't count)."
+                }
+            ]
+        },
+        {
+            "onChainId": 102,
+            "faq": [
+                {
+                "question": "What is voting power?",
+                "answer": "Voting Power mostly represents the total staked EGLD (via various providers) the user has."
+                },
+                {
+                "question": "What counts for voting power?",
+                "answer": "Direct staking/delegation, legacy delegation and liquid staking."
+                },
+                {
+                "question": "Who validates the voting power?",
+                "answer": "We use the on-chain governance module, and therefore, users' stake and voting power is directly validated at protocol level. Each vote represents a transaction and the Governance System Smart Contract will handle all the necessary checks directly at the protocol's level."
+                },
+                {
+                "question": "Which Liquid Staking providers are supported?",
+                "answer": "Any liquid staking provider can integrate support. Currently, Hatom, Xoxno and Salsa have provided snapshots for their user's voting power."
+                },
+                {
+                "question": "How Liquid Staking providers distribute the voting power?",
+                "answer": "The distribution of the voting power among the users is totally up to them. If a Liquid Staking provider, for example, has 1000 staked EGLD, it can distribute the 1000 voting power to their users based on their own choice. They can choose to distribute it only to the users that have their liquid EGLD token (for example SEGLD, XEGLD), or include collateral tokens (such as HSEGLD) as well."
+                },
+                {
+                "question": "How many times can I vote?",
+                "answer": "One vote per user per provider per proposal. This means that if a user has multiple providers (let's say legacy delegation and liquid staking) he can vote for each of the providers. However, multiple votes per provider are not allowed (for example: staking more EGLD after already voting with the existing staked EGLD won't count)."
+                }
+            ]
+        },
+        {
+            "onChainId": 101,
+            "faq": [
+                {
+                "question": "What is voting power?",
+                "answer": "Voting Power mostly represents the total staked EGLD (via various providers) the user has."
+                },
+                {
+                "question": "What counts for voting power?",
+                "answer": "Direct staking/delegation, legacy delegation and liquid staking."
+                },
+                {
+                "question": "Who validates the voting power?",
+                "answer": "We use the on-chain governance module, and therefore, users' stake and voting power is directly validated at protocol level. Each vote represents a transaction and the Governance System Smart Contract will handle all the necessary checks directly at the protocol's level."
+                },
+                {
+                "question": "Which Liquid Staking providers are supported?",
+                "answer": "Any liquid staking provider can integrate support. Currently, Hatom, Xoxno and Salsa have provided snapshots for their user's voting power."
+                },
+                {
+                "question": "How Liquid Staking providers distribute the voting power?",
+                "answer": "The distribution of the voting power among the users is totally up to them. If a Liquid Staking provider, for example, has 1000 staked EGLD, it can distribute the 1000 voting power to their users based on their own choice. They can choose to distribute it only to the users that have their liquid EGLD token (for example SEGLD, XEGLD), or include collateral tokens (such as HSEGLD) as well."
+                },
+                {
+                "question": "How many times can I vote?",
+                "answer": "One vote per user per provider per proposal. This means that if a user has multiple providers (let's say legacy delegation and liquid staking) he can vote for each of the providers. However, multiple votes per provider are not allowed (for example: staking more EGLD after already voting with the existing staked EGLD won't count)."
                 }
             ]
         },
         {
             "onChainId": 100,
-            "faq": [ 
+            "faq": [
                 {
-                 "question": "question 1",
-                 "answer": "answer 1"
+                "question": "What is voting power?",
+                "answer": "Voting Power mostly represents the total staked EGLD (via various providers) the user has."
+                },
+                {
+                "question": "What counts for voting power?",
+                "answer": "Direct staking/delegation, legacy delegation and liquid staking."
+                },
+                {
+                "question": "Who validates the voting power?",
+                "answer": "We use the on-chain governance module, and therefore, users' stake and voting power is directly validated at protocol level. Each vote represents a transaction and the Governance System Smart Contract will handle all the necessary checks directly at the protocol's level."
+                },
+                {
+                "question": "Which Liquid Staking providers are supported?",
+                "answer": "Any liquid staking provider can integrate support. Currently, Hatom, Xoxno and Salsa have provided snapshots for their user's voting power."
+                },
+                {
+                "question": "How Liquid Staking providers distribute the voting power?",
+                "answer": "The distribution of the voting power among the users is totally up to them. If a Liquid Staking provider, for example, has 1000 staked EGLD, it can distribute the 1000 voting power to their users based on their own choice. They can choose to distribute it only to the users that have their liquid EGLD token (for example SEGLD, XEGLD), or include collateral tokens (such as HSEGLD) as well."
+                },
+                {
+                "question": "How many times can I vote?",
+                "answer": "One vote per user per provider per proposal. This means that if a user has multiple providers (let's say legacy delegation and liquid staking) he can vote for each of the providers. However, multiple votes per provider are not allowed (for example: staking more EGLD after already voting with the existing staked EGLD won't count)."
                 }
             ]
         }
