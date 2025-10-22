@@ -231,9 +231,10 @@ export class GovernanceOnChainService extends GovernanceTokenSnapshotService {
         const excludedAddresses = onChainConfig.find(config => config.onChainId === proposalId)?.excludedAddresses;
         if (excludedAddresses && excludedAddresses.length > 0) {
             const excludedAddressesItems = await Promise.all(
-                excludedAddresses.map(async (address) => ({
-                address,
-                votingPower: await onChainAbiService.userVotingPowerDirect(address, proposalId),
+                excludedAddresses.map(async (item) => ({
+                name: item.name,
+                address: item.address,
+                votingPower: await onChainAbiService.userVotingPowerDirect(item.address, proposalId),
                 }))      
         );
             return excludedAddressesItems;

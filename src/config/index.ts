@@ -33,4 +33,4 @@ export const githubConfig: GithubConfig = config.get('github');
 
 export const systemContracts = config.get('systemContracts');
 
-export const onChainConfig: { onChainId: number, faq: FAQItem[], excludedAddresses: string[] }[]= config.get('onChainConfig');
+export const onChainConfig: { onChainId: number, faq: FAQItem[], excludedAddresses: {name: string, address: string}[] }[]= config.get('onChainConfig');
