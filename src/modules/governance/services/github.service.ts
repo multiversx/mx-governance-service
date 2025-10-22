@@ -139,86 +139,86 @@ export class GithubService implements OnModuleInit {
       }
     }
 
-    const filesRaw = await this.git.raw(['ls-tree', '-r', '--name-only', 'HEAD', 'proposals']);
-    const allProposalFiles = filesRaw.split('\n').filter(f => f.endsWith('.md'));
+    // const filesRaw = await this.git.raw(['ls-tree', '-r', '--name-only', 'HEAD', 'proposals']);
+    // const allProposalFiles = filesRaw.split('\n').filter(f => f.endsWith('.md'));
 
-    for (const file of allProposalFiles) {
-      try {
-        const lastCommit = (await this.git.raw([
-        'log',
-        '-1',             // only the most recent one
-        '--format=%H',    // only the commit hash
-        '--',
-        file
-      ])).trim();
-
-
-        // 3️⃣ Get the file content from that commit
-        const fileContentRaw = await this.git.show([`${lastCommit}:${file}`]);
-        const fileContent = this.parseFileContent(fileContentRaw);
-
-        // 4️⃣ Add the result to the list
-        results.push({
-          commitHash: lastCommit,
-          fileName: file,
-          fileContent,
-          prMerged: true,
-        });
-
-      } catch (err) {
-        console.error(`Error processing file ${file}: ${err.message}`);
-      }
-    }
+    // for (const file of allProposalFiles) {
+    //   try {
+    //     const lastCommit = (await this.git.raw([
+    //     'log',
+    //     '-1',             // only the most recent one
+    //     '--format=%H',    // only the commit hash
+    //     '--',
+    //     file
+    //   ])).trim();
 
 
+    //     // Get the file content from that commit
+    //     const fileContentRaw = await this.git.show([`${lastCommit}:${file}`]);
+    //     const fileContent = this.parseFileContent(fileContentRaw);
 
-    // for (const commit of commits.all) {
-    //   // check if commit has a parent
-    //   const parentsRaw = await this.git.raw(['rev-list', '--parents', '-n', '1', commit.hash]);
-    //   const parentHashes = parentsRaw.trim().split(' ').slice(1);
+    //     // Add the result to the list
+    //     results.push({
+    //       commitHash: lastCommit,
+    //       fileName: file,
+    //       fileContent,
+    //       prMerged: true,
+    //     });
 
-    //   if (parentHashes.length === 0) {
-    //     // commit with no parent, we skip it
-    //     continue;
-    //   }
-
-    //   const diffOutput = await this.git.diff([
-    //     '--diff-filter=A',
-    //     '--name-only',
-    //     `${commit.hash}~1`,
-    //     commit.hash,
-    //   ]);
-    //   const addedMdFiles = diffOutput
-    //     .split('\n')
-    //     .map((f) => f.trim())
-    //     .filter((f) =>
-    //       f.endsWith('.md') &&
-    //       f.startsWith(proposalsFolder + '/') &&
-    //       !seenFiles.has(f) &&
-    //       !f.toLowerCase().includes('readme')
-    //     );
-
-    //   for (const file of addedMdFiles) {
-    //     try {
-    //       const filePath = `${this.repoPath}/${file}`
-    //       const exists = await this.fileExists(filePath);
-    //       if (!exists) {
-    //         continue;
-    //       }
-    //       const fileContentRaw = await this.git.show([`${commit.hash}:${file}`]);
-    //       const fileContent = this.parseFileContent(fileContentRaw);
-    //       results.push({
-    //         commitHash: commit.hash,
-    //         fileName: file,
-    //         fileContent,
-    //         prMerged: true,
-    //       });
-    //       seenFiles.add(file);
-    //     } catch (err) {
-    //       console.error(`Error reading file ${file} în ${commit.hash}: ${err.message}`);
-    //     }
+    //   } catch (err) {
+    //     console.error(`Error processing file ${file}: ${err.message}`);
     //   }
     // }
+
+
+
+    for (const commit of commits.all) {
+      // check if commit has a parent
+      const parentsRaw = await this.git.raw(['rev-list', '--parents', '-n', '1', commit.hash]);
+      const parentHashes = parentsRaw.trim().split(' ').slice(1);
+
+      if (parentHashes.length === 0) {
+        // commit with no parent, we skip it
+        continue;
+      }
+
+      const diffOutput = await this.git.diff([
+        '--diff-filter=A',
+        '--name-only',
+        `${commit.hash}~1`,
+        commit.hash,
+      ]);
+      const addedMdFiles = diffOutput
+        .split('\n')
+        .map((f) => f.trim())
+        .filter((f) =>
+          f.endsWith('.md') &&
+          f.startsWith(proposalsFolder + '/') &&
+          !seenFiles.has(f) &&
+          !f.toLowerCase().includes('readme')
+        );
+
+      for (const file of addedMdFiles) {
+        try {
+          const filePath = `${this.repoPath}/${file}`
+          const exists = await this.fileExists(filePath);
+          if (!exists) {
+            continue;
+          }
+          const fileContentRaw = await this.git.show([`${commit.hash}:${file}`]);
+          const fileContent = this.parseFileContent(fileContentRaw);
+          results.push({
+            commitHash: commit.hash,
+            fileName: file,
+            fileContent,
+            prMerged: true,
+          });
+          seenFiles.add(file);
+        } catch (err) {
+          console.error(`Error reading file ${file} în ${commit.hash}: ${err.message}`);
+        }
+      }
+    }
 
     return results;
   }
