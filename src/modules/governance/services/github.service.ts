@@ -265,7 +265,8 @@ export class GithubService implements OnModuleInit {
     }
 
     const proposer = lines[lines.length - 1 - numberOfEmptyLinesAtTheEnd].trim().replace('<!---', '').replace('--->', '');
-    const content = lines.slice(2, -(1 + numberOfEmptyLinesAtTheEnd)).join('\n');
+    const content = lines.slice(2, -(1 + numberOfEmptyLinesAtTheEnd)).join('\n')
+    .replace('https://github.com/multiversx/multiversx-improvement-documents/blob/extended/economicsV2.md', 'https://github.com/multiversx/multiversx-improvement-documents/blob/main/extended/economicsV2.md');
 
     const fileContent = new FileContent({
       title,
