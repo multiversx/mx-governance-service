@@ -97,28 +97,44 @@
             "onChainId": 1,
             "faq": [
                 {
-                "question": "What is voting power?",
-                "answer": "Voting Power mostly represents the total staked EGLD (via various providers) the user has."
+                    "question": "If the proposal passes, what is the implementation schedule?",
+                    "answer": "The plan unfolds in three phases:\n- Phase 1 (October 2025) covers final proposal publication and the governance vote.\n- Phase 2 (Q4 2025) begins only if the vote passes: Oct 30 – publish the Staking V5 + Accelerator technical paper; mid-November (tentative) – launch Staking V5; Nov 15 – publish the Updated Fee Model paper and coded KPIs; DAO member elections and process definition in November; Supernova mainnet upgrade is tentatively set for December 2025.\n- Phase 3 (Q1 2026) targets Jan 15, 2026 for activating the new fee model and the KPI-coded emission logic, plus full DAO setup and public dashboards/roadmap."
                 },
                 {
-                "question": "What counts for voting power?",
-                "answer": "Direct staking/delegation, legacy delegation and liquid staking."
+                    "question": "How long will it take for the DAT and ETF to be established?",
+                    "answer": "These are part of the Reflexive Strategic Investment (RSI) track and require a two-step governance process. First, the framework and mandate are approved; then, after partners/structures are soft-committed, a dedicated brief is published and a second governance vote authorizes minting locked EGLD and execution. Minting occurs only after legally binding agreements are publicly signed; all issued EGLD is locked for three years. Timing therefore depends on partner readiness and the second vote, not a fixed date."
                 },
                 {
-                "question": "Who validates the voting power?",
-                "answer": "We use the on-chain governance module, and therefore, users' stake and voting power is directly validated at protocol level. Each vote represents a transaction and the Governance System Smart Contract will handle all the necessary checks directly at the protocol's level."
+                    "question": "What exactly changes in the monetary policy?",
+                    "answer": "MultiversX moves from a capped-supply model to a demand-modulated tail-inflation model with a burn mechanism. The first year has a maximum theoretical maximum inflation of 8.757%, decaying toward a 2–5% steady range based on onchain KPIs (staking ratio, DeFi activity, protocol revenue via burns). A share of fees is burned, creating demand-driven deflationary pressure as usage grows."
                 },
                 {
-                "question": "Which Liquid Staking providers are supported?",
-                "answer": "Any liquid staking provider can integrate support. Currently, Hatom, Xoxno and Salsa have provided snapshots for their user's voting power."
+                    "question": "How are new emissions distributed?",
+                    "answer": "Emissions are programmatically split into four buckets: 50% Simple Staking; 20% Growth Dividend (users who engage in approved on-chain strategies); 20% Ecosystem Growth Fund (builders); 10% Protocol Sustainability (core R&D/infra). Allocations are subject to annual governance review and can be adjusted each year."
                 },
                 {
-                "question": "How Liquid Staking providers distribute the voting power?",
-                "answer": "The distribution of the voting power among the users is totally up to them. If a Liquid Staking provider, for example, has 1000 staked EGLD, it can distribute the 1000 voting power to their users based on their own choice. They can choose to distribute it only to the users that have their liquid EGLD token (for example SEGLD, XEGLD), or include collateral tokens (such as HSEGLD) as well."
+                    "question": "What APR should stakers expect under the new model?",
+                    "answer": "Illustrative modeling (not a guarantee) shows average ~9.15% staking APR when 50% of supply is staked. If ~50% of staked EGLD participates in approved strategies, an additional 'pro-staking' component enables users to gain additional APR with an accumulated average rate of around ~16.47%. Actual outcomes depend on participation, KPI attainment, governance, and market conditions."
                 },
                 {
-                "question": "How many times can I vote?",
-                "answer": "One vote per user per provider per proposal. This means that if a user has multiple providers (let's say legacy delegation and liquid staking) he can vote for each of the providers. However, multiple votes per provider are not allowed (for example: staking more EGLD after already voting with the existing staked EGLD won't count)."
+                    "question": "How will the fee market change for builders and validators?",
+                    "answer": "Base fees are split 90% to smart-contract authors and 10% burned. The builder share decreases by 5% annually for eight years (burn increases correspondingly) to reach a 50/50 split, with annual re-evaluation by governance. Base fees of non-contract transactions are fully burned. Priority fees are paid entirely to validators (10% leader, 90% consensus members). Failed transactions burn both base and priority fees."
+                },
+                {
+                    "question": "How and when are KPIs evaluated to adjust inflation?",
+                    "answer": "The model uses a Composite Growth Score derived from staking ratio, DeFi TVL/volumes, and protocol revenue (burns). These are measured onchain and evaluated quarterly using three-month rolling averages. Inflation decays more slowly in high growth and faster in low growth; within 2–5% it can adjust bidirectionally toward 2% (low growth) or 5% (high growth)."
+                },
+                {
+                    "question": "What governance oversight is planned after the implementation?",
+                    "answer": "Annually, the distribution model and KPIs are reviewed and voted on; a public, onchain, audited annual report is produced. For RSI tracks (DAT/ETF/US Labs), there are quarterly transparency reports, public tracking of locked funds/addresses (subject to legal constraints), and separate governance if material changes exceed the original mandate."
+                },
+                {
+                    "question": "What happens if the proposal does not pass?",
+                    "answer": "The current economic model continues."
+                },
+                {
+                    "question": "If the proposal passes, will EGLD immediately be minted for the RSI (Reflexive Strategic Investments) initiatives such as the DAT and ETF?",
+                    "answer": "No. The governance proposal introduces a double opt-in process for the RSI track to ensure both community approval and partner readiness before any EGLD is minted.\nHere's how it works:\n1. First Opt-In — Framework Approval: The current governance vote only approves the framework and mandate for RSI. No EGLD is created at this stage.\n2. Second Opt-In — Execution Authorization: Once the Foundation secures preliminary partner commitments and publishes a brief (including terms, structures, timelines, and legal documentation), a second governance proposal will be submitted. Only if that follow-up vote passes — and the legally binding agreements are signed — will the RSI minting occur.\n3. Safeguards:\n- All RSI-issued EGLD will be locked for 3 years.\n- Locked EGLD cannot vote in governance.\n- Minting transactions and custody structures will be transparent, with quarterly reports and public tracking (subject to compliance)."
                 }
             ],
             "excludedAddresses": [
