@@ -13,7 +13,7 @@ export class FileContent {
   content: string;
 
   @Field({ nullable: true })
-  extendedContent?: string;
+  rationale?: string;
 
   @Field()
   proposer: string;

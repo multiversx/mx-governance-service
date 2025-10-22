@@ -93,6 +93,7 @@ export class GithubService implements OnModuleInit {
     // Determine the proposals folder based on env
     const env = process.env.NODE_ENV;
     let proposalsFolder = 'proposals';
+    const rationaleFolder = 'rationales';
     // if (env === 'devnet' || env === 'testnet') {
     //   proposalsFolder = path.join(env, 'proposals');
     // }
@@ -198,6 +199,16 @@ export class GithubService implements OnModuleInit {
           !f.toLowerCase().includes('readme')
         );
 
+      const addedRationaleMdFiles = diffOutput
+          .split('\n')
+          .map((f) => f.trim())
+          .filter((f) =>
+              f.endsWith('.md') &&
+              f.startsWith(rationaleFolder + '/') &&
+              !seenFiles.has(f) &&
+              !f.toLowerCase().includes('readme')
+          );
+
       for (const file of addedMdFiles) {
         try {
           const filePath = `${this.repoPath}/${file}`
@@ -217,6 +228,18 @@ export class GithubService implements OnModuleInit {
         } catch (err) {
           console.error(`Error reading file ${file} în ${commit.hash}: ${err.message}`);
         }
+      }
+
+      for (const file of addedRationaleMdFiles) {
+        const trimmedRationaleFileName = file.split(`${rationaleFolder}/`)[1] ?? 'n/a';
+        const result = results.filter(r => r.fileName === `${proposalsFolder}/${trimmedRationaleFileName}`);
+        if (!result || result.length === 0) {
+          console.log(`Rationale file ${trimmedRationaleFileName} cannot be mapped to any proposal.`);
+          continue;
+        }
+
+        result[0].fileContent.rationale = await this.git.show([`${commit.hash}:${file}`]);
+        console.log(`Rationale ${trimmedRationaleFileName} was mapped to a proposal`);
       }
     }
 
@@ -240,7 +263,6 @@ export class GithubService implements OnModuleInit {
       description,
       content,
       proposer,
-      extendedContent: 'extended content',
     });
 
     return fileContent;
