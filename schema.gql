@@ -156,6 +156,7 @@ type FileContent {
   title: String!
   description: String!
   content: String!
+  extendedContent: String!
   proposer: String!
 }
 

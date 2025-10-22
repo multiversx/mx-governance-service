@@ -12,6 +12,9 @@ export class FileContent {
   @Field()
   content: string;
 
+  @Field({ nullable: true })
+  extendedContent?: string;
+
   @Field()
   proposer: string;
 

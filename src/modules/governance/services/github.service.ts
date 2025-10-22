@@ -240,6 +240,7 @@ export class GithubService implements OnModuleInit {
       description,
       content,
       proposer,
+      extendedContent: 'extended content',
     });
 
     return fileContent;
