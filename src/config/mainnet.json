@@ -70,12 +70,12 @@
         },
         {
             "providerName": "Hatom",
-            "voteScAddress": "",
-            "stakeScAddress": "",
+            "voteScAddress": "erd1qqqqqqqqqqqqqpgq2khda0rx207gvlqg92dq5rh0z03a8dqf78ssu0qlcc",
+            "stakeScAddress": "erd1qqqqqqqqqqqqqpgq4gzfcw7kmkjy8zsf04ce6dl0auhtzjx078sslvrf4e",
             "lsTokenId": "",
             "voteFunctionName": "delegate_vote",
             "viewUserVotingPowerName": "",
-            "isEnabled": false
+            "isEnabled": true
         },
         {
             "providerName": "Salsa",
