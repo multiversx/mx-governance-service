@@ -21,7 +21,9 @@
             "vote":  {
                 "energy": 15000000,
                 "tokenSnapshot": 35000000,
-                "onChainDelegate": 150000000
+                "onChainDirect": 150000000,
+                "onChainLegacyDelegation": 150000000,
+                "onChainLiquidStakingDelegation": 150000000
             }
         }
     },
