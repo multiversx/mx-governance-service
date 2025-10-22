@@ -11,6 +11,7 @@ import { NativeAuthGuard } from '../../auth/native.auth.guard';
 import { DelegateUserVotingPower } from '../models/delegate-provider.model';
 import { governanceConfig } from 'src/config';
 import { GovernanceOnChainService, GovernanceTokenSnapshotService } from '../services/governance.service';
+import { ExcludedAddressItem } from '../models/excluded.addresses.model';
 
 @Resolver(() => GovernanceProposalModel)
 export class GovernanceProposalResolver {
@@ -103,5 +104,17 @@ export class GovernanceProposalResolver {
         
         const governanceOnChainService = this.governanceServiceFactory.userService(governanceProposal.contractAddress) as GovernanceOnChainService;
         return await governanceOnChainService.userVotingPowerDirect(governanceProposal.contractAddress, governanceProposal.proposalId, user.address);
+    }
+
+    @ResolveField()
+    async excludedAddresses(
+        @Parent() governanceProposal: GovernanceProposalModel
+    ): Promise<ExcludedAddressItem[]> {
+         if(!governanceConfig.onChain.linear.includes(governanceProposal.contractAddress)) {
+            throw new BadRequestException("Excluded addresses is supported only by on-chain governance contract !")
+        }
+        
+        const governanceOnChainService = this.governanceServiceFactory.userService(governanceProposal.contractAddress) as GovernanceOnChainService;
+        return await governanceOnChainService.excludedAddresses(governanceProposal.contractAddress, governanceProposal.proposalId);
     }
 }

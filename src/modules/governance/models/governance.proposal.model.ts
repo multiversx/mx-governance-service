@@ -6,6 +6,7 @@ import { GovernanceDescriptionUnion } from './governance.union';
 import { DelegateUserVotingPower } from './delegate-provider.model';
 import { FileContent } from './github.proposal.model';
 import { FAQItem } from './faq.model';
+import { ExcludedAddressItem } from './excluded.addresses.model';
 
 export enum GovernanceProposalStatus {
     None = 'None',
@@ -173,6 +174,8 @@ export class GovernanceProposalModel {
     proposalIndex?: number;
     @Field(() => [FAQItem], { nullable: true })
     faq?: FAQItem[];
+    @Field(() => [ExcludedAddressItem], { nullable: true })
+    excludedAddresses?: ExcludedAddressItem[];
     
     constructor(init: Partial<GovernanceProposalModel>) {
         Object.assign(this, init);

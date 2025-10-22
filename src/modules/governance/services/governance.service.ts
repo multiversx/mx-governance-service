@@ -21,7 +21,8 @@ import { EnergyService } from '../../energy/services/energy.service';
 import { GovernanceAbiFactory } from './governance.abi.factory';
 import { TokenService } from 'src/modules/tokens/services/token.service';
 import { GovernanceOnChainAbiService } from './governance.onchain.abi.service';
-import { requestExplicitContracts } from '../../../config';
+import { onChainConfig, requestExplicitContracts } from '../../../config';
+import { ExcludedAddressItem } from '../models/excluded.addresses.model';
 
 @Injectable()
 export class GovernanceTokenSnapshotService {
@@ -223,6 +224,21 @@ export class GovernanceOnChainService extends GovernanceTokenSnapshotService {
         const userVotingPowerDirect = await onChainAbiService.userVotingPowerDirect(userAddress, proposalId);
 
         return userVotingPowerDirect;
+    }
+
+    async excludedAddresses(contractAddress: string, proposalId: number): Promise<ExcludedAddressItem[]> {
+        const onChainAbiService = this.governanceAbiFactory.useAbi(contractAddress) as GovernanceOnChainAbiService;
+        const excludedAddresses = onChainConfig.find(config => config.onChainId === proposalId)?.excludedAddresses;
+        if (excludedAddresses && excludedAddresses.length > 0) {
+            const excludedAddressesItems = await Promise.all(
+                excludedAddresses.map(async (address) => ({
+                address,
+                votingPower: await onChainAbiService.userVotingPowerDirect(address, proposalId),
+                }))      
+        );
+            return excludedAddressesItems;
+        }
+        return [];
     }
 
     async delegateUserVotingPowers(scAddress: string, userAddress: string, proposalId: number) {
