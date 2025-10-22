@@ -57,7 +57,7 @@ export class DelegateGovernanceService {
         const provider = DelegateGovernanceService.getDelegateStakingProvider(voteScAddress);
         const contractExecuteInput: ContractExecuteInput = {
             contract: new Address(provider.voteScAddress),
-            gasLimit: BigInt(gasConfig.governance.vote.onChainDelegate),
+            gasLimit: BigInt(gasConfig.governance.vote.onChainLiquidStakingDelegation),
             function: provider.voteFunctionName,
             arguments: [new BigUIntValue(proposalId)],
         }
@@ -72,6 +72,7 @@ export class DelegateGovernanceService {
             const proofBuffer = await this.getProofForProvider(sender, provider.voteScAddress, proposalId);
             contractExecuteInput.arguments.push(new StringValue(vote), new BigUIntValue(balance), new BytesValue(proofBuffer));
         } else {
+            contractExecuteInput.gasLimit = BigInt(gasConfig.governance.vote.onChainLegacyDelegation);
             contractExecuteInput.arguments.push(new StringValue(vote));
         }
 
