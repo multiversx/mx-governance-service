@@ -247,15 +247,15 @@ export class GithubService implements OnModuleInit {
   }
 
   private parseFileContent(fileContentRaw: string) {
-    const lines = fileContentRaw.split('\n').map(line => line.trim());
+    const lines = fileContentRaw.split('\n');
 
     if (lines.length < 4) {
       throw new Error('Input must have at least 4 lines');
     }
     
-    const title = lines[0].replace('<!---', '').replace('--->', '');
-    const description = lines[1].replace('<!---', '').replace('--->', '');
-    const proposer = lines[lines.length - 1].replace('<!---', '').replace('--->', '');
+    const title = lines[0].trim().replace('<!---', '').replace('--->', '');
+    const description = lines[1].trim().replace('<!---', '').replace('--->', '');
+    const proposer = lines[lines.length - 1].trim().replace('<!---', '').replace('--->', '');
     const content = lines.slice(2, -1).join('\n');
 
     const fileContent = new FileContent({
