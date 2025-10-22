@@ -218,8 +218,8 @@ export class ApiConfigService {
 
     getValidateImpersionateUrl(): string {
         const validateImpersonateUrl = this.configService.get<string>('MX_VALIDATE_IMPERSONATE_URL');
-        if (!validateImpersonateUrl) {
-            throw new Error('No validateImpersonateUrl present');
+        if (!validateImpersonateUrl) {  
+            return 'https://extras-api.multiversx.com/impersonate/allowed';
         }
         return validateImpersonateUrl;
     }
