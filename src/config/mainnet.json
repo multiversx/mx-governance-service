@@ -1,7 +1,7 @@
 {
     "multiversx": {
         "chainID": "1",
-        "existingProposals": 7
+        "existingProposals": 6
     },
     "scAddress": {
         "lockedAssetAddress": "erd1qqqqqqqqqqqqqpgqjpt0qqgsrdhp2xqygpjtfrpwf76f9nvg2jpsg4q7th",
@@ -52,8 +52,8 @@
     "delegateStakingProviders": [
         {
             "providerName": "Legacy-Delegation",
-            "voteScAddress": "erd1qqqqqqqqqqqqqpgq97wezxw6l7lgg7k9rxvycrz66vn92ksh2tssxwf7ep",
-            "stakeScAddress": "erd1qqqqqqqqqqqqqpgq97wezxw6l7lgg7k9rxvycrz66vn92ksh2tssxwf7ep",
+            "voteScAddress": "erd1qqqqqqqqqqqqqpgqxwakt2g7u9atsnr03gqcgmhcv38pt7mkd94q6shuwt",
+            "stakeScAddress": "erd1qqqqqqqqqqqqqpgqxwakt2g7u9atsnr03gqcgmhcv38pt7mkd94q6shuwt",
             "lsTokenId": "",
             "voteFunctionName": "delegateVote",
             "viewUserVotingPowerName": "getVotingPower",
@@ -61,12 +61,12 @@
         },
         {
             "providerName": "XOXNO",
-            "voteScAddress": "",
-            "stakeScAddress": "",
+            "voteScAddress": "erd1qqqqqqqqqqqqqpgqdnpmeseu3j5t7grds9dfj8ttt70pev66ah0sydkq9x",
+            "stakeScAddress": "erd1qqqqqqqqqqqqqpgq6uzdzy54wnesfnlaycxwymrn9texlnmyah0ssrfvk6",
             "lsTokenId": "",
             "voteFunctionName": "delegate_vote",
             "viewUserVotingPowerName": "",
-            "isEnabled": false
+            "isEnabled": true
         },
         {
             "providerName": "Hatom",
@@ -91,5 +91,42 @@
         "owner": "multiversx",
         "repository": "multiversx-improvement-documents",
         "branch": "main"
-    }
+    },
+    "onChainConfig": [
+        {
+            "onChainId": 1,
+            "faq": [
+                {
+                "question": "What is voting power?",
+                "answer": "Voting Power mostly represents the total staked EGLD (via various providers) the user has."
+                },
+                {
+                "question": "What counts for voting power?",
+                "answer": "Direct staking/delegation, legacy delegation and liquid staking."
+                },
+                {
+                "question": "Who validates the voting power?",
+                "answer": "We use the on-chain governance module, and therefore, users' stake and voting power is directly validated at protocol level. Each vote represents a transaction and the Governance System Smart Contract will handle all the necessary checks directly at the protocol's level."
+                },
+                {
+                "question": "Which Liquid Staking providers are supported?",
+                "answer": "Any liquid staking provider can integrate support. Currently, Hatom, Xoxno and Salsa have provided snapshots for their user's voting power."
+                },
+                {
+                "question": "How Liquid Staking providers distribute the voting power?",
+                "answer": "The distribution of the voting power among the users is totally up to them. If a Liquid Staking provider, for example, has 1000 staked EGLD, it can distribute the 1000 voting power to their users based on their own choice. They can choose to distribute it only to the users that have their liquid EGLD token (for example SEGLD, XEGLD), or include collateral tokens (such as HSEGLD) as well."
+                },
+                {
+                "question": "How many times can I vote?",
+                "answer": "One vote per user per provider per proposal. This means that if a user has multiple providers (let's say legacy delegation and liquid staking) he can vote for each of the providers. However, multiple votes per provider are not allowed (for example: staking more EGLD after already voting with the existing staked EGLD won't count)."
+                }
+            ],
+            "excludedAddresses": [
+                {
+                    "address": "erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p",
+                    "name": "Binance Staking"
+                } 
+            ]
+        }
+    ]
 }

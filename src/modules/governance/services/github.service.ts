@@ -255,8 +255,17 @@ export class GithubService implements OnModuleInit {
     
     const title = lines[0].trim().replace('<!---', '').replace('--->', '');
     const description = lines[1].trim().replace('<!---', '').replace('--->', '');
-    const proposer = lines[lines.length - 1].trim().replace('<!---', '').replace('--->', '');
-    const content = lines.slice(2, -1).join('\n');
+    let numberOfEmptyLinesAtTheEnd = 0;
+    for(let i = lines.length - 1; i >= 0; i--) {
+      if(lines[i].trim() === '') {
+        numberOfEmptyLinesAtTheEnd++;
+      } else {
+        break;
+      }
+    }
+
+    const proposer = lines[lines.length - 1 - numberOfEmptyLinesAtTheEnd].trim().replace('<!---', '').replace('--->', '');
+    const content = lines.slice(2, -(1 + numberOfEmptyLinesAtTheEnd)).join('\n');
 
     const fileContent = new FileContent({
       title,
