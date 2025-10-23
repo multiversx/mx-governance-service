@@ -22,8 +22,8 @@
                 "energy": 15000000,
                 "tokenSnapshot": 35000000,
                 "onChainDirect": 20000000,
-                "onChainLegacyDelegation": 75000000,
-                "onChainLiquidStakingDelegation": 150000000
+                "onChainLegacyDelegation": 65000000,
+                "onChainLiquidStakingDelegation": 130000000
             }
         }
     },
