@@ -23,7 +23,7 @@
                 "tokenSnapshot": 35000000,
                 "onChainDirect": 20000000,
                 "onChainLegacyDelegation": 65000000,
-                "onChainLiquidStakingDelegation": 130000000
+                "onChainLiquidStakingDelegation": 100000000
             }
         }
     },
