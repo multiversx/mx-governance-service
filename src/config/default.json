@@ -19,8 +19,11 @@
     "gasLimits": {
         "governance": {
             "vote":  {
-                "energy": 7000000,
-                "tokenSnapshot": 50000000
+                "energy": 15000000,
+                "tokenSnapshot": 35000000,
+                "onChainDirect": 20000000,
+                "onChainLegacyDelegation": 75000000,
+                "onChainLiquidStakingDelegation": 100000000
             }
         }
     },
@@ -39,5 +42,8 @@
     "constants": {
         "MAINTENANCE": false,
         "MAX_USER_NFTS": 10000
+    },
+    "systemContracts": {
+        "stakingContract": "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqplllst77y4l"
     }
 }

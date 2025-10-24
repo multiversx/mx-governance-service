@@ -215,4 +215,12 @@ export class ApiConfigService {
 
         return admins.split(',');
     }
+
+    getValidateImpersionateUrl(): string {
+        const validateImpersonateUrl = this.configService.get<string>('MX_VALIDATE_IMPERSONATE_URL');
+        if (!validateImpersonateUrl) {  
+            return 'https://extras-api.multiversx.com/impersonate/allowed';
+        }
+        return validateImpersonateUrl;
+    }
 }

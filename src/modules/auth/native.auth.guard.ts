@@ -29,6 +29,8 @@ export class NativeAuthGuard implements CanActivate {
                 this.apiConfigService.getNativeAuthMaxExpirySeconds(),
             acceptedOrigins:
                 this.apiConfigService.getNativeAuthAcceptedOrigins(),
+            validateImpersonateUrl:
+                this.apiConfigService.getValidateImpersionateUrl(),
             cache: {
                 getValue: async <T>(key: string): Promise<T | undefined> => {
                     if (key === 'block:timestamp:latest') {

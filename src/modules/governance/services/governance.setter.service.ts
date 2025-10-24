@@ -6,6 +6,9 @@ import { GenericSetterService } from 'src/services/generics/generic.setter.servi
 import { Logger } from 'winston';
 import { ProposalVotes } from '../models/governance.proposal.votes.model';
 import { GovernanceProposalModel, GovernanceProposalStatus, VoteType } from '../models/governance.proposal.model';
+import { ProposalInfoModel } from '../models/proposal.info.model';
+import { GovernanceConfigModel } from '../models/governance.config.model';
+import { DelegateUserVotingPower } from '../models/delegate-provider.model';
 
 export class GovernanceSetterService extends GenericSetterService {
     constructor(
@@ -52,9 +55,45 @@ export class GovernanceSetterService extends GenericSetterService {
         );
     }
 
+    async getProposal(proposalID: number, value: ProposalInfoModel): Promise<string> {
+        return await this.setData(
+            this.getCacheKey('getProposal', proposalID),
+            value,
+            CacheTtlInfo.ContractState.remoteTtl,
+            CacheTtlInfo.ContractState.localTtl,
+        );
+    }
+
+    async getConfig(value: GovernanceConfigModel) {
+        return await this.setData(
+            this.getCacheKey('getConfig'),
+            value,
+            CacheTtlInfo.ContractState.remoteTtl,
+            CacheTtlInfo.ContractState.localTtl,
+        );
+    }
+
     async proposalStatus(scAddress: string, proposalId: number, value: GovernanceProposalStatus): Promise<string> {
         return await this.setData(
             this.getCacheKey('proposalStatus', scAddress, proposalId),
+            value,
+            CacheTtlInfo.ContractState.remoteTtl,
+            CacheTtlInfo.ContractState.localTtl,
+        );
+    }
+
+    async getUserVoteOnChain(scAddress: string, userAddress: string, proposalId: number, value: string): Promise<string> {
+        return await this.setData(
+            this.getCacheKey('getUserVoteOnChain', scAddress, userAddress, proposalId),
+            value,
+            CacheTtlInfo.ContractState.remoteTtl,
+            CacheTtlInfo.ContractState.localTtl,
+        );
+    }
+
+    async delegateUserVotingPowers(userAddress: string, proposalId: number, value: DelegateUserVotingPower[]): Promise<string> {
+        return await this.setData(
+            this.getCacheKey('delegateUserVotingPowers', userAddress, proposalId),
             value,
             CacheTtlInfo.ContractState.remoteTtl,
             CacheTtlInfo.ContractState.localTtl,

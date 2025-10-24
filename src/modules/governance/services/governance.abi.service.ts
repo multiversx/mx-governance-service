@@ -11,13 +11,14 @@ import { GovernanceType, toGovernanceProposalStatus, } from '../../../utils/gove
 import { TransactionModel } from '../../../models/transaction.model';
 import { gasConfig, mxConfig } from '../../../config';
 import BigNumber from 'bignumber.js';
-import { BytesValue, U64Value, } from '@multiversx/sdk-core/out/smartcontracts/typesystem';
+import { BytesValue, U64Value } from '@multiversx/sdk-core/out';
 import { GovernanceTokenSnapshotMerkleService } from './governance.token.snapshot.merkle.service';
 import { GovernanceDescriptionService } from './governance.description.service';
 import { GetOrSetCache } from '../../../helpers/decorators/caching.decorator';
 import { CacheTtlInfo } from '../../../services/caching/cache.ttl.info';
 import { decimalToHex } from '../../../utils/token.converters';
-import { ResultsParser } from '@multiversx/sdk-core/out';
+import { ResultsParser } from 'src/utils/results.parser';
+import { PaginationArgs } from '../models/pagination.model';
 
 @Injectable()
 export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
@@ -36,7 +37,7 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
         remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
         localTtl: CacheTtlInfo.ContractState.localTtl,
     })
-    async getAddressShardID(scAddress: string): Promise<number> {
+    async getAddressShardID(scAddress: string): Promise<string> {
         return await this.mxProxy.getAddressShardID(scAddress);
     }
 
@@ -183,12 +184,14 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
         );
         const interaction = contract.methodsExplicit.getProposals();
 
-        const query = interaction.check().buildQuery();
+        const query = interaction.buildQuery();
         const queryResponse = await this.mxProxy
             .getService()
             .queryContract(query);
         const endpointDefinition = interaction.getEndpoint();
         queryResponse.returnData = queryResponse.returnData.filter(data => data.length > 0);
+        
+    
         const response = new ResultsParser().parseQueryResponse(
             queryResponse,
             endpointDefinition,

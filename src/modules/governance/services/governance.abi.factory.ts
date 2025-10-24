@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { GovernanceEnergyAbiService, GovernanceTokenSnapshotAbiService } from './governance.abi.service';
 import { GovernanceType, governanceType } from '../../../utils/governance';
 import { GovernanceOldEnergyAbiService } from './governance.old.energy.abi.service';
+import { GovernanceOnChainAbiService } from './governance.onchain.abi.service';
 
 
 @Injectable()
@@ -10,6 +11,7 @@ export class GovernanceAbiFactory {
         private readonly governanceEnergyAbi: GovernanceEnergyAbiService,
         private readonly governanceOldEnergyAbi: GovernanceOldEnergyAbiService,
         private readonly governanceTokenSnapshotAbi: GovernanceTokenSnapshotAbiService,
+        private readonly governanceOnChainAbiService: GovernanceOnChainAbiService,
     ) {
     }
 
@@ -21,6 +23,8 @@ export class GovernanceAbiFactory {
                 return this.governanceTokenSnapshotAbi;
             case GovernanceType.OLD_ENERGY:
                 return this.governanceOldEnergyAbi;
+            case GovernanceType.ONCHAIN:
+                return this.governanceOnChainAbiService;
         }
     }
 }

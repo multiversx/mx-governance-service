@@ -47,11 +47,11 @@ export class MXProxyService {
         return this.proxy;
     }
 
-    async getAddressShardID(address: string): Promise<number> {
+    async getAddressShardID(address: string): Promise<string> {
         const response = await this.getService().doGetGeneric(
             `address/${address}/shard`,
         );
-        return response.shardID;
+        return response.shardID.toString();
     }
     async getLockedAssetFactorySmartContract(): Promise<SmartContract> {
         return this.getSmartContract(
@@ -106,7 +106,7 @@ export class MXProxyService {
         });
         const json = JSON.parse(jsonContent);
         const newSC = new SmartContract({
-            address: Address.fromString(contractAddress),
+            address: Address.newFromBech32(contractAddress),
             abi: AbiRegistry.create(json),
         });
         const key = `${contractInterface}.${contractAddress}`;

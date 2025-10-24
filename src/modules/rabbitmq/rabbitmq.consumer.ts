@@ -10,37 +10,70 @@ import {
     VoteEvent,
 } from '@multiversx/sdk-exchange';
 import { EnergyHandler } from './handlers/energy.handler.service';
-import { governanceContractsAddresses } from '../../utils/governance';
+import { GOVERNANCE_ONCHAIN_EVENTS, governanceContractsAddresses } from '../../utils/governance';
 import { GovernanceHandlerService } from './handlers/governance.handler.service';
-import { scAddress } from 'src/config';
+import { governanceConfig, scAddress } from 'src/config';
+import { Address } from '@multiversx/sdk-core/out';
+import { GovernanceOnChainHandlerService } from './handlers/governance.onchain.handler.service';
+import { PulseHandlerService } from './handlers/pulse.handler.service';
 
 @Injectable()
 export class RabbitMqConsumer {
     private filterAddresses: string[];
     private data: any[];
 
-    constructor(private readonly energyHandler: EnergyHandler, private readonly governanceHandler: GovernanceHandlerService, @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger) {
-    }
+    constructor(
+        private readonly energyHandler: EnergyHandler,
+        private readonly governanceHandler: GovernanceHandlerService,
+        private readonly onChainGovernanceHandler: GovernanceOnChainHandlerService,
+        private readonly pulseHandler: PulseHandlerService,
+        @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+    ) {}
 
     @CompetingRabbitConsumer({
-        queueName: process.env.RABBITMQ_QUEUE, exchange: process.env.RABBITMQ_EXCHANGE,
+        queueName: process.env.RABBITMQ_QUEUE,
+        exchange: process.env.RABBITMQ_EXCHANGE,
     })
     async consumeEvents(rawEvents: any) {
         this.logger.info('Start Processing events...');
         if (!rawEvents.events) {
             return;
         }
+        const pulseScAddresses: string[] = governanceConfig.pulse.linear;
+        
+        const pulseEvents = rawEvents.events.filter((event: any) => pulseScAddresses.includes(event.address));
+        if(pulseEvents.length > 0) {
+            await this.pulseHandler.handlePulseEvents(pulseEvents);
+        }
+        
         const events: RawEvent[] = rawEvents?.events
             ?.filter((rawEvent: {
                 address: string;
                 identifier: string
-            }) => this.isFilteredAddress(rawEvent.address))
-            .map((rawEventType) => new RawEvent(rawEventType));
+            }) => this.isFilteredAddress(rawEvent.address) || this.isOnChainGovernanceEvent(rawEvent, rawEvents.shardId.toString()))
+            .map((rawEventType) => {
+                // means is on chain governance event
+                if(!this.isFilteredAddress(rawEventType.address)) {
+                    this.logger.info('Processing on-chain governance event', rawEventType);
+                    if(rawEventType.identifier === 'delegateVote') {
+                        rawEventType.topics =  [rawEventType.topics[1], rawEventType.topics[2], rawEventType.topics[0], rawEventType.topics[3], rawEventType.topics[4]] 
+                    } else if (rawEventType.identifier === 'vote') {
+                        const hexAddress = Address.newFromBech32(rawEventType.address).toHex();
+                        const base64Address = Buffer.from(hexAddress, 'hex').toString('base64');
 
+                        rawEventType.address = governanceConfig.onChain.linear[0];
+                        
+                        rawEventType.topics = [rawEventType.topics[1], base64Address, rawEventType.topics[0], rawEventType.topics[2], rawEventType.topics[3]];
+                    }
+                }
+                return new RawEvent(rawEventType);
+            });
+        
         this.data = [];
 
         for (const rawEvent of events) {
-            if (rawEvent.data === '' && rawEvent.name !== GOVERNANCE_EVENTS.UP && rawEvent.name !== GOVERNANCE_EVENTS.DOWN && rawEvent.name !== GOVERNANCE_EVENTS.ABSTAIN && rawEvent.name !== GOVERNANCE_EVENTS.DOWN_VETO) {
+            const validEvents = Object.values(GOVERNANCE_EVENTS).map(event => event.toString()).concat(Object.values(GOVERNANCE_ONCHAIN_EVENTS).map(event => event.toString()));
+            if (rawEvent.data === '' && !validEvents.includes(rawEvent.name)) {
                 this.logger.info('Event skipped', {
                     address: rawEvent.address,
                     identifier: rawEvent.identifier,
@@ -67,6 +100,12 @@ export class RabbitMqConsumer {
                 case GOVERNANCE_EVENTS.ABSTAIN:
                     await this.governanceHandler.handleGovernanceVoteEvent(new VoteEvent(rawEvent), rawEvent.name);
                     break;
+                case GOVERNANCE_ONCHAIN_EVENTS.YES:
+                case GOVERNANCE_ONCHAIN_EVENTS.NO:
+                case GOVERNANCE_ONCHAIN_EVENTS.ABSTAIN:
+                case GOVERNANCE_ONCHAIN_EVENTS.VETO:
+                    await this.onChainGovernanceHandler.handleOnChainGovernanceVoteEvent(new VoteEvent(rawEvent), rawEvent.name);
+                    break;
             }
         }
 
@@ -80,5 +119,9 @@ export class RabbitMqConsumer {
 
     private isFilteredAddress(address: string): boolean {
         return (this.filterAddresses.find((filterAddress) => address === filterAddress) !== undefined);
+    }
+
+    private isOnChainGovernanceEvent(event: {address: string, identifier: string}, shardId: string): boolean {
+        return ['vote', 'delegateVote'].includes(event.identifier) && shardId === '4294967295';
     }
 }

@@ -109,6 +109,15 @@ export class MXApiService {
         return new Stats(stats);
     }
 
+    async getFirstBlockTimestampByEpochAndShard(epoch: number, shardId: string): Promise<number> {
+        const { timestamp } = (await this.doGetGeneric<[{ timestamp: number}]>(
+            this.getFirstBlockTimestampByEpochAndShard.name,
+            `blocks?size=1&epoch=${epoch}&shard=${shardId}&fields=timestamp&order=asc`,
+        ))[0];
+
+        return timestamp;
+    }
+
     async getToken(tokenID: string): Promise<EsdtToken> {
         try {
             const rawToken = await this.doGetGeneric<EsdtToken>(
@@ -134,6 +143,22 @@ export class MXApiService {
         }
     }
 
+    async getTokenBalanceForAddress(userAddress: string, tokenID: string): Promise<string> {
+        try {
+            const { balance } = await this.doGetGeneric<EsdtToken>(
+                this.getTokenBalanceForAddress.name,
+                `accounts/${userAddress}/tokens/${tokenID}?fields=balance`
+            );
+            return balance;
+        } catch (error) {
+            if(error.statusCode === 404) {
+                return '0';
+            }
+            this.logger.error(error);
+            throw error;
+        }
+    }
+
     async getTokenForUser(
         address: string,
         tokenID: string,
@@ -153,9 +178,18 @@ export class MXApiService {
 
     async getCurrentBlockNonce(shardId: number): Promise<number> {
         const latestBlock = await this.doGetGeneric(
-            this.getCurrentNonce.name,
+            this.getCurrentBlockNonce.name,
             `blocks?size=1&shard=${shardId}`,
         );
         return latestBlock[0].nonce;
+    }
+
+    async getBalanceForAddress(address: string): Promise<string> {
+        const { balance } = await this.doGetGeneric(
+            this.getBalanceForAddress.name,
+            `accounts/${address}?fields=balance`
+        ) as { balance: string };
+        
+        return balance;
     }
 }

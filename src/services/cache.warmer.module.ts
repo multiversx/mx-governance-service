@@ -10,6 +10,8 @@ import { ElasticService } from 'src/helpers/elastic.service';
 import { DynamicModuleUtils } from 'src/utils/dynamic.module.utils';
 import { GovernanceCacheWarmerService } from './crons/governance.cache.warmer.service';
 import { GovernanceModule } from '../modules/governance/governance.module';
+import { GithubProposalCacheWarmerService } from './crons/github.proposals.cache.warmer';
+import { PulseCacheWarmerService } from './crons/pulse.cache.warmer.service';
 
 @Module({
     imports: [
@@ -26,6 +28,8 @@ import { GovernanceModule } from '../modules/governance/governance.module';
     providers: [
         CacheWarmerService,
         GovernanceCacheWarmerService,
+        GithubProposalCacheWarmerService,
+        PulseCacheWarmerService,
         ElasticService,
     ],
 })

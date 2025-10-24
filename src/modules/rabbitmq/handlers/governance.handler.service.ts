@@ -8,8 +8,9 @@ import { GovernanceTokenSnapshotAbiService } from '../../governance/services/gov
 import BigNumber from 'bignumber.js';
 import { ProposalVotes } from '../../governance/models/governance.proposal.votes.model';
 import { GovernanceComputeService } from '../../governance/services/governance.compute.service';
-import { toVoteType } from '../../../utils/governance';
+import { GOVERNANCE_ONCHAIN_EVENTS, toVoteType } from '../../../utils/governance';
 import { GOVERNANCE_EVENTS, VoteEvent } from '@multiversx/sdk-exchange';
+import { GovernanceOnChainAbiService } from 'src/modules/governance/services/governance.onchain.abi.service';
 
 @Injectable()
 export class GovernanceHandlerService {
@@ -19,6 +20,7 @@ export class GovernanceHandlerService {
         private readonly governanceAbi: GovernanceTokenSnapshotAbiService,
         private readonly governanceCompute: GovernanceComputeService,
         private readonly governanceSetter: GovernanceSetterService,
+        private readonly governanceOnChainAbi: GovernanceOnChainAbiService,
         @Inject(PUB_SUB) private pubSub: RedisPubSub,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     ) {}
