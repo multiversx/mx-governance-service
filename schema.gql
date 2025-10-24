@@ -12,13 +12,6 @@ interface IAssets {
   extraTokens: [String]
 }
 
-interface IRoles {
-  address: String
-  canMint: Boolean
-  canBurn: Boolean
-  roles: [String]
-}
-
 type AssetsModel implements IAssets {
   website: String
   description: String
@@ -27,13 +20,6 @@ type AssetsModel implements IAssets {
   svgUrl: String
   lockedAccounts: [String]
   extraTokens: [String]
-}
-
-type RolesModel implements IRoles {
-  address: String
-  canMint: Boolean
-  canBurn: Boolean
-  roles: [String]
 }
 
 type EsdtToken implements IEsdtToken {
@@ -59,7 +45,6 @@ type EsdtToken implements IEsdtToken {
   canPause: Boolean!
   canFreeze: Boolean!
   canWipe: Boolean!
-  roles: IRoles
   type: String
   balance: String
 }
@@ -87,7 +72,6 @@ interface IEsdtToken {
   canPause: Boolean!
   canFreeze: Boolean!
   canWipe: Boolean!
-  roles: IRoles
   type: String
   balance: String
 }
@@ -118,6 +102,101 @@ type EsdtTokenPaymentModel {
   amount: String!
 }
 
+type PollResults {
+  pollResults: [PollResult!]!
+  totalVotesCount: Int!
+  totalVotingPower: String!
+}
+
+type PollResult {
+  optionId: Int!
+  votingPower: String!
+  nrVotes: Float!
+}
+
+type PulsePollModel {
+  contractAddress: String!
+  pollId: Float!
+  initiator: String!
+  options: [String!]!
+  question: String!
+  status: String!
+  pollEndTime: Int!
+  pollResults: PollResults!
+  hasVoted: Boolean!
+  userVotingOption: Float!
+  userVotingPower: String!
+  index: Float!
+}
+
+type PulseIdeaModel {
+  contractAddress: String!
+  ideaId: Float!
+  initiator: String!
+  description: String!
+  ideaStartTime: Int!
+  totalVotingPower: String!
+  totalVotesCount: Int!
+  hasVoted: Boolean!
+  userVotingPower: String!
+  index: Int!
+}
+
+type DelegateUserVotingPower {
+  providerName: String!
+  scAddress: String!
+  lsTokenId: String!
+  userVotingPower: String!
+  isEnabled: Boolean!
+  hasVoted: Boolean!
+  userVoteType: Float!
+}
+
+type FileContent {
+  title: String!
+  description: String!
+  content: String!
+  rationale: String
+  proposer: String!
+}
+
+type ChainInfo {
+  existsOnChain: Boolean!
+  status: String
+  proposalId: Float
+}
+
+type GithubProposal {
+  fileName: String!
+  commitHash: String!
+  fileContent: FileContent!
+  chainInfo: ChainInfo!
+  prMerged: Boolean
+  prNumber: Float
+  prUrl: String
+}
+
+"""FAQ item"""
+type FAQItem {
+  """Question"""
+  question: String!
+
+  """Answear"""
+  answer: String!
+}
+
+"""Direct stake voting power"""
+type ExcludedAddressItem {
+  """Name"""
+  name: String!
+
+  """Address"""
+  address: String!
+
+  """Voting Power"""
+  votingPower: String!
+}
+
 type GovernanceProposalModel {
   contractAddress: String!
   proposalId: Float!
@@ -137,9 +216,17 @@ type GovernanceProposalModel {
   hasVoted: Boolean!
   userVoteType: Float!
   userVotingPower: String!
+  delegateUserVotingPowers: [DelegateUserVotingPower!]!
+  userVotingPowerDirect: String!
+  commitHash: String!
+  startVoteTimestamp: Int!
+  endVoteTimestamp: Int!
+  proposalIndex: Int!
+  faq: [FAQItem!]
+  excludedAddresses: [ExcludedAddressItem!]
 }
 
-union GovernanceDescriptionVersions = DescriptionV0 | DescriptionV1
+union GovernanceDescriptionVersions = DescriptionV0 | DescriptionV1 | DescriptionV2 | DescriptionV3
 
 type DescriptionV0 {
   title: String!
@@ -152,6 +239,19 @@ type DescriptionV1 {
   strapiId: Int!
   version: Float!
   shortDescription: String!
+}
+
+type DescriptionV2 {
+  title: String!
+  strapiId: Int!
+  version: Float!
+  shortDescription: String!
+  strapiHash: String!
+}
+
+type DescriptionV3 {
+  version: Float!
+  fileContent: FileContent!
 }
 
 type TransactionModel {
@@ -172,41 +272,102 @@ type TransactionModel {
   guardianSignature: String
 }
 
-type Query {
-  vote(contractAddress: String!, proposalId: Float!, vote: Float!): TransactionModel!
-  governanceContracts(identifiers: [String!], contracts: [String!], type: String): [GovernanceTypes!]!
-  maintenance: Boolean!
+type GovernancePulseAggregation {
+  polls(pollId: Int, contractAddress: String): [PulsePollModel!]!
+  ideas(ideaId: Int, contractAddress: String, offset: Int! = 0, limit: Int! = 200, sortBy: SortType, order: OrderType): [PulseIdeaModel!]!
+  totalIdeas: Int!
+  totalPolls: Int!
+  latestContract: String!
+  latestVotingPower: String!
 }
 
-union GovernanceTypes = GovernanceTokenSnapshotContract | GovernanceEnergyContract
+enum SortType {
+  VOTING_POWER
+  VOTES_NUMBER
+  START_TIME
+}
+
+enum OrderType {
+  ASCENDING
+  DESCENDING
+}
+
+type Query {
+  allVotes(contractAddress: String!, proposalId: Float!, vote: Float!): [TransactionModel!]!
+  createProposal(contractAddress: String!, commitHash: String!, startVoteEpoch: Int!, endVoteEpoch: Int!, nativeTokenAmount: String!): TransactionModel!
+  closeProposal(contractAddress: String!, proposalId: Int!): TransactionModel!
+  vote(contractAddress: String!, proposalId: Float!, vote: Float!): TransactionModel!
+  createPoll(contractAddress: String!, question: String!, options: [String!]!, duration: Int!): TransactionModel!
+  endPoll(contractAddress: String!, pollId: Int!): TransactionModel!
+  votePoll(contractAddress: String!, pollId: Float!, optionId: Float!): TransactionModel!
+  createIdea(contractAddress: String!, description: String!): TransactionModel!
+  voteUpIdea(contractAddress: String!, ideaId: Float!): TransactionModel!
+  governanceContracts(identifiers: [String!], contracts: [String!], type: String): [GovernanceTypes!]!
+  pulseAggregation: GovernancePulseAggregation!
+  maintenance: Boolean!
+  githubProposals: [GithubProposal!]!
+  githubOAuthToken(code: String!): String!
+}
+
+union GovernanceTypes = GovernanceTokenSnapshotContract | GovernanceEnergyContract | GovernanceOnChainContract | GovernancePulseContract
 
 type GovernanceTokenSnapshotContract {
   address: String!
-  shard: Int!
+  shard: String!
   minFeeForPropose: String!
   quorum: String!
   votingDelayInBlocks: Int!
   votingPeriodInBlocks: Int!
   feeToken: EsdtToken!
   withdrawPercentageDefeated: Int!
-  proposals(proposalId: Int): [GovernanceProposalModel!]!
-  vetoPercentageLimit: Int!
+  proposals(proposalId: Int, offset: Int! = 0, limit: Int! = 200): [GovernanceProposalModel!]!
+  vetoPercentageLimit: Float!
   votingPowerDecimals: Int!
 }
 
 type GovernanceEnergyContract {
   address: String!
-  shard: Int!
+  shard: String!
   minFeeForPropose: String!
   quorum: String!
   votingDelayInBlocks: Int!
   votingPeriodInBlocks: Int!
   feeToken: EsdtToken!
   withdrawPercentageDefeated: Int!
-  proposals(proposalId: Int): [GovernanceProposalModel!]!
-  vetoPercentageLimit: Int!
+  proposals(proposalId: Int, offset: Int! = 0, limit: Int! = 200): [GovernanceProposalModel!]!
+  vetoPercentageLimit: Float!
   votingPowerDecimals: Int!
   minEnergyForPropose: String!
   feesCollectorAddress: String!
   energyFactoryAddress: String!
+}
+
+type GovernanceOnChainContract {
+  address: String!
+  shard: String!
+  minFeeForPropose: String!
+  quorum: String!
+  votingDelayInBlocks: Int!
+  votingPeriodInBlocks: Int!
+  feeToken: EsdtToken!
+  withdrawPercentageDefeated: Int!
+  proposals(proposalId: Int, offset: Int! = 0, limit: Int! = 200): [GovernanceProposalModel!]!
+  vetoPercentageLimit: Float!
+  votingPowerDecimals: Int!
+  totalOnChainProposals: Int!
+}
+
+type GovernancePulseContract {
+  address: String!
+  shard: String!
+  rootHash: String!
+  polls(pollId: Int, offset: Int! = 0, limit: Int! = 200): [PulsePollModel!]!
+  ideas(ideaId: Int, offset: Int! = 0, limit: Int! = 200, sortBy: SortType, order: OrderType): [PulseIdeaModel!]!
+  totalIdeas: Int!
+  totalPolls: Int!
+  userVotingPower: String!
+}
+
+type Mutation {
+  createGithubProposal(title: String!, description: String!, proposal: String!, accessToken: String!): String!
 }

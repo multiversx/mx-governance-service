@@ -1,0 +1,447 @@
+{
+    "buildInfo": {
+        "rustc": {
+            "version": "1.89.0",
+            "commitHash": "29483883eed69d5fb4db01964cdf2af4d86e9cb2",
+            "commitDate": "2025-08-04",
+            "channel": "Stable",
+            "short": "rustc 1.89.0 (29483883e 2025-08-04)"
+        },
+        "contractCrate": {
+            "name": "pulse-sc",
+            "version": "0.0.0"
+        },
+        "framework": {
+            "name": "multiversx-sc",
+            "version": "0.60.0"
+        }
+    },
+    "name": "PulseSc",
+    "constructor": {
+        "inputs": [],
+        "outputs": []
+    },
+    "upgradeConstructor": {
+        "inputs": [],
+        "outputs": []
+    },
+    "endpoints": [
+        {
+            "name": "set_root_hash",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "root_hash",
+                    "type": "array32<u8>"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "newPoll",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "question",
+                    "type": "bytes"
+                },
+                {
+                    "name": "options",
+                    "type": "List<bytes>"
+                },
+                {
+                    "name": "duration",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "endPoll",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "poll_index",
+                    "type": "u32"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "newProposal",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "description",
+                    "type": "bytes"
+                },
+                {
+                    "name": "voting_power",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "proof",
+                    "type": "List<array32<u8>>"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "vote_poll",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "poll_index",
+                    "type": "u32"
+                },
+                {
+                    "name": "option_index",
+                    "type": "u32"
+                },
+                {
+                    "name": "voting_power",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "proof",
+                    "type": "List<array32<u8>>"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "vote_up_proposal",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "proposal_index",
+                    "type": "u32"
+                },
+                {
+                    "name": "voting_power",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "proof",
+                    "type": "List<array32<u8>>"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "getPoll",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "index",
+                    "type": "u32"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "Poll"
+                }
+            ]
+        },
+        {
+            "name": "getPollVotes",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "poll_index",
+                    "type": "u32"
+                },
+                {
+                    "name": "option_index",
+                    "type": "u32"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "getNextAvailablePollIndex",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "getRootHash",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "array32<u8>"
+                }
+            ]
+        },
+        {
+            "name": "getProposal",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "index",
+                    "type": "u32"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "Proposal"
+                }
+            ]
+        },
+        {
+            "name": "getNextAvailableProposalIndex",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "getTotalPollVotes",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "poll_index",
+                    "type": "u32"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "getProposalVoteUps",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "proposal_index",
+                    "type": "u32"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "confirmVotingPower",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "voting_power",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "proof",
+                    "type": "List<array32<u8>>"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "pause",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "unpause",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "isPaused",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "bool"
+                }
+            ]
+        }
+    ],
+    "events": [
+        {
+            "identifier": "new_poll",
+            "inputs": [
+                {
+                    "name": "poll_index",
+                    "type": "u32",
+                    "indexed": true
+                },
+                {
+                    "name": "question",
+                    "type": "bytes",
+                    "indexed": true
+                }
+            ]
+        },
+        {
+            "identifier": "poll_vote_cast",
+            "inputs": [
+                {
+                    "name": "voter",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "poll_index",
+                    "type": "u32",
+                    "indexed": true
+                },
+                {
+                    "name": "option_index",
+                    "type": "u32",
+                    "indexed": true
+                }
+            ]
+        },
+        {
+            "identifier": "poll_ended",
+            "inputs": [
+                {
+                    "name": "poll_index",
+                    "type": "u32",
+                    "indexed": true
+                },
+                {
+                    "name": "winning_option_index",
+                    "type": "u32",
+                    "indexed": true
+                },
+                {
+                    "name": "winning_option_vote_count",
+                    "type": "u32",
+                    "indexed": true
+                },
+                {
+                    "name": "winning_option_vote_score",
+                    "type": "BigUint",
+                    "indexed": true
+                }
+            ]
+        },
+        {
+            "identifier": "new_proposal",
+            "inputs": [
+                {
+                    "name": "proposal_index",
+                    "type": "u32",
+                    "indexed": true
+                },
+                {
+                    "name": "description",
+                    "type": "bytes",
+                    "indexed": true
+                }
+            ]
+        },
+        {
+            "identifier": "proposal_vote_up_cast",
+            "inputs": [
+                {
+                    "name": "voter",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "proposal_index",
+                    "type": "u32",
+                    "indexed": true
+                }
+            ]
+        },
+        {
+            "identifier": "pauseContract",
+            "inputs": []
+        },
+        {
+            "identifier": "unpauseContract",
+            "inputs": []
+        }
+    ],
+    "esdtAttributes": [],
+    "hasCallback": false,
+    "types": {
+        "Poll": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "initiator",
+                    "type": "Address"
+                },
+                {
+                    "name": "question",
+                    "type": "bytes"
+                },
+                {
+                    "name": "options",
+                    "type": "List<bytes>"
+                },
+                {
+                    "name": "vote_score",
+                    "type": "List<BigUint>"
+                },
+                {
+                    "name": "end_time",
+                    "type": "u64"
+                },
+                {
+                    "name": "status",
+                    "type": "bool"
+                }
+            ]
+        },
+        "Proposal": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "initiator",
+                    "type": "Address"
+                },
+                {
+                    "name": "description",
+                    "type": "bytes"
+                },
+                {
+                    "name": "vote_score",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "propose_time",
+                    "type": "u64"
+                }
+            ]
+        }
+    }
+}

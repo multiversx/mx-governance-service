@@ -3,6 +3,7 @@ export class Stats {
     blocks: number;
     accounts: number;
     transactions: number;
+    scResults: number;
     refreshRate: number;
     epoch: number;
     roundsPassed: number;

@@ -42,4 +42,30 @@ export class TokenService {
 
         return undefined;
     }
+
+    async getTokenBalanceForAddress(userAddress: string, tokenID: string) {
+        if (userAddress === undefined || tokenID === undefined) {
+            return undefined;
+        }
+        const cacheKey = `user.${userAddress}.token.${tokenID}`;
+        const cachedBalance = await this.cachingService.get<string>(cacheKey);
+        if (cachedBalance && cachedBalance !== undefined) {
+            return cachedBalance;
+        }
+
+        const balance = await this.apiService.getTokenBalanceForAddress(userAddress, tokenID);
+
+        if (balance !== undefined) {
+            await this.cachingService.set<string>(
+                cacheKey,
+                balance,
+                CacheTtlInfo.Token.remoteTtl,
+                CacheTtlInfo.Token.localTtl,
+            );
+
+            return balance;
+        }
+
+        return undefined;
+    }
 }

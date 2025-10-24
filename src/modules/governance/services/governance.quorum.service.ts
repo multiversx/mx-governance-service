@@ -17,6 +17,8 @@ export class GovernanceQuorumService {
                 return this.energyAbi.energyAmountForUser(userAddress);
             case GovernanceType.TOKEN_SNAPSHOT:
                 return this.merkleService.getAddressBalance(roothash, userAddress);
+            case GovernanceType.PULSE:
+                return this.merkleService.getAddressBalance(roothash, userAddress);
         }
     }
 }

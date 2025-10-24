@@ -35,8 +35,9 @@ jobs:
 
             - name: Collect code coverage
               run: npm run test:cov
-            - uses: codecov/codecov-action@v2
+            - uses: codecov/codecov-action@v4.0.1
               with:
+                  token: ${{ secrets.CODECOV_TOKEN }}
                   files: ./coverage/unit/clover.xml
                   flags: unittests
                   name: codecov-umbrella

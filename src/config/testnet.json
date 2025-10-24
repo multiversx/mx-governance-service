@@ -1,6 +1,7 @@
 {
     "multiversx": {
-        "chainID": "T"
+        "chainID": "T",
+        "existingProposals": 0
     },
     "scAddress": {
         "lockedAssetAddress": "erd1qqqqqqqqqqqqqpgqsn34ftz2g7822ta0dq3ddd57frup220q295qrwnw3g",

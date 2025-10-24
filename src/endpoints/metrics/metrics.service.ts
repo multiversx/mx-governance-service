@@ -4,6 +4,7 @@ import { Logger } from 'winston';
 import { QueryType } from '@multiversx/sdk-nestjs-elastic';
 import { ElasticQuery } from '@multiversx/sdk-nestjs-elastic';
 import { ElasticService } from 'src/helpers/elastic.service';
+import { TransactionType } from 'src/helpers/entities/transaction.type';
 
 @Injectable()
 export class MetricsService {
@@ -17,8 +18,9 @@ export class MetricsService {
         elasticQueryAdapter.condition.must = [
             QueryType.Match('receiver', address),
         ];
+        elasticQueryAdapter.withMustMatchCondition('type', TransactionType.NORMAL_TRANSACTION)
         return await this.elasticService.getCount(
-            'transactions',
+            'operations',
             elasticQueryAdapter,
         );
     }
@@ -34,9 +36,9 @@ export class MetricsService {
                 '*QDczNzc2MTcwNTQ2ZjZiNjU2ZTczNDY2OTc4NjU2NDQ5NmU3MDc1NzR*',
             ),
         ];
-
+        elasticQueryAdapter.withMustMatchCondition('type', TransactionType.NORMAL_TRANSACTION)
         let txCount = await this.elasticService.getCount(
-            'transactions',
+            'operations',
             elasticQueryAdapter,
         );
         swapTxCount += txCount;
@@ -48,9 +50,9 @@ export class MetricsService {
                 '*QDczNzc2MTcwNTQ2ZjZiNjU2ZTczNDY2OTc4NjU2NDRmNzU3NDcwNzU3NE*',
             ),
         ];
-
+        elasticQueryAdapter.withMustMatchCondition('type', TransactionType.NORMAL_TRANSACTION)
         txCount = await this.elasticService.getCount(
-            'transactions',
+            'operations',
             elasticQueryAdapter,
         );
         swapTxCount += txCount;
@@ -64,9 +66,9 @@ export class MetricsService {
             QueryType.Match('receiver', address),
             QueryType.Wildcard('data', '*YWRkTGlxdWlkaXR*'),
         ];
-
+        elasticQueryAdapter.withMustMatchCondition('type', TransactionType.NORMAL_TRANSACTION)
         return await this.elasticService.getCount(
-            'transactions',
+            'operations',
             elasticQueryAdapter,
         );
     }
@@ -80,9 +82,9 @@ export class MetricsService {
                 '*QDcyNjU2ZDZmNzY2NTRjNjk3MTc1Njk2NDY5NzQ3OU*',
             ),
         ];
-
+        elasticQueryAdapter.withMustMatchCondition('type', TransactionType.NORMAL_TRANSACTION)
         return await this.elasticService.getCount(
-            'transactions',
+            'operations',
             elasticQueryAdapter,
         );
     }
@@ -93,13 +95,11 @@ export class MetricsService {
     ): Promise<number> {
         const elasticQueryAdapter: ElasticQuery = new ElasticQuery();
         elasticQueryAdapter.condition.must = [
-            QueryType.Nested('events', [
-                QueryType.Match('events.address', address),
-                QueryType.Match('events.identifier', eventIdentifier),
-            ]),
+                QueryType.Match('address', address),
+                QueryType.Match('identifier', eventIdentifier),
         ];
 
-        return await this.elasticService.getCount('logs', elasticQueryAdapter);
+        return await this.elasticService.getCount('events', elasticQueryAdapter);
     }
 
     async computeUniqueUsers(address: string): Promise<number> {
@@ -107,9 +107,9 @@ export class MetricsService {
         elasticQueryAdapter.condition.must = [
             QueryType.Match('receiver', address),
         ];
-
+        elasticQueryAdapter.withMustMatchCondition('type', TransactionType.NORMAL_TRANSACTION)
         const transactions = await this.elasticService.getList(
-            'transactions',
+            'operations',
             'sender',
             elasticQueryAdapter,
         );

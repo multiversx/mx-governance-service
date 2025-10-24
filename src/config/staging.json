@@ -1,6 +1,7 @@
 {
     "multiversx": {
-        "chainID": "1"
+        "chainID": "1",
+        "existingProposals": 6
     },
     "scAddress": {
         "lockedAssetAddress": "erd1qqqqqqqqqqqqqpgqjpt0qqgsrdhp2xqygpjtfrpwf76f9nvg2jpsg4q7th",
@@ -18,17 +19,24 @@
             ]
         },
         "energy": {
-            "cvadratic": []
+            "cvadratic": [
+              "erd1qqqqqqqqqqqqqpgqyxqwuhtj3xhftcpn2kzuq07lhdp4ng222jps650gtt"
+            ]
         },
         "tokenSnapshot": {
             "linear": [
                 "erd1qqqqqqqqqqqqqpgq7cywmem5g66ad49rce0ctu6yqmscmp9v7j6q7cded4",
                 "erd1qqqqqqqqqqqqqpgq8xqp6c0kzwn3f2c5zsxfex6h69s2x9rwhg4smw0gfc",
-                "erd1qqqqqqqqqqqqqpgq4qvrwlr2e6ld50f3qfc94am38p8298kthg4s3f0vfn"
+                "erd1qqqqqqqqqqqqqpgq4qvrwlr2e6ld50f3qfc94am38p8298kthg4s3f0vfn",
+                "erd1qqqqqqqqqqqqqpgqfn2mu8l0dte34eqh6qtgmpjpxpkhunccrl4sy2sp07",
+                "erd1qqqqqqqqqqqqqpgqj4ms6lnkq0zlw0mkd0mfgwaly89znl5nytcqypnq5c"
             ],
             "cvadratic": [
                 "erd1qqqqqqqqqqqqqpgqrgnkavjf5nl943crczz5wjxzs5garatj47dsnupxm6"
             ]
         }
-    }
+    },
+    "requestExplicit": [
+        "erd1qqqqqqqqqqqqqpgqj4ms6lnkq0zlw0mkd0mfgwaly89znl5nytcqypnq5c"
+    ]
 }

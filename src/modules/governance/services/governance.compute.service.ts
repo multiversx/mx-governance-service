@@ -6,10 +6,11 @@ import { CacheTtlInfo } from '../../../services/caching/cache.ttl.info';
 import { GovernanceSetterService } from './governance.setter.service';
 import { Address } from '@multiversx/sdk-core/out';
 import { decimalToHex } from '../../../utils/token.converters';
-import { ElasticQuery, ElasticSortOrder, QueryType } from '@multiversx/sdk-nestjs-elastic';
+import { ElasticQuery, QueryType } from '@multiversx/sdk-nestjs-elastic';
 import { ElasticService } from 'src/helpers/elastic.service';
-import { GovernanceType, governanceType, toVoteType } from '../../../utils/governance';
-import { VoteEvent } from '@multiversx/sdk-exchange';
+import {  toVoteType } from '../../../utils/governance';
+import { governanceConfig } from 'src/config';
+import { DelegateGovernanceService } from './delegate-governance.service';
 
 @Injectable()
 export class GovernanceComputeService {
@@ -19,6 +20,33 @@ export class GovernanceComputeService {
     ) {
     }
 
+    @ErrorLoggerAsync()
+    @GetOrSetCache({
+        baseKey: 'governance',
+        remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
+        localTtl: CacheTtlInfo.ContractState.localTtl,
+    })
+    async getUserVoteOnChain(scAddress: string, userAddress: string, proposalId: number): Promise<VoteType> {
+        const onChainScAddress = governanceConfig.onChain.linear[0];
+        const isDelegateVote = onChainScAddress !== scAddress;
+
+         if(isDelegateVote && !DelegateGovernanceService.getDelegateStakingProvider(scAddress).isEnabled) {
+            return VoteType.NotVoted;
+        }
+
+        let voteType = VoteType.NotVoted;
+        const eventName = isDelegateVote ? 'delegateVote' : 'vote';
+       
+        const event = await this.getVoteEventOnChain(eventName, scAddress, userAddress, proposalId, onChainScAddress);
+        if(event) {
+            const voteEvent = event._source;
+            const decodedVoteType = Buffer.from(voteEvent.topics[1], 'hex').toString();
+            voteType = toVoteType(decodedVoteType);
+        }
+
+        return voteType;
+    }
+
     async userVotedProposalsWithVoteType(scAddress: string, userAddress: string, proposalId: number): Promise<VoteType> {
         const currentCachedProposalVoteTypes = await this.userVoteTypesForContract(scAddress, userAddress);
         const cachedVoteType = currentCachedProposalVoteTypes.find((proposal) => proposal.proposalId === proposalId);
@@ -26,28 +54,14 @@ export class GovernanceComputeService {
             return cachedVoteType.vote;
         }
 
-        const log = await this.getVoteLog('vote', scAddress, userAddress, proposalId);
+        const event = await this.getVoteEvent('vote', scAddress, userAddress, proposalId);
         let voteType = VoteType.NotVoted;
-        if (governanceType(scAddress) === GovernanceType.OLD_ENERGY) {
-            if (log.length > 0) {
-                const voteEvent = log[0]._source.events.find((event) => event.identifier === 'vote');
-                voteType = toVoteType(atob(voteEvent.topics[0]));
-            }
+        if(event) {
+                const voteEvent = event._source;
+                const decodedVoteType = Buffer.from(voteEvent.topics[0], 'hex').toString();
+                voteType = toVoteType(decodedVoteType);
         }
-        else {
-            for (let i = 0; i < log.length; i++) {
-                const logEntry = log[i]._source;
-                const voteEvent = logEntry.events.find((event) => event.identifier === 'vote');
-
-                // Check if the voteEvent exists and the address matches the desired address
-                const event = new VoteEvent(voteEvent);
-                const topics = event.getTopics();
-                if (voteEvent && topics.voter === userAddress && topics.proposalId === proposalId) {
-                    voteType = toVoteType(topics.eventName);
-                    break; // Optional: break the loop if you only need the first match
-                }
-            }
-        }
+        
         const proposalVoteType = {
             proposalId,
             vote: voteType,
@@ -67,42 +81,61 @@ export class GovernanceComputeService {
         return [];
     }
 
-    private async getVoteLog(
+    private async getVoteEventOnChain (
         eventName: string,
         scAddress: string,
         callerAddress: string,
         proposalId: number,
-    ): Promise<any[]> {
+        logAddress: string,
+    ): Promise<any> {
         const elasticQueryAdapter: ElasticQuery = new ElasticQuery();
-        const encodedProposalId = Buffer.from(decimalToHex(proposalId), 'hex').toString('base64');
-        const encodedCallerAddress = Buffer.from(Address.fromString(callerAddress).hex(), 'hex').toString('base64');
+        const proposalIdHex = decimalToHex(proposalId);
+        const callerAddressHex = Address.newFromBech32(callerAddress).toHex();
+
         elasticQueryAdapter.condition.must = [
-            QueryType.Match('address', scAddress),
-            QueryType.Nested('events', [
-                QueryType.Match('events.address', scAddress),
-                QueryType.Match('events.identifier', eventName),
-            ]),
-            QueryType.Nested('events', [
-                QueryType.Match('events.topics', encodedProposalId),
-            ]),
-            QueryType.Nested('events', [
-                QueryType.Match('events.topics', {
-                    "query": encodedCallerAddress,
-                    "operator": "and"
-                }),
-            ]),
+            QueryType.Match('logAddress', logAddress),
+            QueryType.Match('identifier', eventName),
+            QueryType.Match('topics', proposalIdHex),
         ];
-
-        elasticQueryAdapter.sort = [
-            { name: 'timestamp', order: ElasticSortOrder.ascending },
-        ];
-
+        if(eventName === 'delegateVote') {
+            elasticQueryAdapter.condition.must.push(QueryType.Match('address', scAddress))
+            elasticQueryAdapter.condition.must.push(QueryType.Match('topics', callerAddressHex))
+        } else {
+            elasticQueryAdapter.condition.must.push(QueryType.Match('address', callerAddress))
+        }
 
         const list = await this.elasticService.get(
-            'logs',
+            'events',
             '',
             elasticQueryAdapter,
         );
-        return list;
+
+        return list.filter((event) => event._source.topics[0] === proposalIdHex)[0];
+    }
+
+    private async getVoteEvent (
+        eventName: string,
+        scAddress: string,
+        callerAddress: string,
+        proposalId: number,
+    ): Promise<any> {
+        const elasticQueryAdapter: ElasticQuery = new ElasticQuery();
+        const proposalIdHex = decimalToHex(proposalId);
+        const callerAddressHex = Address.newFromBech32(callerAddress).toHex();
+
+        elasticQueryAdapter.condition.must = [
+            QueryType.Match('address', scAddress),
+            QueryType.Match('identifier', eventName),
+            QueryType.Match('topics', proposalIdHex),
+            QueryType.Match('topics', callerAddressHex),
+        ];
+
+        const list = await this.elasticService.get(
+            'events',
+            '',
+            elasticQueryAdapter,
+        );
+
+        return list.filter((event) => event._source.topics[2] === proposalIdHex)[0];
     }
 }

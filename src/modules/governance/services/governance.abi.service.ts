@@ -11,12 +11,14 @@ import { GovernanceType, toGovernanceProposalStatus, } from '../../../utils/gove
 import { TransactionModel } from '../../../models/transaction.model';
 import { gasConfig, mxConfig } from '../../../config';
 import BigNumber from 'bignumber.js';
-import { BytesValue, U64Value, } from '@multiversx/sdk-core/out/smartcontracts/typesystem';
+import { BytesValue, U64Value } from '@multiversx/sdk-core/out';
 import { GovernanceTokenSnapshotMerkleService } from './governance.token.snapshot.merkle.service';
 import { GovernanceDescriptionService } from './governance.description.service';
 import { GetOrSetCache } from '../../../helpers/decorators/caching.decorator';
 import { CacheTtlInfo } from '../../../services/caching/cache.ttl.info';
 import { decimalToHex } from '../../../utils/token.converters';
+import { ResultsParser } from 'src/utils/results.parser';
+import { PaginationArgs } from '../models/pagination.model';
 
 @Injectable()
 export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
@@ -35,7 +37,7 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
         remoteTtl: CacheTtlInfo.ContractState.remoteTtl,
         localTtl: CacheTtlInfo.ContractState.localTtl,
     })
-    async getAddressShardID(scAddress: string): Promise<number> {
+    async getAddressShardID(scAddress: string): Promise<string> {
         return await this.mxProxy.getAddressShardID(scAddress);
     }
 
@@ -181,7 +183,19 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
             this.type,
         );
         const interaction = contract.methodsExplicit.getProposals();
-        const response = await this.getGenericData(interaction);
+
+        const query = interaction.buildQuery();
+        const queryResponse = await this.mxProxy
+            .getService()
+            .queryContract(query);
+        const endpointDefinition = interaction.getEndpoint();
+        queryResponse.returnData = queryResponse.returnData.filter(data => data.length > 0);
+        
+    
+        const response = new ResultsParser().parseQueryResponse(
+            queryResponse,
+            endpointDefinition,
+        );
 
         return response.firstValue.valueOf().map((proposal: any) => {
             const actions = proposal.actions?.map((action: any) => {
@@ -196,15 +210,15 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
             if (scAddress === 'erd1qqqqqqqqqqqqqpgq8xqp6c0kzwn3f2c5zsxfex6h69s2x9rwhg4smw0gfc') {
                 totalQuorum = '14864643496672232664684799';
             }
+            const proposalId = proposal.proposal_id.toNumber();
             return new GovernanceProposalModel({
                 contractAddress: scAddress,
-                proposalId: proposal.proposal_id.toNumber(),
+                proposalId: proposalId,
                 proposer: proposal.proposer.bech32(),
                 actions,
-                description:
-                    this.governanceDescription.getGovernanceDescription(
-                        proposal.description.toString(),
-                    ),
+                description: this.governanceDescription.getGovernanceDescription(
+                    proposal.description.toString(),
+                ),
                 feePayment: new EsdtTokenPaymentModel(
                     EsdtTokenPayment.fromDecodedAttributes(
                         proposal.fee_payment,
@@ -297,30 +311,30 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
             upPercentage:
                 totalVotesBigNumber > 0
                     ? votes.up_votes
-                          .div(totalVotesBigNumber)
-                          .multipliedBy(100)
-                          .toFixed(2)
+                        .div(totalVotesBigNumber)
+                        .multipliedBy(100)
+                        .toFixed(2)
                     : '0',
             downPercentage:
                 totalVotesBigNumber > 0
                     ? votes.down_votes
-                          .div(totalVotesBigNumber)
-                          .multipliedBy(100)
-                          .toFixed(2)
+                        .div(totalVotesBigNumber)
+                        .multipliedBy(100)
+                        .toFixed(2)
                     : '0',
             abstainPercentage:
                 totalVotesBigNumber > 0
                     ? votes.abstain_votes
-                          .div(totalVotesBigNumber)
-                          .multipliedBy(100)
-                          .toFixed(2)
+                        .div(totalVotesBigNumber)
+                        .multipliedBy(100)
+                        .toFixed(2)
                     : '0',
             downVetoPercentage:
                 totalVotesBigNumber > 0
                     ? votes.down_veto_votes
-                          .div(totalVotesBigNumber)
-                          .multipliedBy(100)
-                          .toFixed(2)
+                        .div(totalVotesBigNumber)
+                        .multipliedBy(100)
+                        .toFixed(2)
                     : '0',
             quorum: votes.quorum.toFixed(),
         });
@@ -408,7 +422,7 @@ export class GovernanceTokenSnapshotAbiService extends GenericAbiService {
                 new U64Value(new BigNumber(addressLeaf.balance)),
                 new BytesValue(governanceMerkle.getProofBuffer(addressLeaf)),
             ])
-            .withGasLimit(gasConfig.governance.vote)
+            .withGasLimit(gasConfig.governance.vote.tokenSnapshot)
             .withChainID(mxConfig.chainID)
             .buildTransaction()
             .toPlainObject();
@@ -503,7 +517,7 @@ export class GovernanceEnergyAbiService extends GovernanceTokenSnapshotAbiServic
                 new U64Value(new BigNumber(args.proposalId)),
                 new U64Value(new BigNumber(args.vote)),
             ])
-            .withGasLimit(gasConfig.governance.vote)
+            .withGasLimit(gasConfig.governance.vote.energy)
             .withChainID(mxConfig.chainID)
             .buildTransaction()
             .toPlainObject();
