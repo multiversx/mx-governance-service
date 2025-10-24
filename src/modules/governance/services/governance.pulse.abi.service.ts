@@ -1,9 +1,7 @@
-import { Abi, AbiRegistry, Address, ApiNetworkProvider, ArrayVec, ArrayVecType, BigUIntValue, BytesValue, DevnetEntrypoint, GovernanceController, GovernanceTransactionsFactory, MainnetEntrypoint, NetworkEntrypoint, SmartContractController, SmartContractQueryInput, SmartContractTransactionsFactory, StringType, StringValue, TestnetEntrypoint, TransactionsFactoryConfig, U32Value } from "@multiversx/sdk-core/out";
+import { Abi, Address, ApiNetworkProvider, ArrayVec, ArrayVecType, BigUIntValue, BytesValue, SmartContractController, SmartContractQueryInput, SmartContractTransactionsFactory, StringType, StringValue, TransactionsFactoryConfig, U32Value } from "@multiversx/sdk-core/out";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ApiConfigService } from "src/helpers/api.config.service";
-import { ContextGetterService } from "src/services/context/context.getter.service";
 import { GovernanceType } from "src/utils/governance";
-import { GovernanceComputeService } from "./governance.compute.service";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { gasConfig, mxConfig } from "src/config";
 import { EndPollArgs, NewIdeaArgs, NewPollArgs, PollInfoRaw, IdeaInfoRaw, VotePollArgs, VoteUpIdeaArgs } from '../models/pulse.poll.model';
@@ -21,20 +19,18 @@ export class GovernancePulseAbiService  {
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     ) {
         const abi = Abi.create(pulseScAbi);
-        const entrypoint = this.getEntrypointByChainId(mxConfig.chainID) 
-        this.controller = entrypoint.createSmartContractController(abi);
-        this.transactionFactory = entrypoint.createSmartContractTransactionsFactory();
-    }
-
-    private getEntrypointByChainId(chainID: string) {
-        switch(chainID) {
-            case "T":
-                return new TestnetEntrypoint(this.apiConfigService.getApiUrl());
-            case "D":
-                return new DevnetEntrypoint(this.apiConfigService.getApiUrl());
-            case "1":
-                return new MainnetEntrypoint(this.apiConfigService.getApiUrl());
-        }
+        this.controller = new SmartContractController(
+            {
+                chainID: mxConfig.chainID,
+                networkProvider: new ApiNetworkProvider(apiConfigService.getApiUrl(), {clientName: 'pulse-service'}),
+                abi,
+            }
+        )
+        this.transactionFactory = new SmartContractTransactionsFactory({
+            config: new TransactionsFactoryConfig({
+                chainID: mxConfig.chainID
+            }),
+        })
     }
 
 

@@ -20,7 +20,7 @@ export class PulseCacheWarmerService {
     ) {}
 
     // TODO: adjust if load is too high
-    @Cron('*/6 * * * * *')
+    @Cron('*/100 * * * * *')
     @Lock({ name: 'warmPulsePolls', verbose: true })
     async warmPulsePolls(): Promise<void> {
         const scAddresses = governanceContractsAddresses([
@@ -30,7 +30,7 @@ export class PulseCacheWarmerService {
         await this.refreshPollsInfo(scAddresses, totalPolls);
     }
 
-    @Cron('*/6 * * * * *')
+    @Cron('*/100 * * * * *')
     @Lock({ name: 'warmPulseIdeas', verbose: true })
     async warmPulseIdeas(): Promise<void> {
         const scAddresses = governanceContractsAddresses([
