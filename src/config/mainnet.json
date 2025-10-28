@@ -75,7 +75,7 @@
             "lsTokenId": "",
             "voteFunctionName": "delegate_vote",
             "viewUserVotingPowerName": "",
-            "isEnabled": false
+            "isEnabled": true
         },
         {
             "providerName": "Salsa",
