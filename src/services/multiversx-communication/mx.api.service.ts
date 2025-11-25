@@ -109,13 +109,13 @@ export class MXApiService {
         return new Stats(stats);
     }
 
-    async getFirstBlockTimestampByEpochAndShard(epoch: number, shardId: string): Promise<number> {
-        const { timestamp } = (await this.doGetGeneric<[{ timestamp: number}]>(
-            this.getFirstBlockTimestampByEpochAndShard.name,
-            `blocks?size=1&epoch=${epoch}&shard=${shardId}&fields=timestamp&order=asc`,
+    async getFirstBlockDataByEpochAndShard(epoch: number, shardId: string) {
+        const data = (await this.doGetGeneric<[{ timestamp: number}]>(
+            this.getFirstBlockDataByEpochAndShard.name,
+            `blocks?size=1&epoch=${epoch}&shard=${shardId}&order=asc`,
         ))[0];
 
-        return timestamp;
+        return data;
     }
 
     async getToken(tokenID: string): Promise<EsdtToken> {

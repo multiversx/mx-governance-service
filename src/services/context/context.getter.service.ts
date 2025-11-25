@@ -36,11 +36,11 @@ export class ContextGetterService extends GenericGetterService {
         );
     }
 
-    async getFirstBlockTimestampByEpochAndShardRaw(epoch: number, shardID: string): Promise<number> {
-        const cacheKey = this.getCacheKey(`timestamp:${shardID}:${epoch}`);
+    async getFirstBlockDataByEpochAndShard(epoch: number, shardID: string){
+        const cacheKey = this.getCacheKey(`first-block-data:${shardID}:${epoch}`);
         return await this.getData(
             cacheKey,
-            async () => await this.apiService.getFirstBlockTimestampByEpochAndShard(epoch, shardID),
+            async () => await this.apiService.getFirstBlockDataByEpochAndShard(epoch, shardID),
             Constants.oneMinute(),
         );
     }
@@ -49,10 +49,11 @@ export class ContextGetterService extends GenericGetterService {
         const {epoch: currentEpoch} = await this.getStats();
 
         if(targetEpoch <= currentEpoch) {
-            return await this.getFirstBlockTimestampByEpochAndShardRaw(targetEpoch, shardID);
+            const { timestamp } =  await this.getFirstBlockDataByEpochAndShard(targetEpoch, shardID);
+            return timestamp;
         }
 
-        const currentEpochStartBlockTimestamp = await this.getFirstBlockTimestampByEpochAndShardRaw(currentEpoch, shardID);
+        const {timestamp :currentEpochStartBlockTimestamp} = await this.getFirstBlockDataByEpochAndShard(currentEpoch, shardID);
         const epochDiff = targetEpoch - currentEpoch;
 
         const epochTime = mxConfig.chainID === '1' ? Constants.oneDay() : Constants.oneHour() * 4;
@@ -62,17 +63,21 @@ export class ContextGetterService extends GenericGetterService {
         return targetEpochTime;
     }
 
-    async getStartEpochRound(epoch: number) {
-        const cacheKey = this.getCacheKey(`start-epoch:${epoch}:round`);
+    async getFirstBlockNonceByEpochAndShard(targetEpoch: number, shardID: string): Promise<number> {
         const stats = await this.getStats();
-        const epochDiff = epoch - stats.epoch;
-        // TODO: for supernova roundsPerEpoch will be different depending on activation epoch
-        const targetRound = epochDiff > 0 ? stats.blocks + (stats.roundsPerEpoch * epochDiff - stats.roundsPassed) : epoch * stats.roundsPerEpoch;
-        return await this.getData(
-            cacheKey,
-            () => targetRound,
-            Constants.oneMinute(),
-        );
+        const currentEpoch = stats.epoch;
+
+        if(targetEpoch <= currentEpoch) {
+            const { nonce } =  await this.getFirstBlockDataByEpochAndShard(targetEpoch, shardID);
+            return nonce;
+        }
+
+        const {nonce :currentEpochStartBlockNonce} = await this.getFirstBlockDataByEpochAndShard(currentEpoch, shardID);
+        const epochDiff = targetEpoch - currentEpoch;
+
+        const targetEpochNonce = currentEpochStartBlockNonce + (epochDiff * stats.roundsPerEpoch);
+
+        return targetEpochNonce;
     }
 
     async getRoundsLeftUntilEpoch(epoch: number) {

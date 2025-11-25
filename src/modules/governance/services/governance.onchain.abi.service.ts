@@ -465,10 +465,6 @@ W
         config: GovernanceConfigModel,
             ): Promise<GovernanceProposalModel> {
             const feeTokenId = await this.feeTokenId(scAddress);
-            const [startEpochRound, roundsLeftUntilEpoch] = await Promise.all([ 
-                this.contextGetter.getStartEpochRound(proposalInfo.startVoteEpoch),
-                this.contextGetter.getRoundsLeftUntilEpoch(proposalInfo.startVoteEpoch)
-                ]);
             const {roundsPerEpoch} = await this.contextGetter.getStats();
             const voteTimeInEpochs = (proposalInfo.endVoteEpoch + 1) - proposalInfo.startVoteEpoch;
             const votingPeriodInRounds = voteTimeInEpochs * roundsPerEpoch;
@@ -476,6 +472,10 @@ W
             const description = await this.githubService.getDescription(proposalInfo.commitHash);
             const status = await this.proposalStatus(scAddress,proposalInfo.nonce);
             const shardId = await this.getAddressShardID(scAddress);
+            const [startEpochRound, roundsLeftUntilEpoch] = await Promise.all([ 
+                this.contextGetter.getFirstBlockNonceByEpochAndShard(proposalInfo.startVoteEpoch, shardId),
+                this.contextGetter.getRoundsLeftUntilEpoch(proposalInfo.endVoteEpoch + 1)
+                ]);
             const startVoteTimestamp = await this.contextGetter.getFirstBlockTimestampByEpochAndShard(proposalInfo.startVoteEpoch, shardId);
             const endVoteTimestamp = await this.contextGetter.getFirstBlockTimestampByEpochAndShard(proposalInfo.endVoteEpoch + 1, shardId);
             const totalQuorum = await this.getTotalQuorum();
@@ -492,7 +492,7 @@ W
                                 tokenNonce: 0,
                                 amount: proposalInfo.cost,
                             }),
-                proposalStartBlock: startEpochRound + 10, // TODO: check
+                proposalStartBlock: startEpochRound, // TODO: check
                 votingPeriodInBlocks: votingPeriodInRounds,
                 votingDelayInBlocks: roundsLeftUntilEpoch > 0 ? roundsLeftUntilEpoch + 10 : 0, // TODO: check
                 minimumQuorumPercentage: new BigNumber(config.minQuorum).div(100).toFixed(2),
