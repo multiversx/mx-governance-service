@@ -26,7 +26,7 @@ export class CacheWarmerService {
     @Cron('*/6 * * * * *')
     async cacheCurrentEpoch(): Promise<void> {
         const stats = await this.apiService.getStats();
-        const ttl = (stats.roundsPerEpoch - stats.roundsPassed) * 6;
+        const ttl = Math.ceil((stats.roundsPerEpoch - stats.roundsPassed) * stats.refreshRate / 1000);
         const cacheKey = generateCacheKeyFromParams('context', 'currentEpoch');
         await this.cachingService.set(cacheKey, stats.epoch, ttl);
         await this.deleteCacheKeys([cacheKey]);
