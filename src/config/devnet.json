@@ -173,7 +173,7 @@
             ]
         },
         {
-            "onChainId": 124,
+            "onChainId": 131,
             "faq": [
                 {
                 "question": "What is voting power?",
@@ -208,7 +208,7 @@
             ]
         },
         {
-            "onChainId": 131,
+            "onChainId": 132,
             "faq": [
                 {
                     "question": "If the proposal passes, what is the implementation schedule?",
