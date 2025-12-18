@@ -143,6 +143,25 @@
                     "name": "Binance Staking"
                 } 
             ]
+        },
+        {
+            "onChainId": 2,
+            "faq": [
+               {
+                    "question": "tbd",
+                    "answer": "tbd"
+                },
+                {
+                    "question": "tbd",
+                    "answer": "tbd"
+                }
+            ],
+            "excludedAddresses": [
+                {
+                    "address": "erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p",
+                    "name": "Binance Staking"
+                } 
+            ]
         }
     ]
 }
