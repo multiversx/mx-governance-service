@@ -300,6 +300,65 @@
                     "name": "Test Address"
                 }
             ]
+        },
+        {
+            "onChainId": 136,
+            "faq": [
+                {
+                    "question": "What does Supernova change overall?",
+                    "answer": "Supernova is a performance and responsiveness upgrade that accelerates block production, changes how consensus relates to execution, shortens time-to-finality, and introduces dynamic gas-based capacity management to sustain throughput."
+                },
+                {
+                    "question": "How much faster are block times with Supernova?",
+                    "answer": "Supernova reduces the block slot duration *from 6 seconds to 600 milliseconds*, which is a *10x* reduction in block time."
+                },
+                {
+                    "question": "What does “decoupled consensus” mean in Supernova?",
+                    "answer": " It means consensus no longer waits for transaction execution. Blocks are finalized based on the proposal and validity rules, while execution occurs asynchronously in the background."
+                },
+                {
+                    "question": "What is the expected finality time after Supernova?",
+                    "answer": "Supernova targets sub-second finality, measured from proposal dissemination to irreversibility, aiming for approximately 100ms to 250ms."
+                },
+                {
+                    "question": "How does reactive gas management work and why is it important?",
+                    "answer": "Supernova introduces dynamic block capacity management using “estimated gas” so the network can avoid stalls while still maximizing throughput by adapting capacity to current conditions."
+                },
+                {
+                    "question": "When will Supernova be available for testing on Testnet?",
+                    "answer": "We will announce a Testnet date once the Testnet release candidate passes internal performance and stability gates (e.g., sustained 600 ms slots under load, finality targets within 100–250 ms, and no critical consensus/execution regressions). Until then, the timing should be treated as TBD pending release-candidate validation."
+                },
+                {
+                    "question": "When will “Battle of Nodes” start?",
+                    "answer": "“Battle of Nodes” should start before the Testnet. Typically we will upload onboarding docs quite before the Battle of Nodes. Expect an announced start date during *January 2026*."
+                },
+                {
+                    "question": "What’s the readiness status of the security audit, and what needs to be true before Mainnet?",
+                    "answer": "Audit readiness is typically defined by: (a) the scope is frozen for the components changing (consensus decoupling logic, execution), (b) the auditors have a tagged release candidate, and (c) all critical/high findings are remediated and verified (with any remaining medium/low items documented, risk-accepted, or scheduled). Mainnet should not be targeted until these conditions are met and communicated. We expect to have the final branch ready during the same time with Battle of Nodes readiness."
+                },
+                {
+                    "question": "What do validators/node operators need to do to prepare?",
+                    "answer": "Operators should expect: mandatory software upgrades, updated configs. The most practical guidance is: follow the official upgrade notes when published, validate on Testnet early, and monitor execution lag/CPU/memory/network headroom during stress periods (especially during the battle of nodes)"
+                },
+                {
+                    "question": "Where will progress updates, schedules, and known issues be communicated?",
+                    "answer": "The standard approach is a single source of truth: release notes + a public rollout tracker (X official account, Telegram Official channels, Discord MultiversX Builders Server,  GitHub, and Agora forum announcements), plus a live channel for incident/patch updates during Testnet."
+                },
+                {
+                    "question": "What are the upgrade requirements for validators/node operators (minimum hardware, software versions, configuration changes), and when will guidance be published?",
+                    "answer": "Requirements should be published alongside (or just ahead of) the first public Testnet release candidate, and should cover: supported client versions, any mandatory protocol flags, config defaults. Until the Battle Of Nodes testing scenarios, operators should assume only a mandatory client upgrade and it is not the case to plan for higher CPU/network sensitivity yet."
+                },
+                {
+                    "question": "Will there be a phased rollout (Testnet → Devnet → Mainnet), and what are the target dates and go/no-go gates for each stage?",
+                    "answer": "A phased rollout is the expected approach, consistent with prior releases. Testnet will be used for rapid iteration and benchmarking, and state resets should be expected. Devnet will focus on builder onboarding, functional testing, and stability hardening. Mainnet will follow only once the defined go/no-go criteria and stability thresholds are met. Official dates have not been published yet and should be treated as TBD, with a current target of January 2026."
+                }
+            ],
+            "excludedAddresses": [
+                {
+                    "address": "erd1hpu42hjnx6hm8fjv48cff2qmmqwjh7w3wzf00v2m538w5x2jcnpqhgsggr",
+                    "name": "Test Address"
+                }
+            ]
         }
     ]
 }
