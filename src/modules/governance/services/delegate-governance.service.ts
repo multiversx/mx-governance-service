@@ -81,7 +81,7 @@ export class DelegateGovernanceService {
         }
 
         const isFirstVoteCasted = await this.cacheService.get(CacheTtlInfo.IsFirstVoteCasted(voteScAddress, proposalId).cacheKey);
-        console.log(isFirstVoteCasted);
+        
         if(isFirstVoteCasted == null) {
             const response = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/transactions?receiver=${voteScAddress}&function=${provider.voteFunctionName}&status=success&order=desc&size=100`);
             const votesOnContract = response.data;
@@ -89,9 +89,9 @@ export class DelegateGovernanceService {
             for(const voteOnContract of votesOnContract) {
                 const base64Data = voteOnContract.data;
                 const txData = Buffer.from(base64Data, 'base64').toString();
-                console.log(txData)
+                
                 const proposalIdFromTx = parseInt(txData.split('@')[1], 16);
-                console.log(proposalIdFromTx, proposalId);
+                
                 if(proposalIdFromTx === proposalId) {
                     await this.cacheService.set(
                         CacheTtlInfo.IsFirstVoteCasted(voteScAddress, proposalId).cacheKey,
@@ -103,7 +103,7 @@ export class DelegateGovernanceService {
                 }
             }
             if(foundTx === false) {
-                contractExecuteInput.gasLimit = BigInt(200_000_000);
+                contractExecuteInput.gasLimit = BigInt(500_000_000);
             }
         }
 
