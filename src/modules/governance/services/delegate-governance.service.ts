@@ -91,9 +91,9 @@ export class DelegateGovernanceService {
                 const base64Data = tx.data;
                 const txData = Buffer.from(base64Data, 'base64').toString();
                 console.log(txData)
-                const proposalIdFromTx =  Buffer.from(txData.split('@')[1], 'hex').toString();
-                console.log(proposalIdFromTx, proposalId.toString());
-                if(proposalIdFromTx === proposalId.toString()) {
+                const proposalIdFromTx = parseInt(txData.split('@')[1], 16);
+                console.log(proposalIdFromTx, proposalId);
+                if(proposalIdFromTx === proposalId) {
                     await this.cacheService.set(
                         CacheTtlInfo.IsFirstVoteCasted(voteScAddress, proposalId).cacheKey,
                         true,
