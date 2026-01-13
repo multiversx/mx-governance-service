@@ -10,6 +10,8 @@ import { GetOrSetCache } from "src/helpers/decorators/caching.decorator";
 import { CacheTtlInfo } from "src/services/caching/cache.ttl.info";
 import { GovernanceOnchainProvidersSnapshotsMerkleService } from "./governance.onchain.providers.snapshots.merkle.service";
 import { toVoteType } from "src/utils/governance";
+import { ApiService } from "@multiversx/sdk-nestjs-http";
+import { CacheService } from "@multiversx/sdk-nestjs-cache";
 
 @Injectable()
 export class DelegateGovernanceService {
@@ -20,6 +22,8 @@ export class DelegateGovernanceService {
         private readonly apiConfigService: ApiConfigService,
         private readonly tokenService: TokenService,
         private readonly providersMerkleTreeService: GovernanceOnchainProvidersSnapshotsMerkleService,
+        private readonly apiService: ApiService,
+        private readonly cacheService: CacheService,
     ) {
        this.smartContractController = new SmartContractController(
             {
@@ -74,6 +78,28 @@ export class DelegateGovernanceService {
         } else {
             contractExecuteInput.gasLimit = BigInt(gasConfig.governance.vote.onChainLegacyDelegation);
             contractExecuteInput.arguments.push(new StringValue(vote));
+        }
+
+        const isFirstTimeVoting = await this.cacheService.get(CacheTtlInfo.FirstTimeVoting(voteScAddress, proposalId).cacheKey);
+        if(isFirstTimeVoting == null) {
+            const {data: votesOnContract} = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/transactions?receiver=${voteScAddress}&function=${provider.voteFunctionName}&status=success&order=desc&size=1000`);
+            let foundTx = false;
+            for(let idx = votesOnContract.length -1; idx >=0 ; idx--) {
+                const tx = votesOnContract[idx];
+                const proposalIdFromTx =  Buffer.from(tx.data.split('@')[1], 'hex').toString();
+                if(proposalIdFromTx === proposalId.toString()) {
+                    await this.cacheService.set(
+                        CacheTtlInfo.FirstTimeVoting(voteScAddress, proposalId).cacheKey,
+                        true,
+                        CacheTtlInfo.FirstTimeVoting(voteScAddress, proposalId).remoteTtl
+                    );
+                    foundTx = true;
+                    break;
+                }
+            }
+            if(foundTx === false) {
+                contractExecuteInput.gasLimit = BigInt(200_000_000);
+            }
         }
 
         const delegateVoteTx = this.smartContractTransactionFactory.createTransactionForExecute(
