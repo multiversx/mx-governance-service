@@ -82,7 +82,8 @@ export class DelegateGovernanceService {
 
         const isFirstVoteCasted = await this.cacheService.get(CacheTtlInfo.IsFirstVoteCasted(voteScAddress, proposalId).cacheKey);
         if(isFirstVoteCasted == null) {
-            const {data: votesOnContract} = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/transactions?receiver=${voteScAddress}&function=${provider.voteFunctionName}&status=success&order=desc&size=100`);
+            const response = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/transactions?receiver=${voteScAddress}&function=${provider.voteFunctionName}&status=success&order=desc&size=100`);
+            const votesOnContract = response.data;
             let foundTx = false;
             for(let idx = votesOnContract.length -1; idx >=0 ; idx--) {
                 const tx = votesOnContract[idx];
