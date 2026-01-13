@@ -86,9 +86,8 @@ export class DelegateGovernanceService {
             const response = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/transactions?receiver=${voteScAddress}&function=${provider.voteFunctionName}&status=success&order=desc&size=100`);
             const votesOnContract = response.data;
             let foundTx = false;
-            for(let idx = votesOnContract.length -1; idx >=0 ; idx--) {
-                const tx = votesOnContract[idx];
-                const base64Data = tx.data;
+            for(const voteOnContract of votesOnContract) {
+                const base64Data = voteOnContract.data;
                 const txData = Buffer.from(base64Data, 'base64').toString();
                 console.log(txData)
                 const proposalIdFromTx = parseInt(txData.split('@')[1], 16);
