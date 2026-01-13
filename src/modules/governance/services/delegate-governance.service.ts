@@ -80,18 +80,18 @@ export class DelegateGovernanceService {
             contractExecuteInput.arguments.push(new StringValue(vote));
         }
 
-        const isFirstTimeVoting = await this.cacheService.get(CacheTtlInfo.FirstTimeVoting(voteScAddress, proposalId).cacheKey);
-        if(isFirstTimeVoting == null) {
-            const {data: votesOnContract} = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/transactions?receiver=${voteScAddress}&function=${provider.voteFunctionName}&status=success&order=desc&size=1000`);
+        const isFirstVoteCasted = await this.cacheService.get(CacheTtlInfo.IsFirstVoteCasted(voteScAddress, proposalId).cacheKey);
+        if(isFirstVoteCasted == null) {
+            const {data: votesOnContract} = await this.apiService.get(`${this.apiConfigService.getApiUrl()}/transactions?receiver=${voteScAddress}&function=${provider.voteFunctionName}&status=success&order=desc&size=100`);
             let foundTx = false;
             for(let idx = votesOnContract.length -1; idx >=0 ; idx--) {
                 const tx = votesOnContract[idx];
                 const proposalIdFromTx =  Buffer.from(tx.data.split('@')[1], 'hex').toString();
                 if(proposalIdFromTx === proposalId.toString()) {
                     await this.cacheService.set(
-                        CacheTtlInfo.FirstTimeVoting(voteScAddress, proposalId).cacheKey,
+                        CacheTtlInfo.IsFirstVoteCasted(voteScAddress, proposalId).cacheKey,
                         true,
-                        CacheTtlInfo.FirstTimeVoting(voteScAddress, proposalId).remoteTtl
+                        CacheTtlInfo.IsFirstVoteCasted(voteScAddress, proposalId).remoteTtl
                     );
                     foundTx = true;
                     break;

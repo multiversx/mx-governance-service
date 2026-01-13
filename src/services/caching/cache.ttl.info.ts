@@ -64,7 +64,7 @@ export class CacheTtlInfo {
         Constants.oneMinute() * 3, 
     );
 
-    static FirstTimeVoting(voteScAddress: string, proposalId: number): CacheTtlInfo {
+    static IsFirstVoteCasted(voteScAddress: string, proposalId: number): CacheTtlInfo {
         return new CacheTtlInfo(
             Constants.oneDay(),
             Constants.oneDay(),
