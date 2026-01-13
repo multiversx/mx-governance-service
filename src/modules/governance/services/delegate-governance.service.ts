@@ -87,7 +87,9 @@ export class DelegateGovernanceService {
             let foundTx = false;
             for(let idx = votesOnContract.length -1; idx >=0 ; idx--) {
                 const tx = votesOnContract[idx];
-                const proposalIdFromTx =  Buffer.from(tx.data.split('@')[1], 'hex').toString();
+                const base64Data = tx.data;
+                const txData = Buffer.from(base64Data, 'base64').toString();
+                const proposalIdFromTx =  Buffer.from(txData.split('@')[1], 'hex').toString();
                 if(proposalIdFromTx === proposalId.toString()) {
                     await this.cacheService.set(
                         CacheTtlInfo.IsFirstVoteCasted(voteScAddress, proposalId).cacheKey,
