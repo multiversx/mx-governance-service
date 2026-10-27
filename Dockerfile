@@ -1,22 +1,28 @@
-FROM node:24.22.1-alpine as build
+FROM node:24.22.1-alpine AS build
+
 WORKDIR /app
+RUN chown -R node:node /app
 
-ENV PATH /app/node_modules/.bin:$PATH
-
-COPY package.json ./
-COPY package-lock.json ./
-
-ENV PYTHONUNBUFFERED=1
-RUN apk update && apk add --update --no-cache alpine-sdk libusb-dev musl-dev linux-headers eudev-libs eudev-dev python3 py3-pip py3-setuptools && ln -sf python3 /usr/bin/python
+USER node
+COPY --chown=node . /app
 
 RUN npm ci
 
-COPY . ./
 RUN npm run build
 
 FROM node:24.22.1-alpine
+
 WORKDIR /app
-COPY --from=build /app /app
+RUN chown -R node:node /app
+
+COPY --from=build --chown=node /app/*.json /app/
+COPY --from=build --chown=node /app/dist /app/dist
+COPY --from=build --chown=node /app/node_modules /app/node_modules
+COPY --from=build --chown=node /app/src/config /app/src/config
+COPY --from=build --chown=node /app/src/abis /app/src/abis
+COPY --from=build --chown=node /app/src/snapshots /app/src/snapshots
+
+USER node
 
 EXPOSE 3005
-CMD [ "npm", "run", "start:testnet" ]
+CMD ["node", "dist/main.js"]
